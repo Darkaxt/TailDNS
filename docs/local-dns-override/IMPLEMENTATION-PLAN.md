@@ -3,7 +3,7 @@
 Authority: [SPECIFICATION.md](SPECIFICATION.md), version 1.5.
 Assessment: [EVALUATION.md](EVALUATION.md).
 
-Authorization: implementation, GitHub signing and final release are already authorized. Temporary Thor testing, Guard suspension/VPN switching with restoration, and saving the supplied Android provider are explicitly authorized. Upstream auto-update and current-task monitoring are authorized only after validation. Stage 1 is BLOCKED on B3's unavailable controlled-network variants; Stage 2 is BLOCKED on B4's prohibited device-input action; Stages 3 and 4 are COMPLETE; Stage 5 is ACTIVE; Stages 6–7 are NOT STARTED. Under specification 1.5, B3 and B4 remain honest validation gaps but do not block continued implementation, deployment or release.
+Authorization: implementation, GitHub signing and final release are already authorized. Temporary Thor testing, Guard suspension/VPN switching with restoration, and saving the supplied Android provider are explicitly authorized. Upstream auto-update and current-task monitoring are authorized only after validation. Stage 1 is BLOCKED on B3's unavailable controlled-network variants; Stage 2 is BLOCKED on B4's prohibited device-input action; Stages 3–5 are COMPLETE; Stage 6 is ACTIVE; Stage 7 is NOT STARTED. Under specification 1.5, B3 and B4 remain honest validation gaps but do not block continued implementation, deployment or release.
 
 There may be only one **ACTIVE** stage. Other allowed statuses are **NOT STARTED**, **BLOCKED**, and **COMPLETE**. Park an actual blocked stage with the exact requirement, cause, ownership, resolving condition and dependent work before activating another. Close a stage only with fresh evidence for every assigned criterion.
 
@@ -93,7 +93,7 @@ Satisfied: the independently branded `taildns` CLI and compatible shared-core da
 
 ## Stage 5 — Integrated reconciliation and verified handoff
 
-Status: **ACTIVE**. Stages 3 and 4 are complete; Stages 1 and 2 remain parked only on the specification-1.5 disclosed validation gaps.
+Status: **COMPLETE**. Stages 1 and 2 remain parked only on the specification-1.5 disclosed validation gaps. Stage 6 is now the sole active stage.
 
 Acceptance criteria:
 
@@ -102,11 +102,11 @@ Acceptance criteria:
 - Run affected full suites and the required final real-device matrix; inspect the results, resolve all required blockers/deferrals, and verify restoration.
 - Commit the completed verified feature. The user has authorized the release, but publication occurs only in Stage 6 after this validation gate.
 
-Satisfied: none. Remaining: all criteria above. Blockers: none recorded. Tracked deferrals: none.
+Satisfied: validation run [35395256020](https://github.com/Darkaxt/tailscale-android/actions/runs/35395256020) built and tested Android `186daa5a70644ea0d4f0216c25cdd28bc6fad070` with pinned core `ebe4cb48e6f37f54f469346d4a21773d2b5d1db7`, then signed it in an isolated job. Independent verification matched the workflow checksum, fork package, version, ABI set and pinned certificate. The in-place Thor update preserved login and preferences. With the Guard stopped, exact-candidate checks passed automatic invalid-to-valid propagation, no-default fallback, MagicDNS preservation, resolver-health warning/recovery, provider HTTPS packet evidence, exit-node on/off, Wi-Fi loss/return, explicit disconnect/observer teardown and an absent-process system Always-on start with foreground protection. The official Always-on VPN, Guard, Automatic Private DNS and saved provider were verified restored. [FINAL-RECONCILIATION.md](FINAL-RECONCILIATION.md) maps every R01–R14 requirement to evidence and records the specification-1.5 gaps without claiming they were tested. R15's test-install identity is reconciled; final release delivery remains in Stage 6. Remaining: none. Blockers: none. Tracked deferrals: none.
 
 ## Stage 6 — GitHub signing and public release
 
-Status: **NOT STARTED**. Depends on Stage 5.
+Status: **ACTIVE**. Stage 5 is complete.
 
 Acceptance: complete R15's trusted GitHub signing/release workflow, publish the tested version, independently verify downloaded artifacts and signer/package/version/provenance, and verify update compatibility on an authorized test device. No incomplete stage can be concealed by a release.
 

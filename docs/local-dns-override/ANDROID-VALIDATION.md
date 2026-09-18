@@ -216,6 +216,50 @@ the original Guard process was resumed, Automatic Private DNS and the saved
 provider were preserved, and the official VPN was verified active. A temporary
 fork battery exemption remained removed. The Samsung tablet remained untouched.
 
+## Final integrated candidate evidence — 2026-09-18
+
+Run [35395256020](https://github.com/Darkaxt/tailscale-android/actions/runs/35395256020)
+passed clean exact-source build, native/Android tests, lint and isolated signing
+for Android `186daa5a70644ea0d4f0216c25cdd28bc6fad070` and core
+`ebe4cb48e6f37f54f469346d4a21773d2b5d1db7`. Independent verification found
+package `io.github.darkaxt.taildns`, code 100,
+`1.103.262-tebe4cb48e-g186daa5a7`, target SDK 36, four ABIs, the pinned signer
+and SHA-256
+`d84fe209a28d4906d2e3b396e8ff8b52ea9fc1265a6355da0a65df0b2b540dc5`.
+The in-place Thor update preserved login and resolver preferences.
+
+The exact Guard watchdog was stopped and verified absent from execution. One
+cold connect from an absent process created one foreground VPN service. Public
+HTTPS resolution, direct-IP traffic, a locally resolved MagicDNS peer and all
+three Android-setting observers passed. Changing the saved Android hostname
+with the app UI closed to a syntactically valid unsupported value made fresh
+public names fail closed while MagicDNS stayed locally resolvable. The daemon
+raised `dns-forward-failing`; restoring the saved provider recovered without a
+reconnect or process change and cleared the warning. A bounded capture saw a
+new TLS connection to Control D's maintained `76.76.2.22` address; the private
+profile path was not logged or published.
+
+Selecting and clearing an available exit node retained public DNS and MagicDNS
+in the same process. Two Wi-Fi loss/return cycles kept MagicDNS locally
+resolvable offline and restored public and MagicDNS resolution on the real
+network transition. No `injectToHost` EIO, fatal packet-pump or competing
+resource error appeared. A direct follow-enabled disconnect removed all three
+observers.
+
+From an absent process, Android's real Always-on service entry created an
+operational tunnel with `startForegroundCount=1`, foreground state and process
+state 4. Public DNS, MagicDNS and all observers passed; ordinary `am kill`
+preserved the foreground PID. This verifies ordinary Android process-protection
+and system re-entry, not resurrection after an external root `SIGKILL`.
+
+Restoration disabled the fork, returned Always-on ownership to official
+`com.tailscale.ipn` with lockdown off, resumed the original Guard watchdog,
+removed the fork observers, retained Automatic Private DNS and the saved
+provider, and passed public HTTPS resolution. The Samsung tablet was untouched.
+The unavailable cellular/IPv6-only/dual-stack/captive-portal variants and the
+prohibited keyboard-Done automation remain disclosed specification-1.5 gaps;
+they are not represented as passing tests.
+
 ## Automatic-follow candidate procedure
 
 With the same entry/restoration controls, enable the local resolver and follow
