@@ -4,12 +4,12 @@
 package com.tailscale.ipn
 
 import com.tailscale.ipn.ui.model.Ipn
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class StartVPNWorkerTest {
