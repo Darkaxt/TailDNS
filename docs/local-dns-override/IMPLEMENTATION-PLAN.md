@@ -3,13 +3,13 @@
 Authority: [SPECIFICATION.md](SPECIFICATION.md), version 1.2.
 Assessment: [EVALUATION.md](EVALUATION.md).
 
-Authorization: implementation, GitHub signing and final release are already authorized. Upstream auto-update and current-task monitoring are authorized only after validation. Stage 1 is ACTIVE; Stages 2–7 are NOT STARTED. No implementation stage is complete. Evidence gates remain required work, not passing results.
+Authorization: implementation, GitHub signing and final release are already authorized. Upstream auto-update and current-task monitoring are authorized only after validation. Stage 1 is BLOCKED pending temporary live-test authority; Stages 2–7 are NOT STARTED. No implementation stage is complete. Evidence gates remain required work, not passing results.
 
 There may be only one **ACTIVE** stage. Other allowed statuses are **NOT STARTED**, **BLOCKED**, and **COMPLETE**. Park an actual blocked stage with the exact requirement, cause, ownership, resolving condition and dependent work before activating another. Close a stage only with fresh evidence for every assigned criterion.
 
 ## Stage 1 — Real Android manual-resolver vertical slice
 
-Status: **ACTIVE**.
+Status: **BLOCKED**.
 
 Scope: create the necessary shared-core fork when implementation is authorized; introduce the minimal local preference and composition path, pin that revision, and connect the Android custom editor/status to the actual engine. Start with a manually entered Control D URL. Do not build Windows infrastructure before this real slice works.
 
@@ -23,9 +23,13 @@ Acceptance criteria:
 - R03 manual-setup subset: Default/Automatic instructions and conflict/uncertainty reporting exist without privileged access or system writes.
 - R15 test-install subset: independent package identity and stable signing provisioned before real-device fork installation; no public feature release at this stage.
 
-Satisfied: none. Remaining: all criteria above. Blockers: none recorded. Tracked deferrals: none. Android automatic-follow behavior belongs to Stage 2; native Guard-obsolescence work to Stage 3; Windows checks to Stage 4. If a native reliability defect prevents this stage's real workflow, record and resolve that dependency rather than claiming the workflow passes.
+Satisfied: R15 test-install identity and downloaded candidate verification. Remaining: all real Android workflow/routing/lifecycle criteria above and their complete reconciliation. External blocker B1: R01/R05 editor-to-real-query and R06–R08 device acceptance cannot proceed while the Thor's official Always-on VPN and Guard remain untouched. Resolution: explicit authorization to temporarily pause Guard and switch VPNs, user authentication in the independent fork, and available test-network/exit-node access. No device changes have occurred. Stage 1 closure and dependent stages cannot be considered complete until these checks pass. Tracked deferrals: none. Android automatic-follow behavior belongs to Stage 2; native Guard-obsolescence work to Stage 3; Windows checks to Stage 4.
 
 Stage 1 evidence in progress (2026-09-18): shared core `4d32ac4faace6977e9f15f5f759a7281e8908485` includes profile-pinned edits, default-only composition, TLS-verified route-aware DoH, explicit base-DNS bootstrap and managed-policy transitions. Affected host package suites passed after repository consistency fixes; live `example.com` queries passed for public Control D, Cloudflare and generic OpenDNS. Bootstrap fixtures assert provider-only lookup, protected TCP dialing and rejection of recursive service addresses. These are host evidence, not Android/exit-node/network-matrix acceptance. Android editor/status integration and independent identity are present; Kotlin formatting passed. The persistent signer and GitHub secrets/public pin are provisioned as described in [SIGNING.md](SIGNING.md). Android build and installed workflow verification are still outstanding. No stage is complete.
+
+Additional evidence: core `811a1030f5e4a5e007b9354572e463fe9dcef037` adds failure/no-fallback/redaction verification. Validation run [35349002734](https://github.com/Darkaxt/tailscale-android/actions/runs/35349002734) passed native integration and affected Linux core suites and compiled Android Kotlin, but failed release lint; it produced no signed candidate. Dependency inspection isolated Fragment 1.1.0 on the compile classpath versus 1.5.4 at runtime. Android commit `fffdf00c3f9e6c52117a9a4eca16749c20ed1534` aligns the compile constraint; local dependency inspection and formatting passed. Full candidate validation is run [35350671598](https://github.com/Darkaxt/tailscale-android/actions/runs/35350671598), not presumed successful. Real-device entry, recovery and evidence requirements are recorded in [ANDROID-VALIDATION.md](ANDROID-VALIDATION.md). Temporary Thor VPN/Guard changes await explicit test authority; no device state has been changed.
+
+Final candidate result: run 35350671598 completed successfully, including release lint, tests, APK build and isolated signing. Independent downloaded-artifact verification passed; exact package/version/hash/signer evidence is in [SIGNING.md](SIGNING.md). This closes only the test-install identity/build prerequisite, not real Android acceptance. The stage is parked on B1; no later stage has been activated.
 
 ## Stage 2 — Automatic Android provider propagation
 
