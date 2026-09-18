@@ -1,6 +1,6 @@
 # Local DNS override — authoritative specification
 
-Version: 1.4. Date: 2026-09-18. Status: **implementation and temporary Thor testing authorized; Stage 1 BLOCKED on controlled-network verification; Stage 2 ACTIVE**.
+Version: 1.4. Date: 2026-09-18. Status: **implementation and temporary Thor testing authorized; Stage 1 BLOCKED on controlled-network verification; Stage 2 BLOCKED on device-input verification**. Requirements are unchanged by the blocker; see the staged plan.
 
 Revision 1.4 records the user's correction that Tailscale settings autosave. Local-resolver switches must commit immediately; there is no global Save DNS setting button. Manual URL text commits on keyboard Done with backend validation, not on each partially typed character. Explicitly selecting manual mode with no saved endpoint leaves the local override disabled until configured and enabled; an unusable source while follow remains selected still fails closed.
 

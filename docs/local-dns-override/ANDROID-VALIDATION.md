@@ -105,6 +105,40 @@ initialization completed. A later explicit UI connect reached Running. Preserve
 this ordering for the Stage 3 root-cause audit; do not count the second connect as
 successful single-start initialization or Guard obsolescence.
 
+## Autosave/teardown candidate evidence — 2026-09-18
+
+Run 35361257936 passed native/Android build, tests/lint and isolated signing.
+Android source `7d71a9b78b738d41632925a72fec5804469279da`, core
+`423bcd55b5cce99e7a3bb4ed78b276e3f8ad77e0`. Independently verified the pinned signer,
+fork package, version code 60, `1.103.260-t423bcd55b-g7d71a9b78`, target SDK 36 and
+SHA-256 `d7d39450c84dfffd4e4ff688b3d84828e10b0482404d68ca3389f9518bd33256`.
+The in-place update preserved login and preferences.
+
+The DNS screen had no Save DNS setting button. Follow remained selected after the
+update; its initial read applied the saved Android provider and `example.com`
+resolved through quad-100. Android listed the fork's three settings observers.
+Turning follow off immediately applied the retained OpenDNS endpoint without a
+save action; `example.net` resolved and `dumpsys content` showed zero follow
+observers for the still-running fork process.
+
+The next combined ADB test, covering Android source changes while in manual mode
+and keyboard-Done rejection of an invalid manual URL, was rejected by tool policy
+before execution. It was not retried through another mechanism. Those checks are
+not passing evidence. B4 records the manual-input verification restriction.
+
+Recovery disconnected the fork and verified zero observers, restored the official
+VPN/Always-on and the previously suspended Guard, and verified a quad-100 public
+lookup. Because follow had already been switched off, that disconnect is not the
+direct follow-enabled disconnect regression proof. As part of restoring the
+previous fork choice, follow was turned back on while disconnected: the switch
+saved immediately, the supplied endpoint was displayed with not-running status,
+and observer count stayed zero. Official VPN ownership remained unchanged. The
+Android provider stayed in Automatic mode. No device files were generated.
+
+Still required: allowed keyboard-Done/invalid-input UI verification, direct
+follow-enabled disconnect and controlled recreation checks, and final Stage 2
+reconciliation. No release or Guard-obsolescence claim follows from this pass.
+
 ## Automatic-follow candidate procedure
 
 With the same entry/restoration controls, enable the local resolver and follow

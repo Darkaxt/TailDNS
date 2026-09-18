@@ -4,7 +4,7 @@ An independent community fork of [tailscale/tailscale-android](https://github.co
 
 ## Fork status
 
-**Stage 2 ACTIVE: automatic Android provider propagation. Stage 1 remains BLOCKED on its controlled-network matrix.** The signed Thor candidate demonstrated UI-closed provider changes, fail-closed unsupported input, retained MagicDNS and recovery without reconnecting. Autosaving-switch UI and remaining lifecycle checks are still under validation. This is not full Android acceptance; no native reliability fix, Windows workflow or feature release is claimed yet.
+**Stage 2 BLOCKED on remaining device-input verification; Stage 1 remains BLOCKED on its controlled-network matrix.** Signed Thor candidates demonstrated UI-closed provider changes, fail-closed unsupported input, retained MagicDNS, recovery without reconnecting, autosaving source switches and observer removal on manual selection. Manual keyboard-Done input and remaining lifecycle checks are not complete. This is not full Android acceptance; no native reliability fix, Windows workflow or feature release is claimed yet.
 
 The proposed feature lets a device choose its own DNS-over-HTTPS resolver, including a Control D endpoint/client, while preserving Tailscale's MagicDNS and applicable split-DNS routes. It does not require editing tailnet policy or changing other devices.
 
@@ -12,7 +12,7 @@ Specification v1.4 also requires native Android DNS/service lifecycle fixes inte
 
 - [Authoritative specification](docs/local-dns-override/SPECIFICATION.md): required behavior, precedence, platform boundaries, and acceptance criteria.
 - [Implementation evaluation](docs/local-dns-override/EVALUATION.md): source-backed corrections to the original recommendation and unresolved runtime evidence.
-- [Staged implementation plan](docs/local-dns-override/IMPLEMENTATION-PLAN.md): requirement mapping and verification gates; Stage 1 is **BLOCKED**, Stage 2 is **ACTIVE**, Stages 3–7 are **NOT STARTED**.
+- [Staged implementation plan](docs/local-dns-override/IMPLEMENTATION-PLAN.md): requirement mapping and verification gates; Stages 1–2 are **BLOCKED**, Stages 3–7 are **NOT STARTED**.
 - [Signing identity and validation workflow](docs/local-dns-override/SIGNING.md): independent TailDNS package, public certificate fingerprint, key custody and validation-only artifacts.
 
 On Android, the setup keeps system Private DNS at **Default/Automatic** while Tailscale is active. Opt-in **automatic propagation** follows the saved hostname, not `isPrivateDnsActive()` or `getPrivateDnsServerName()`, without repeated imports or reconnects. UI-closed propagation and invalid-to-valid recovery were demonstrated on Thor Android 13, target SDK 36, without privileged app grants. Provider mappings require documented semantics. The upstream baseline supports recognized DoH providers, not arbitrary DoH or native DoT; the fork's generic manual DoH extension is under Stage 1 validation. Native DoT is not implemented.
