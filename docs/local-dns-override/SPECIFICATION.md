@@ -1,6 +1,6 @@
 # Local DNS override — authoritative specification
 
-Version: 1.5. Date: 2026-09-18. Status: **implementation, Thor deployment testing and final release authorized; Stages 3–5 COMPLETE, Stage 6 ACTIVE**. Test every acceptance path available on the authorized Thor and host environments. An unavailable edge-case environment or prohibited automation action must be recorded honestly, but must not stop implementation, deployment or release when the implemented behavior and accessible primary workflows pass.
+Version: 1.5. Date: 2026-09-19. Status: **Stages 3–6 COMPLETE; Stage 7 post-release automation ACTIVE**. Test every acceptance path available on the authorized Thor and host environments. An unavailable edge-case environment or prohibited automation action must be recorded honestly, but must not stop implementation, deployment or release when the implemented behavior and accessible primary workflows pass.
 
 Revision 1.5 records the user's explicit delivery instruction to complete deployment and test what can be tested rather than stopping on an unavailable edge case. This changes verification gating, not required product behavior: inaccessible IPv6/captive-portal variants and a tool-prohibited device-input action become disclosed validation gaps, not release blockers. No untested path may be described as tested, and the original Thor Guard scenarios remain required where they can be exercised on Thor.
 
@@ -21,7 +21,7 @@ Let a user explicitly choose a device-local DNS-over-HTTPS default resolver whil
 
 On Android, an opt-in follow mode automatically propagates the saved system provider into Tailscale. Independently, fix native Android DNS/service lifecycle defects so the rooted Thor Guard is unnecessary for its demonstrated failure scenarios. The Guard is diagnostic history, not an implementation template or a component to improve.
 
-The feature covers Android and a Windows shared-core/companion path. Both implementations, their primary real-device/host workflows and final cross-platform reconciliation are complete; production release publication and post-release automation remain governed by Stages 6–7. The current repository state is not yet the public feature release.
+The feature covers Android and a Windows shared-core/companion path. Both implementations, their primary real-device/host workflows, final cross-platform reconciliation and signed public release are complete. Post-release upstream automation and task monitoring remain governed by Stage 7.
 
 This specification controls behavior and acceptance. A plan or implementation cannot weaken it. Changes require an explicit specification revision that identifies the changed requirements.
 

@@ -3,7 +3,7 @@
 Authority: [SPECIFICATION.md](SPECIFICATION.md), version 1.5.
 Assessment: [EVALUATION.md](EVALUATION.md).
 
-Authorization: implementation, GitHub signing and final release are already authorized. Temporary Thor testing, Guard suspension/VPN switching with restoration, and saving the supplied Android provider are explicitly authorized. Upstream auto-update and current-task monitoring are authorized only after validation. Stage 1 is BLOCKED on B3's unavailable controlled-network variants; Stage 2 is BLOCKED on B4's prohibited device-input action; Stages 3–5 are COMPLETE; Stage 6 is ACTIVE; Stage 7 is NOT STARTED. Under specification 1.5, B3 and B4 remain honest validation gaps but do not block continued implementation, deployment or release.
+Authorization: implementation, GitHub signing, final release, upstream auto-update and current-task monitoring are already authorized. Temporary Thor testing, Guard suspension/VPN switching with restoration, and saving the supplied Android provider were explicitly authorized. Stage 1 is BLOCKED on B3's unavailable controlled-network variants; Stage 2 is BLOCKED on B4's prohibited device-input action; Stages 3–6 are COMPLETE; Stage 7 is ACTIVE. Under specification 1.5, B3 and B4 remain honest validation gaps but do not block completion of the accessible workflow.
 
 There may be only one **ACTIVE** stage. Other allowed statuses are **NOT STARTED**, **BLOCKED**, and **COMPLETE**. Park an actual blocked stage with the exact requirement, cause, ownership, resolving condition and dependent work before activating another. Close a stage only with fresh evidence for every assigned criterion.
 
@@ -106,15 +106,15 @@ Satisfied: validation run [35395256020](https://github.com/Darkaxt/tailscale-and
 
 ## Stage 6 — GitHub signing and public release
 
-Status: **ACTIVE**. Stage 5 is complete.
+Status: **COMPLETE**. Stage 7 is now the sole active stage.
 
 Acceptance: complete R15's trusted GitHub signing/release workflow, publish the tested version, independently verify downloaded artifacts and signer/package/version/provenance, and verify update compatibility on an authorized test device. No incomplete stage can be concealed by a release.
 
-Satisfied: none. Remaining: all R15 final-release criteria. Blockers: none recorded. Tracked deferrals: none.
+Satisfied: tag-bound run [35399346673](https://github.com/Darkaxt/tailscale-android/actions/runs/35399346673) tested Android `04631d14fa1021217208caee3e6e7317f51a6c86` and core `ebe4cb48e6f37f54f469346d4a21773d2b5d1db7`, packaged the Windows AMD64 companion, and isolated all signing/release secrets from repository execution. The non-draft [v1.0.0-taildns.2 release](https://github.com/Darkaxt/tailscale-android/releases/tag/v1.0.0-taildns.2) was independently downloaded and every asset matched its checksum. The APK matched package, code `298294770`, version `1.103.262-tebe4cb48e-g04631d14f`, target SDK 36, four ABIs and the pinned signer; its v2/v3 and detached v4 signatures verified. The Windows archive contained the expected x86-64 binaries, licenses, instructions, internal hashes and truthful unsigned Authenticode status. Thor updated in place from code 100, retained its first-install identity, encrypted preferences, profile data and saved running intent; the system confirmation was not accepted, and official Always-on, public DNS and the Guard watchdog were verified restored. [RELEASE-VALIDATION.md](RELEASE-VALIDATION.md) records the evidence. Remaining: none. Blockers: none. Tracked deferrals: none.
 
 ## Stage 7 — Post-validation auto-update and current-task monitoring
 
-Status: **NOT STARTED**. Depends on Stages 5–6.
+Status: **ACTIVE**. Stages 5–6 are complete.
 
 Acceptance: complete R16's safe upstream-update workflow and rehearsal, then create and verify one recurring monitor in this task for actionable update failures and bounded verified fixes. Do not enable either automation early.
 
