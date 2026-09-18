@@ -1,6 +1,8 @@
 # Local DNS override — authoritative specification
 
-Version: 1.2. Date: 2026-09-18. Status: **implementation and temporary Thor testing authorized; Stage 1 BLOCKED on controlled-network verification; Stage 2 ACTIVE**. Requirement text is unchanged; see the plan for current evidence.
+Version: 1.3. Date: 2026-09-18. Status: **implementation and temporary Thor testing authorized; Stage 1 BLOCKED on controlled-network verification; Stage 2 ACTIVE**.
+
+Revision 1.3 records the user's explicit test-scope change: automated device validation uses Thor only; the user will test the full release on the Samsung phone. Samsung pre-release observation is no longer an acceptance prerequisite. Root may be used for diagnostics and test setup on Thor, but the application must still work without privileged grants. Other requirements are unchanged.
 
 Revision 1.2 records the user's authorization to implement, establish GitHub signing, and publish a proper release. R15 adds signed release delivery; R16 adds upstream auto-update and current-task monitoring only after validation. The historical documentation-only boundaries below describe the earlier delivery, not a revocation of this authorization. Live device changes remain subject to the explicit safety boundaries in R10 and R14.
 
@@ -48,7 +50,7 @@ Use lifecycle-owned settings observation, an initial read, and re-read on backen
 
 A missing, denied, invalid or unsupported current value is a visible follow error, not permission to revert to generic tailnet DNS or silently keep using an obsolete provider. Retain the last value for diagnostics only; ordinary default-domain queries must fail closed while follow remains selected and has no usable source. Preserve applicable specific routes. Manual mode or explicitly disabling follow remains the user's escape hatch. A transport outage uses R08 behavior, not a different provider.
 
-Acceptance: real system saves propagate while the fork UI is closed; successive edits converge on the latest value; restart, observer teardown, profile switches and invalid-to-valid recovery are tested. A saved provider is consumed in Default/Automatic even without an active Private DNS server name. Verify observer delivery on the Samsung phone and Thor; the successful one-shot read test does not establish notification delivery. Record OS builds and target SDK and test permission/read failures without privileged grants.
+Acceptance: real system saves propagate while the fork UI is closed; successive edits converge on the latest value; restart, observer teardown, profile switches and invalid-to-valid recovery are tested. A saved provider is consumed in Default/Automatic even without an active Private DNS server name. Verify observer delivery on Thor; the successful one-shot Samsung read test does not establish notification delivery. Record the Thor OS build and target SDK and test permission/read failures without privileged app grants. The user performs Samsung testing of the full release.
 
 ### R03 — Android operating mode and privilege boundary
 

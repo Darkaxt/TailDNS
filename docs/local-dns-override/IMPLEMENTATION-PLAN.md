@@ -1,6 +1,6 @@
 # Staged implementation plan
 
-Authority: [SPECIFICATION.md](SPECIFICATION.md), version 1.2.
+Authority: [SPECIFICATION.md](SPECIFICATION.md), version 1.3.
 Assessment: [EVALUATION.md](EVALUATION.md).
 
 Authorization: implementation, GitHub signing and final release are already authorized. Temporary Thor testing, Guard suspension/VPN switching with restoration, and saving the supplied Android provider are explicitly authorized. Upstream auto-update and current-task monitoring are authorized only after validation. Stage 1 is BLOCKED on B3's controlled-network matrix; Stage 2 is ACTIVE; Stages 3–7 are NOT STARTED. No implementation stage is complete. Evidence gates remain required work, not passing results.
@@ -41,7 +41,7 @@ Status: **ACTIVE**. The real Stage 1 manual slice is demonstrated; Stage 1 remai
 
 Acceptance criteria:
 
-- R02: verify initial read and real change notifications on the Samsung phone and Thor, and prove that saves propagate with the fork UI closed and without reconnect/import actions.
+- R02: verify initial read and real change notifications on Thor, and prove that saves propagate with the fork UI closed and without reconnect/import actions. Per revision 1.3, the user tests the full release on the Samsung phone; it is not a pre-release device gate.
 - R04 follow subset: provider conversion, exact client mapping, unsupported-value behavior and invalid-to-valid recovery pass. No silent fallback or stale-provider use.
 - R01, R03 and R09: observer ownership, teardown, latest-value ordering, restart/profile isolation, mode conflicts and truthful effective-state reporting pass.
 - Re-run the Android flow with an automatically selected endpoint and verify independent manual configuration remains functional. Observation is provider-independent; documented mappings define supported follow inputs unless a separately specified native DoT path is added.
@@ -49,6 +49,8 @@ Acceptance criteria:
 Satisfied: none of this stage's end-to-end criteria. Preliminary evidence: ordinary-app saved-setting reads succeeded on the Samsung Android 16 phone; this is not observer or propagation verification. Remaining: all criteria above. Blockers: none recorded. Tracked deferrals: none. If required device observation cannot be demonstrated, record the blocked criterion; manual configuration is not a substitute for automatic propagation.
 
 Implementation candidate: core `bd5613e68734acf2761f605d1a3d222f09797019` owns the follow choice, current-source reads and fail-closed resolver selection. Android uses a lifecycle-owned ContentObserver, registers before the initial read and refreshes visible status after backend processing. The manual endpoint remains independent. Focused tests cover parsing, read denial, invalid-to-valid recovery, latest-value application, late callbacks after manual selection, registration ordering and policy teardown; affected core package suites passed on Windows. Kotlin formatting passed. Native binding, Android compilation and real observation remain candidate verification work, not stage closure.
+
+Pre-device review caught a generic masked-preference edit bypass for follow-to-manual transitions with no valid manual endpoint. A regression failed before the correction and passed afterward with the focused local-DNS suite. Core `304c9f7157b74405a5037748a617aaaa5f75fe53` includes the correction and is the new Android pin. Candidate run 35356704728 was cancelled before distribution because it used the superseded core; no device was updated from that run.
 
 ## Stage 3 — Native Android reliability and Guard-obsolescence proof
 

@@ -82,7 +82,11 @@ class DNSSettingsViewModel : IpnViewModel() {
   fun refreshLocalDNS() {
     strictPrivateDNS.value =
         runCatching {
-          when (Settings.Global.getString(App.get().contentResolver, "private_dns_mode")) {
+          val resolver = App.get().contentResolver
+          when (
+              Settings.Global.getString(resolver, "private_dns_mode")
+                  ?: Settings.Global.getString(resolver, "private_dns_default_mode")
+          ) {
             "hostname" -> true
             "opportunistic",
             "off" -> false

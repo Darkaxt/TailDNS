@@ -70,7 +70,8 @@ the app. Inspect effective status on return; it must not retain a stale success.
 Verify successive saves, observer teardown on disable/manual selection, process
 recreation, profile isolation and mode-conflict reporting. Restore the user's
 hostname and Automatic mode after every destructive-to-test configuration case.
-Repeat on both specified devices with ordinary app permissions. ADB writes are
+Use Thor with ordinary app permissions; the user will test the full release on
+the Samsung phone, per specification revision 1.3. ADB writes are
 test stimuli only: the application must neither write settings nor require a
 privileged grant. Do not substitute the unrelated connected tablet for the phone.
 

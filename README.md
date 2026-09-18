@@ -8,7 +8,7 @@ An independent community fork of [tailscale/tailscale-android](https://github.co
 
 The proposed feature lets a device choose its own DNS-over-HTTPS resolver, including a Control D endpoint/client, while preserving Tailscale's MagicDNS and applicable split-DNS routes. It does not require editing tailnet policy or changing other devices.
 
-Specification v1.2 also requires native Android DNS/service lifecycle fixes intended to make **Thor Tailscale DNS Guard unnecessary**, with real Thor verification while the Guard is disabled. The Guard is evidence of failure scenarios, not a component to improve or embed. No native fix or Guard-obsolescence claim has been verified yet. Signing and release are authorized after validation; upstream auto-update and task monitoring follow that gate.
+Specification v1.3 also requires native Android DNS/service lifecycle fixes intended to make **Thor Tailscale DNS Guard unnecessary**, with real Thor verification while the Guard is disabled. The Guard is evidence of failure scenarios, not a component to improve or embed. No native fix or Guard-obsolescence claim has been verified yet. Automated device validation uses Thor; the user tests the full release on the Samsung phone. Signing and release are authorized after validation; upstream auto-update and task monitoring follow that gate.
 
 - [Authoritative specification](docs/local-dns-override/SPECIFICATION.md): required behavior, precedence, platform boundaries, and acceptance criteria.
 - [Implementation evaluation](docs/local-dns-override/EVALUATION.md): source-backed corrections to the original recommendation and unresolved runtime evidence.
