@@ -4,7 +4,7 @@ An independent community fork of [tailscale/tailscale-android](https://github.co
 
 ## Fork status
 
-**Stage 1 BLOCKED: awaiting temporary live-device test authority.** Core host tests, live public-provider queries and the signed Android validation build have passed. The downloaded candidate's checksum, package, version and pinned signer were independently verified. No Android end-to-end acceptance, automatic propagation, native reliability fix, Windows workflow or feature release is claimed yet.
+**Stage 1 BLOCKED: awaiting user authentication in the installed Thor candidate.** Temporary live-device testing is authorized. Core host tests, live public-provider queries and the signed Android validation build have passed. The downloaded candidate's checksum, package, version and pinned signer were independently verified. No Android end-to-end acceptance, automatic propagation, native reliability fix, Windows workflow or feature release is claimed yet.
 
 The proposed feature lets a device choose its own DNS-over-HTTPS resolver, including a Control D endpoint/client, while preserving Tailscale's MagicDNS and applicable split-DNS routes. It does not require editing tailnet policy or changing other devices.
 

@@ -4,6 +4,31 @@ Scope: Stage 1 of [the authoritative plan](IMPLEMENTATION-PLAN.md). This is a
 procedure, not passing device evidence. Automatic following and Guard-obsolescence
 testing have their own later acceptance gates.
 
+## Installation checkpoint — 2026-09-18
+
+The user authorized temporary Thor Guard/VPN changes with restoration and supplied
+a private Control D profile. Its hostname/URL are intentionally not recorded here.
+The validation APK from run 35350671598 was downloaded and its recorded checksum,
+package, version and signer reverified before successful ADB installation. The
+installed package reports version code 30 and `1.103.255-t811a1030f-gfffdf00c3`;
+the app starts and remains running. This is installation evidence only.
+
+Target: AYN Thor, Android 13, build
+`qti/kalama/kalama:13/TKQ1.231222.001/eng.Thor.20260206.163241:user/release-keys`.
+Before the authorized provider setup, `private_dns_mode`, `private_dns_specifier`
+and `private_dns_default_mode` were unset. The supplied saved hostname was written
+and read back successfully; mode is now `opportunistic` (Automatic), as requested.
+This ADB setup does not prove ordinary-app reading or automatic following.
+
+Official `com.tailscale.ipn` remains the Always-on package, lockdown remains 0,
+and its original process and Guard monitor remain running. Guard/VPN switching
+has not yet occurred. Public name resolution and direct-IP reachability succeeded
+before setup, and public resolution still succeeds afterward. These checks are
+baseline controls, not proof that TailDNS or the custom provider resolved them.
+User authentication in TailDNS is pending; do not infer an authenticated profile
+from successful application launch. The additional connected Samsung tablet was
+not modified.
+
 ## Entry and recovery
 
 - Independently verify the downloaded candidate checksum, package, version,
