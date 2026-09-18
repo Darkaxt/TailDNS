@@ -18,6 +18,7 @@ class LocalDNSTest {
             Endpoint = "https://dns.controld.com/follow-private",
             ManualEndpoint = "https://resolver.example/manual-private",
             SystemMode = "opportunistic",
+            LastValidEndpoint = "https://dns.controld.com/previous-private",
         )
     assertEquals(status, Json.decodeFromString<LocalDNSStatus>(Json.encodeToString(status)))
     assertFalse(status.toString().contains("private"))

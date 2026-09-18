@@ -1,6 +1,8 @@
 # Local DNS override — authoritative specification
 
-Version: 1.3. Date: 2026-09-18. Status: **implementation and temporary Thor testing authorized; Stage 1 BLOCKED on controlled-network verification; Stage 2 ACTIVE**.
+Version: 1.4. Date: 2026-09-18. Status: **implementation and temporary Thor testing authorized; Stage 1 BLOCKED on controlled-network verification; Stage 2 ACTIVE**.
+
+Revision 1.4 records the user's correction that Tailscale settings autosave. Local-resolver switches must commit immediately; there is no global Save DNS setting button. Manual URL text commits on keyboard Done with backend validation, not on each partially typed character. Explicitly selecting manual mode with no saved endpoint leaves the local override disabled until configured and enabled; an unusable source while follow remains selected still fails closed.
 
 Revision 1.3 records the user's explicit test-scope change: automated device validation uses Thor only; the user will test the full release on the Samsung phone. Samsung pre-release observation is no longer an acceptance prerequisite. Root may be used for diagnostics and test setup on Thor, but the application must still work without privileged grants. Other requirements are unchanged.
 
@@ -121,6 +123,8 @@ Stage 1 transport decision: known providers use the core's maintained address ta
 Acceptance: packet/provider evidence covers successful DoH, cold bootstrap, TLS rejection, DNS/HTTPS outage, no unintended fallback, exit node on/off, IPv4-only, IPv6-only, dual stack, network handover and captive-portal failure/recovery. Diagnostic/protocol timeouts may report failure but must not change provider selection. Connection recovery follows real network/transport events.
 
 ### R09 — Truthful Android UI and diagnostics
+
+Switch changes save immediately, following existing Tailscale settings behavior. Do not require a separate Save DNS setting action for enabling or selecting follow. Manual URL editing commits on keyboard Done after backend validation; invalid input cannot replace committed configuration.
 
 The DNS screen shows source, configured endpoint, backend-applied mode, inactivity/conflict/error reason, and applicable routing caveats. Do not derive effective local DNS solely from the tailnet netmap. Distinguish **configured**, **applied**, and **lookup verified**; a successful lookup is historical evidence tied to the configuration/network generation, not permanent proof. Never show a stale successful result after a relevant change.
 

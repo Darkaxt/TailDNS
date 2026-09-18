@@ -10,7 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Button
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
@@ -26,8 +27,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -69,6 +73,7 @@ fun DNSSettingsView(
   val savingLocalDNS by model.savingLocalDNS.collectAsState()
   val strictPrivateDNS by model.strictPrivateDNS.collectAsState()
   val lifecycleOwner = LocalLifecycleOwner.current
+  val keyboard = LocalSoftwareKeyboardController.current
   DisposableEffect(lifecycleOwner, model) {
     val observer = LifecycleEventObserver { _, event ->
       if (event == Lifecycle.Event.ON_RESUME) model.refreshLocalDNS()
@@ -122,17 +127,9 @@ fun DNSSettingsView(
               )
             }
             localDNS?.let { saved ->
-              var enabled by
-                  remember(saved.ProfileID, saved.Configured) { mutableStateOf(saved.Configured) }
               var endpoint by
                   remember(saved.ProfileID, saved.ManualEndpoint) {
                     mutableStateOf(saved.ManualEndpoint)
-                  }
-              var followAndroid by
-                  remember(saved.ProfileID, saved.FollowAndroid) {
-                    mutableStateOf(
-                        saved.FollowAndroid || (!saved.Configured && saved.ManualEndpoint.isEmpty())
-                    )
                   }
               val editable =
                   !dnsSettingsMDMDisposition.value.hiddenFromUser &&
@@ -140,37 +137,72 @@ fun DNSSettingsView(
                       !savingLocalDNS
               Row {
                 Text(stringResource(R.string.local_dns_enable), Modifier.weight(1f))
-                Switch(checked = enabled, onCheckedChange = { enabled = it }, enabled = editable)
+                Switch(
+                    checked = saved.Configured,
+                    onCheckedChange = {
+                      model.saveLocalDNS(
+                          saved.ProfileID,
+                          it,
+                          saved.ManualEndpoint,
+                          saved.FollowAndroid,
+                      )
+                    },
+                    enabled = editable,
+                )
               }
               Row {
                 Text(stringResource(R.string.local_dns_follow), Modifier.weight(1f))
                 Switch(
-                    checked = followAndroid,
-                    onCheckedChange = { followAndroid = it },
+                    checked = saved.FollowAndroid,
+                    onCheckedChange = {
+                      // Explicitly leaving follow is an escape hatch. An empty manual
+                      // source cannot be enabled until a valid endpoint is entered.
+                      model.saveLocalDNS(
+                          saved.ProfileID,
+                          saved.Configured && (it || saved.ManualEndpoint.isNotEmpty()),
+                          saved.ManualEndpoint,
+                          it,
+                      )
+                    },
                     enabled = editable,
                 )
               }
-              if (followAndroid) {
+              if (saved.FollowAndroid) {
                 Text(stringResource(R.string.local_dns_follow_description))
                 if (saved.FollowAndroid && saved.Endpoint.isNotEmpty()) Text(saved.Endpoint)
+                if (saved.Endpoint.isEmpty() && saved.LastValidEndpoint.isNotEmpty()) {
+                  Text(
+                      stringResource(R.string.local_dns_previous_endpoint, saved.LastValidEndpoint)
+                  )
+                }
               } else
                   OutlinedTextField(
                       value = endpoint,
                       onValueChange = { endpoint = it },
                       label = { Text(stringResource(R.string.local_dns_endpoint)) },
                       singleLine = true,
+                      keyboardOptions =
+                          KeyboardOptions(
+                              keyboardType = KeyboardType.Uri,
+                              imeAction = ImeAction.Done,
+                          ),
+                      keyboardActions =
+                          KeyboardActions(
+                              onDone = {
+                                model.saveLocalDNS(
+                                    saved.ProfileID,
+                                    saved.Configured,
+                                    endpoint,
+                                    false,
+                                )
+                                keyboard?.hide()
+                              }
+                          ),
+                      supportingText = { Text(stringResource(R.string.local_dns_manual_done)) },
                       enabled = editable,
                       modifier = Modifier.fillMaxWidth(),
                   )
               Text(saved.Reason)
-              Button(
-                  enabled = editable,
-                  onClick = {
-                    model.saveLocalDNS(saved.ProfileID, enabled, endpoint, followAndroid)
-                  },
-              ) {
-                Text(stringResource(R.string.local_dns_save))
-              }
             }
             if (localDNSError)
                 Text(

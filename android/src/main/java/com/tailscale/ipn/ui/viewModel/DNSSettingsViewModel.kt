@@ -46,6 +46,7 @@ class DNSSettingsViewModel : IpnViewModel() {
   val savingLocalDNS = MutableStateFlow(false)
   val strictPrivateDNS = MutableStateFlow<Boolean?>(null)
   private var localDNSGeneration = 0L
+  private var awaitingSavedLocalDNSStatus = false
 
   init {
     viewModelScope.launch {
@@ -99,6 +100,10 @@ class DNSSettingsViewModel : IpnViewModel() {
       if (generation != localDNSGeneration) return@localDNS
       localDNS.value = result.getOrNull()
       localDNSError.value = result.isFailure
+      if (awaitingSavedLocalDNSStatus) {
+        awaitingSavedLocalDNSStatus = false
+        savingLocalDNS.value = false
+      }
     }
   }
 
@@ -114,10 +119,16 @@ class DNSSettingsViewModel : IpnViewModel() {
     Client(viewModelScope).editLocalDNS(
         LocalDNSUpdate(profileID, enabled, endpoint, followAndroid)
     ) { result ->
-      savingLocalDNS.value = false
       localDNSError.value = result.isFailure
       // Re-read current state: a successful edit may have preceded a profile switch.
-      if (result.isSuccess) refreshLocalDNS()
+      // Keep switches disabled until the newest status read is delivered, not
+      // merely until the write returns, so another toggle cannot use old state.
+      if (result.isSuccess) {
+        awaitingSavedLocalDNSStatus = true
+        refreshLocalDNS()
+      } else {
+        savingLocalDNS.value = false
+      }
     }
   }
 

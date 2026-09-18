@@ -1,6 +1,6 @@
 # Staged implementation plan
 
-Authority: [SPECIFICATION.md](SPECIFICATION.md), version 1.3.
+Authority: [SPECIFICATION.md](SPECIFICATION.md), version 1.4.
 Assessment: [EVALUATION.md](EVALUATION.md).
 
 Authorization: implementation, GitHub signing and final release are already authorized. Temporary Thor testing, Guard suspension/VPN switching with restoration, and saving the supplied Android provider are explicitly authorized. Upstream auto-update and current-task monitoring are authorized only after validation. Stage 1 is BLOCKED on B3's controlled-network matrix; Stage 2 is ACTIVE; Stages 3–7 are NOT STARTED. No implementation stage is complete. Evidence gates remain required work, not passing results.
@@ -46,11 +46,19 @@ Acceptance criteria:
 - R01, R03 and R09: observer ownership, teardown, latest-value ordering, restart/profile isolation, mode conflicts and truthful effective-state reporting pass.
 - Re-run the Android flow with an automatically selected endpoint and verify independent manual configuration remains functional. Observation is provider-independent; documented mappings define supported follow inputs unless a separately specified native DoT path is added.
 
-Satisfied: none of this stage's end-to-end criteria. Preliminary evidence: ordinary-app saved-setting reads succeeded on the Samsung Android 16 phone; this is not observer or propagation verification. Remaining: all criteria above. Blockers: none recorded. Tracked deferrals: none. If required device observation cannot be demonstrated, record the blocked criterion; manual configuration is not a substitute for automatic propagation.
+Satisfied: Thor initial ordinary-app read, UI-closed change notification and end-to-end propagation, unsupported-input fail-closed behavior with retained MagicDNS, invalid-to-valid recovery without reconnecting, successive-save convergence and live strict-mode conflict reporting. See [ANDROID-VALIDATION.md](ANDROID-VALIDATION.md) for exact candidate and evidence. Remaining: autosaving-switch correction (R09), device recreation/teardown and independent manual-after-follow verification, plus final reconciliation of all assigned criteria. Profile isolation, read/registration failure and stale callback contracts have focused host-test evidence, not a second real account on Thor. Blockers: none recorded. Tracked deferrals: none. Manual configuration is not a substitute for automatic propagation.
 
 Implementation candidate: core `bd5613e68734acf2761f605d1a3d222f09797019` owns the follow choice, current-source reads and fail-closed resolver selection. Android uses a lifecycle-owned ContentObserver, registers before the initial read and refreshes visible status after backend processing. The manual endpoint remains independent. Focused tests cover parsing, read denial, invalid-to-valid recovery, latest-value application, late callbacks after manual selection, registration ordering and policy teardown; affected core package suites passed on Windows. Kotlin formatting passed. Native binding, Android compilation and real observation remain candidate verification work, not stage closure.
 
 Pre-device review caught a generic masked-preference edit bypass for follow-to-manual transitions with no valid manual endpoint. A regression failed before the correction and passed afterward with the focused local-DNS suite. Core `304c9f7157b74405a5037748a617aaaa5f75fe53` includes the correction and is the new Android pin. Candidate run 35356704728 was cancelled before distribution because it used the superseded core; no device was updated from that run.
+
+Candidate 35357288592 passed CI/build/signing and the recorded Thor propagation checks. Subsequent core `5ceffeb1c66c49ab3f4f1955fb5aafe705429a77` adds only profile/store-isolation and observation-failure/mode-status tests; these passed locally and are included in the next Android pin. The user rejected the extra Save DNS setting button; specification revision 1.4 requires immediate switch persistence. Its UI correction is under candidate validation. Thor was restored to its original VPN/Guard between builds. No stage is declared complete.
+
+Device teardown inspection found a Stage 2 defect: disconnect bypassed the auth-reconfiguration hook and left platform observers registered. A focused regression failed before the state-entry synchronization fix and passed afterward. This is current-stage unfinished verification, not a deferral to Stage 3. Recheck actual Android observer registrations on disconnect and mode changes in the next candidate before closing R02.
+
+The correction is core `b980fd4dee00eb218819eb6c6a2c6cb1293f58ca`; all affected core package suites passed freshly after the state-entry hook change. This supersedes the earlier pin and includes the additional profile tests. Android switch autosave and keyboard-Done manual commit passed formatting; Android/native CI and device confirmation are still required.
+
+Final candidate pin `423bcd55b5cce99e7a3bb4ed78b276e3f8ad77e0` also satisfies R02's diagnostic-history distinction: the last valid followed endpoint is retained only in memory, scoped to the current profile, shown as not in use on source failure, and never selected as a fallback. Focused invalid-source/profile-isolation tests passed; Kotlin status serialization remains redacted. This does not add persistent copies of Android provider settings.
 
 ## Stage 3 — Native Android reliability and Guard-obsolescence proof
 

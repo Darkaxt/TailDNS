@@ -55,7 +55,55 @@ Android provider remains in Automatic mode. The Samsung tablet was untouched.
 Stage 1 remains BLOCKED: this Thor network has no IPv6 route and no controlled
 IPv6-only/dual-stack/captive-portal environment is available. Remaining profile,
 lifecycle, policy, exit-node and failure-matrix checks are not passed or deferred.
-Stage 2 automatic observation/propagation has not yet received device proof.
+At that checkpoint, Stage 2 had not received device proof; the subsequent
+automatic-follow candidate results are recorded below.
+
+## Automatic-follow device evidence — 2026-09-18
+
+Candidate run 35357288592, Android `4463d8d8b9efb6712b96353af64cef52bfbf9329`,
+core `304c9f7157b74405a5037748a617aaaa5f75fe53`, installed as an in-place update
+with the same signer and preserved login. Package version code 50,
+`1.103.257-t304c9f715-g4463d8d8b`, target SDK 36. Independent APK SHA-256:
+`0ac13c96769ab229354f0064dc0949412d568f971b86c85fe5dedbfeeda34e7e`.
+
+- Initial follow read derived the supplied provider from Automatic-mode settings;
+  the app received no privileged permission grant. An explicit quad-100 lookup
+  of `example.com` returned A/AAAA answers.
+- With the launcher foreground and TailDNS UI closed, saving
+  `unsupported.example` made `example.org` fail; a local MagicDNS peer still
+  resolved. Restoring the supplied hostname made `example.net` resolve, without
+  reopening the app, reconnecting or changing the process. A bounded capture
+  confirmed a new HTTPS connection to the maintained Control D address.
+- Three successive saves ending in an unsupported hostname converged to a
+  failing default resolver. Reopening the screen reported the unsupported-source
+  error, not stale applied success. Restoring the provider recovered.
+- Strict system mode produced a live conflict/unverified status while retaining
+  the endpoint. Returning to Automatic restored applied status without a save
+  action. An initial UI inspection was inconclusive because the screen had gone
+  idle; the test was repeated with the display awake, and Automatic was restored
+  in both cases.
+- The independent manual OpenDNS endpoint remained present when its editor was
+  selected; manual-after-follow query and lifecycle verification remain pending.
+
+After this pass, the official VPN/Always-on and verified Guard process were
+restored; a quad-100 public lookup passed. The requested provider remains saved
+in Automatic mode. No capture files or UI-dump files were created on the device.
+The user requested autosaving switches during this pass; a new candidate is
+required to validate that UI correction. This evidence does not close Stage 2.
+
+Post-disconnect `dumpsys content` found all three follow observers still registered
+to the inactive fork process. Root cause: a WantRunning transition into Stopped
+reconfigures the engine directly and bypasses `authReconfigLocked`, where observer
+synchronization had been placed. A new regression reproduces this without invoking
+the synchronization helper manually. Synchronizing observation at backend state
+entry makes that regression pass; real-device teardown must be rechecked in the
+next candidate. The original VPN remained active during this inspection.
+
+Separate native-reliability evidence, not a fix: the cold-start connect worker
+logged that Tailscale was not ready and returned FAILURE before backend state
+initialization completed. A later explicit UI connect reached Running. Preserve
+this ordering for the Stage 3 root-cause audit; do not count the second connect as
+successful single-start initialization or Guard obsolescence.
 
 ## Automatic-follow candidate procedure
 

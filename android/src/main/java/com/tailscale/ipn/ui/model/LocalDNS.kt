@@ -15,6 +15,7 @@ data class LocalDNSStatus(
     val FollowAndroid: Boolean = false,
     val ManualEndpoint: String = "",
     val SystemMode: String = "",
+    val LastValidEndpoint: String = "",
 ) {
   override fun toString() = "LocalDNSStatus(configured=$Configured, applied=$Applied)"
 }
