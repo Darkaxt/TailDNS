@@ -1,9 +1,9 @@
 name: TailDNS upstream candidate checks
 
 on:
-  pull_request:
+  push:
     branches:
-      - main
+      - automation/upstream-candidate
   workflow_dispatch:
     inputs:
       candidate_ref:
@@ -16,12 +16,12 @@ permissions:
 
 jobs:
   verify:
-    if: (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'automation/upstream-candidate') || (github.event_name == 'workflow_dispatch' && github.actor == github.repository_owner && inputs.candidate_ref == 'automation/upstream-candidate')
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/automation/upstream-candidate') || (github.event_name == 'workflow_dispatch' && (github.actor == github.repository_owner || github.actor == 'github-actions[bot]') && inputs.candidate_ref == 'automation/upstream-candidate')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.candidate_ref || github.event.pull_request.head.sha }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.candidate_ref || github.sha }}
       - uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b
         with:
           go-version-file: go.mod
