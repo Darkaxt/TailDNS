@@ -1,0 +1,113 @@
+name: TailDNS upstream candidate
+
+on:
+  schedule:
+    - cron: '17 4 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Detect and merge locally without pushing a branch or pull request
+        required: false
+        default: true
+        type: boolean
+
+permissions:
+  actions: write
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: taildns-upstream-candidate
+  cancel-in-progress: false
+
+jobs:
+  candidate:
+    if: github.repository == 'Darkaxt/tailscale-android' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b
+        with:
+          go-version-file: go.mod
+      - name: Detect and prepare reviewable candidate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || false }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          base=main
+          branch=automation/upstream-candidate
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git remote add canonical https://github.com/tailscale/tailscale-android.git
+          git fetch --no-tags canonical refs/heads/main:refs/remotes/canonical/main
+          git fetch --no-tags origin "$base"
+          android_head="$(git rev-parse refs/remotes/canonical/main)"
+          core_head="$(git ls-remote https://github.com/Darkaxt/tailscale.git refs/heads/local-dns-override | awk '{print $1}')"
+          test -n "$core_head"
+          current_core_version="$(GOTOOLCHAIN=local go list -m -f '{{.Replace.Version}}' tailscale.com)"
+          current_core_short="${current_core_version##*-}"
+          android_changed=true
+          if git merge-base --is-ancestor "$android_head" "origin/$base"; then
+            android_changed=false
+          fi
+          core_changed=true
+          if [[ "$core_head" == "$current_core_short"* ]]; then
+            core_changed=false
+          fi
+          {
+            echo '### TailDNS upstream detection'
+            echo
+            echo "- Android canonical: \`$android_head\` (update: \`$android_changed\`)"
+            echo "- Reviewed core fork: \`$core_head\` (update: \`$core_changed\`)"
+            echo "- Dry run: \`$DRY_RUN\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [[ "$android_changed" == false && "$core_changed" == false ]]; then
+            echo 'No actionable reviewed upstream change.' >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git checkout -B "$branch" "origin/$base"
+          if [[ "$android_changed" == true ]]; then
+            if ! git merge --no-ff --no-edit "$android_head"; then
+              git diff --name-only --diff-filter=U >> "$GITHUB_STEP_SUMMARY"
+              git merge --abort || true
+              exit 1
+            fi
+          fi
+          if [[ "$core_changed" == true ]]; then
+            core_version="$(GOTOOLCHAIN=local go list -m -f '{{.Version}}' "github.com/Darkaxt/tailscale@$core_head")"
+            GOTOOLCHAIN=local go mod edit -require="tailscale.com@$core_version"
+            GOTOOLCHAIN=local go mod edit -replace="tailscale.com=github.com/Darkaxt/tailscale@$core_version"
+            GOTOOLCHAIN=local go mod tidy
+            versions="$(GOTOOLCHAIN=local go list -m -f '{{.Version}} {{.Replace.Version}} {{.Replace.Path}}' tailscale.com)"
+            test "$versions" = "$core_version $core_version github.com/Darkaxt/tailscale"
+            git add go.mod go.sum
+            git commit -m "update TailDNS shared core to ${core_head:0:12}"
+          fi
+          if [[ "$DRY_RUN" == true ]]; then
+            echo 'Candidate composed locally; no branch, pull request, tag, release, or signing job was created.' >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git push --force-with-lease origin "HEAD:refs/heads/$branch"
+          body="$RUNNER_TEMP/upstream-pr.md"
+          cat > "$body" <<EOF
+          Automated review candidate only; it cannot publish a release.
+
+          - Canonical Android: \`$android_head\`
+          - Reviewed TailDNS core branch: \`$core_head\`
+          - Candidate checks run without signing secrets.
+          - Promotion requires review, merge to trusted \`main\`, a signed validation run, and a separate release tag.
+
+          Rollback: close the pull request and delete \`$branch\`; the current release is unchanged.
+          EOF
+          pr="$(gh pr list --repo "$GITHUB_REPOSITORY" --head "$branch" --base "$base" --state open --json number --jq '.[0].number // empty')"
+          if [[ -n "$pr" ]]; then
+            gh pr edit "$pr" --repo "$GITHUB_REPOSITORY" --title 'Update TailDNS from reviewed upstream revisions' --body-file "$body"
+          else
+            gh pr create --repo "$GITHUB_REPOSITORY" --head "$branch" --base "$base" --title 'Update TailDNS from reviewed upstream revisions' --body-file "$body"
+          fi
+          gh workflow run upstream-candidate-check.yml --repo "$GITHUB_REPOSITORY" --ref main -f candidate_ref="$branch"
