@@ -3,7 +3,7 @@
 Authority: [SPECIFICATION.md](SPECIFICATION.md), version 1.5.
 Assessment: [EVALUATION.md](EVALUATION.md).
 
-Authorization: implementation, GitHub signing and final release are already authorized. Temporary Thor testing, Guard suspension/VPN switching with restoration, and saving the supplied Android provider are explicitly authorized. Upstream auto-update and current-task monitoring are authorized only after validation. Stage 1 is BLOCKED on B3's unavailable controlled-network variants; Stage 2 is BLOCKED on B4's prohibited device-input action; Stage 3 is COMPLETE; Stage 4 is ACTIVE; Stages 5–7 are NOT STARTED. Under specification 1.5, B3 and B4 remain honest validation gaps but do not block continued implementation, deployment or release.
+Authorization: implementation, GitHub signing and final release are already authorized. Temporary Thor testing, Guard suspension/VPN switching with restoration, and saving the supplied Android provider are explicitly authorized. Upstream auto-update and current-task monitoring are authorized only after validation. Stage 1 is BLOCKED on B3's unavailable controlled-network variants; Stage 2 is BLOCKED on B4's prohibited device-input action; Stages 3 and 4 are COMPLETE; Stage 5 is ACTIVE; Stages 6–7 are NOT STARTED. Under specification 1.5, B3 and B4 remain honest validation gaps but do not block continued implementation, deployment or release.
 
 There may be only one **ACTIVE** stage. Other allowed statuses are **NOT STARTED**, **BLOCKED**, and **COMPLETE**. Park an actual blocked stage with the exact requirement, cause, ownership, resolving condition and dependent work before activating another. Close a stage only with fresh evidence for every assigned criterion.
 
@@ -81,7 +81,7 @@ Final evidence: run [35370729766](https://github.com/Darkaxt/tailscale-android/a
 
 ## Stage 4 — Windows real companion workflow
 
-Status: **ACTIVE**. Stage 3 is complete; Stage 4 is the sole active implementation stage under the revision-1.5 continuation rule.
+Status: **COMPLETE**. Stage 5 is now the sole active implementation stage under the revision-1.5 continuation rule.
 
 Acceptance criteria:
 
@@ -89,11 +89,11 @@ Acceptance criteria:
 - R01 and R04–R09 shared semantics are verified at the Windows boundary, including profile ownership, specific routes, exit-node routing, failures and restoration.
 - Use an authorized test environment; document service/package identity and recovery. Do not replace the user's live installation without deployment authority.
 
-Satisfied: none. Remaining: all criteria above. Blockers: none recorded. Tracked deferrals: none.
+Satisfied: the independently branded `taildns` CLI and compatible shared-core daemon passed authenticated set/status/clear, profile-pinned persistence across a daemon restart, real Control D DoH, MagicDNS, retained split routing, exit-node on/off, invalid-input rejection, unreachable-provider SERVFAIL without fallback, visible health degradation and recovery, and exact clear/restoration on an isolated Windows node. The official service remained running and unchanged. The unmodified daemon rejected status and mutation without claiming success. Handler authorization tests reject read-only mutation with HTTP 403; a second-account named-pipe attempt is honestly untested because no disposable second Windows identity was available. Remaining: none for Stage 4. Blockers: none. Tracked deferrals: none.
 
 ## Stage 5 — Integrated reconciliation and verified handoff
 
-Status: **NOT STARTED**. Depends on Stages 1–4.
+Status: **ACTIVE**. Stages 3 and 4 are complete; Stages 1 and 2 remain parked only on the specification-1.5 disclosed validation gaps.
 
 Acceptance criteria:
 

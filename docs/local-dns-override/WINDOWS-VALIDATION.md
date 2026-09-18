@@ -1,6 +1,6 @@
 # Windows companion validation
 
-Date: 2026-09-18. Host: Windows 11 Pro 10.0.26200. Branch under test: [`Darkaxt/tailscale@local-dns-override`](https://github.com/Darkaxt/tailscale/tree/local-dns-override).
+Date: 2026-09-18. Host: Windows 11 Pro 10.0.26200. Core revision: [`ebe4cb48e`](https://github.com/Darkaxt/tailscale/commit/ebe4cb48e).
 
 This document records product-boundary evidence for specification R10. Private tailnet names, account identifiers, node keys and resolver identifiers are intentionally omitted.
 
@@ -11,6 +11,7 @@ The fork was built into `D:\Temp\taildns-windows-stage4` and started as a standa
 - a unique `\\.\pipe\taildns-stage4` named pipe;
 - a separate temporary state directory;
 - logging/support upload disabled;
+- Windows unattended mode enabled only on the isolated profile so the daemon remains active after short CLI connections;
 - no Windows service installation or replacement.
 
 The installed official `Tailscale` service remained `Running` with automatic start throughout. The fork's standard-user pipe uses a Windows-derived per-user security descriptor; elevated service processes retain the existing shared service descriptor and LocalAPI actor authorization.
@@ -19,15 +20,15 @@ Candidate SHA-256 values:
 
 | Artifact | SHA-256 |
 | --- | --- |
-| `taildns-candidate.exe` | `056abfb4765decb2e8381688cde892ede31b834e2023d411180bc53a570e4b73` |
-| `taildnsd-candidate.exe` | `2c4a8e44b88840be44278a33a2970a799ad83be16848c60959f7a75df7dcd739` |
-| `tailscale-fork-candidate.exe` | `ac3b035550be97318d9747c0153e82d9cd35ef79fb7d531542a88fc93e7b6cb6` |
+| `taildns-candidate.exe` | `85fa50d26d89abfeb8b947f62bfd7dc37075a646221c65066a39da718683f4a8` |
+| `taildnsd-candidate.exe` | `414ec1db9e88c1264fd87c8b59de5e3560390ab1ef15ed642b4171dce3038575` |
+| `tailscale-fork-candidate.exe` | `aa3efbb0c04bc3b0330ddfe747411e7638b2d26ac09acf360b9087cc34443510` |
 
 These are temporary validation binaries, not release artifacts.
 
 ## Verified behavior
 
-Focused tests pass for the typed LocalAPI client, profile-pinned edits, endpoint validation, truthful CLI output, incompatible-daemon handling and the Windows named-pipe boundary. The broader affected core suites also pass for `ipn/...`, `net/dns/...`, `client/local`, `cmd/taildns` and `safesocket`.
+Focused tests pass for the typed LocalAPI client, profile-pinned edits, endpoint validation, truthful CLI output, incompatible-daemon handling, failure-health reporting and the Windows named-pipe boundary. The broader affected core suites also pass for `ipn/...`, `net/dns/...`, `client/local`, `cmd/taildns` and `safesocket` at `ebe4cb48e`.
 
 Against the installed unmodified daemon:
 
@@ -44,15 +45,23 @@ Against the isolated fork before login:
 - a syntactically valid `set` and `clear` both exit nonzero with `daemon has no active profile`, rather than claiming a saved or applied change;
 - the separate login flow identifies only the isolated test node and leaves the official service untouched.
 
-## Active acceptance work
+Against the authorized isolated node:
 
-The isolated node is waiting on the account-bound final device authorization. After authorization, this same environment must prove:
+- Tailnet Lock authorization used an existing trusted signing node; the test did not disable or weaken Tailnet Lock;
+- `taildns set` applied the private test endpoint to the active profile and `status` distinguished configured, applied and lookup-unverified state;
+- a public A query succeeded through the selected DoH resolver while a MagicDNS short name continued to resolve locally;
+- the existing more-specific `ts.net` route, search domain and MagicDNS host data remained present;
+- selecting an existing authorized exit node retained the custom resolver and both public and MagicDNS queries succeeded; clearing the exit node restored the prior no-exit-node state;
+- a graceful daemon restart with the same state directory returned directly to `Running`, retained the profile and custom endpoint, and repeated the public/MagicDNS checks successfully;
+- a syntactically valid but unreachable `.invalid` DoH hostname returned `SERVFAIL` with no alternate resolver response. After the built-in health visibility window the daemon reported DNS unavailability; restoring the valid endpoint and completing a query cleared that warning;
+- `taildns clear` removed the override and reported `Using Tailscale DNS selection`. This tailnet snapshot supplied no default internal-forwarder resolver after clear, so both the fork and installed official daemon returned `SERVFAIL` for their diagnostic public query while MagicDNS remained available. That matching result is restoration evidence, not a claim that an upstream default resolver was reachable;
+- the installed official service remained `Running` with automatic start after every check.
 
-- explicit set/status/clear through the authenticated LocalAPI;
-- a real DoH default query with MagicDNS and a more-specific private route retained;
-- restart persistence, disable/restoration and exit-node on/off behavior;
-- truthful inactive/failure state and policy enforcement;
-- removal of the isolated node, process, state and binaries without changing the installed service.
+The first registration attempt left a remote machine record without a local profile. Recovery followed Tailscale's Tailnet Lock guidance: remove only that disposable test record, authenticate the isolated state again, sign the replacement node with a trusted local signer, and enable unattended mode on the isolated profile. The official machine record and service were not modified.
+
+## Acceptance status
+
+Stage 4 is complete. The real frontend-to-LocalAPI-to-daemon-to-DoH path, persistence, failure/recovery, disable/restoration, MagicDNS/split routing, exit-node behavior and incompatible-daemon handling all passed. No private endpoint, tailnet name, account identifier, node key or address is included in this public record.
 
 The handler-level authorization regression already proves that read-only actors receive HTTP 403 for mutation. If a second Windows account identity is unavailable on this host, that real cross-account named-pipe attempt will be recorded as untested rather than misreported as passed; it does not weaken the daemon authorization check or the primary authenticated workflow.
 
