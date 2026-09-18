@@ -14,6 +14,7 @@ Specification v1.5 also requires native Android DNS/service lifecycle fixes inte
 - [Implementation evaluation](docs/local-dns-override/EVALUATION.md): source-backed corrections to the original recommendation and unresolved runtime evidence.
 - [Staged implementation plan](docs/local-dns-override/IMPLEMENTATION-PLAN.md): requirement mapping, exact stage status, verification evidence and remaining gaps.
 - [Signing identity and validation workflow](docs/local-dns-override/SIGNING.md): independent TailDNS package, public certificate fingerprint, key custody and validation-only artifacts.
+- [Windows companion validation](docs/local-dns-override/WINDOWS-VALIDATION.md): isolated-daemon procedure, incompatibility proof, restoration boundary and current real-host evidence.
 
 On Android, the setup keeps system Private DNS at **Default/Automatic** while Tailscale is active. Opt-in **automatic propagation** follows the saved hostname, not `isPrivateDnsActive()` or `getPrivateDnsServerName()`, without repeated imports or reconnects. UI-closed propagation and invalid-to-valid recovery were demonstrated on Thor Android 13, target SDK 36, without privileged app grants. Provider mappings require documented semantics. The upstream baseline supports recognized DoH providers, not arbitrary DoH or native DoT; the fork's generic manual DoH extension is under Stage 1 validation. Native DoT is not implemented.
 
