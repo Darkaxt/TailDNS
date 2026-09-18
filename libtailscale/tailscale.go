@@ -24,8 +24,6 @@ import (
 	"tailscale.com/util/syspolicy/setting"
 )
 
-const defaultMTU = 1280 // minimalMTU from wgengine/userspace.go
-
 const (
 	logPrefKey               = "privatelogid"
 	loginMethodPrefKey       = "loginmethod"

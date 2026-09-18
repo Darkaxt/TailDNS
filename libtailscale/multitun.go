@@ -13,6 +13,8 @@ import (
 	"tailscale.com/syncs"
 )
 
+const defaultMTU = 1280 // minimalMTU from wgengine/userspace.go
+
 // multiTUN implements a tun.Device that supports multiple
 // underlying devices. This is necessary because Android VPN devices
 // have static configurations and wgengine.NewUserspaceEngine
@@ -265,7 +267,32 @@ func (d *multiTUN) runDevice(dev *tunDevice) {
 		select {
 		case w := <-d.writes:
 			n, err := dev.dev.Write(w.data, w.offset)
-			w.reply <- ioReply{n, err}
+			if err == nil {
+				w.reply <- ioReply{n, nil}
+				continue
+			}
+
+			// VpnService.Builder.establish invalidates the previous Android TUN
+			// before the replacement descriptor can be added to multiTUN. If a
+			// netstack packet lands in that handoff window, the old descriptor
+			// returns EIO. Propagating that transient error permanently stops
+			// netstack's host-output pump, taking MagicDNS and PeerAPI down while
+			// WireGuard remains healthy. Keep the write pending until the device
+			// transition is explicit, then retry it on the replacement device.
+			select {
+			case <-dev.close:
+				go func() {
+					n, err := d.Write(w.data, w.offset)
+					w.reply <- ioReply{n, err}
+				}()
+				return
+			case <-d.downCh.Load():
+				w.reply <- ioReply{}
+				return
+			case <-d.close:
+				w.reply <- ioReply{err: os.ErrClosed}
+				return
+			}
 		case <-dev.close:
 			// Device closed.
 			return

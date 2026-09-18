@@ -3,7 +3,7 @@
 Authority: [SPECIFICATION.md](SPECIFICATION.md), version 1.4.
 Assessment: [EVALUATION.md](EVALUATION.md).
 
-Authorization: implementation, GitHub signing and final release are already authorized. Temporary Thor testing, Guard suspension/VPN switching with restoration, and saving the supplied Android provider are explicitly authorized. Upstream auto-update and current-task monitoring are authorized only after validation. Stage 1 is BLOCKED on B3's controlled-network matrix; Stage 2 is BLOCKED on B4's device-input verification restriction; Stages 3–7 are NOT STARTED. No implementation stage is complete. Evidence gates remain required work, not passing results.
+Authorization: implementation, GitHub signing and final release are already authorized. Temporary Thor testing, Guard suspension/VPN switching with restoration, and saving the supplied Android provider are explicitly authorized. Upstream auto-update and current-task monitoring are authorized only after validation. Stage 1 is BLOCKED on B3's controlled-network matrix; Stage 2 is BLOCKED on B4's device-input verification restriction; Stage 3 is ACTIVE; Stages 4–7 are NOT STARTED. No implementation stage is complete. Evidence gates remain required work, not passing results.
 
 There may be only one **ACTIVE** stage. Other allowed statuses are **NOT STARTED**, **BLOCKED**, and **COMPLETE**. Park an actual blocked stage with the exact requirement, cause, ownership, resolving condition and dependent work before activating another. Close a stage only with fresh evidence for every assigned criterion.
 
@@ -64,7 +64,7 @@ Candidate 35361257936 passed native/Android build, affected core suites, Android
 
 ## Stage 3 — Native Android reliability and Guard-obsolescence proof
 
-Status: **NOT STARTED**. Normally follows Stage 2. R12 baseline investigation can proceed if an earlier stage is explicitly parked as BLOCKED by a reliability defect; only one stage may be ACTIVE.
+Status: **ACTIVE**. Stages 1 and 2 remain parked on their recorded external verification blockers. Stage 3 is the sole active implementation stage.
 
 Scope: audit native lifecycle/packet paths, reproduce the Guard's scenarios, implement only evidence-backed root-cause fixes, and prove the Thor no longer needs the workaround. Do not modify or embed the Guard.
 
