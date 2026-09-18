@@ -1,0 +1,167 @@
+name: TailDNS release
+
+on:
+  push:
+    tags:
+      - 'v*-taildns.*'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: taildns-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.repository == 'Darkaxt/tailscale-android' && github.ref_type == 'tag' && github.actor == github.repository_owner
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Validate tag and derive version code
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-taildns\.[0-9]+$ ]]
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git rev-list -n 1 "$GITHUB_REF_NAME")" = "$GITHUB_SHA"
+          commit_epoch="$(git show -s --format=%ct "$GITHUB_SHA")"
+          version_code_base="$((commit_epoch / 60 * 10))"
+          test "$version_code_base" -gt 100
+          test "$version_code_base" -lt 2147483640
+          echo "VERSION_CODE_BASE=$version_code_base" >> "$GITHUB_ENV"
+      - name: Build and test exact source
+        shell: bash
+        run: |
+          set -euo pipefail
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-36' 'build-tools;36.0.0' 'ndk;23.1.7779620'
+          make version libtailscale
+          make go-test
+          core_dir="$(./tool/go list -m -f '{{.Dir}}' tailscale.com)"
+          go_bin="$(./tool/go env GOROOT)/bin/go"
+          (cd "$core_dir" && "$go_bin" test -mod=readonly ./ipn/... ./net/dns/... ./client/local ./cmd/taildns ./safesocket -count=1)
+          cd android
+          ./gradlew ktfmtCheck test lintRelease assembleRelease -PVERSION_CODE_BASE="$VERSION_CODE_BASE"
+      - name: Package exact Windows companion
+        shell: bash
+        run: |
+          set -euo pipefail
+          core_dir="$(./tool/go list -m -f '{{.Dir}}' tailscale.com)"
+          go_bin="$(./tool/go env GOROOT)/bin/go"
+          mkdir -p release-input/windows
+          (cd "$core_dir" && env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 "$go_bin" build -trimpath -o "$GITHUB_WORKSPACE/release-input/windows/taildns.exe" ./cmd/taildns)
+          (cd "$core_dir" && env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 "$go_bin" build -trimpath -o "$GITHUB_WORKSPACE/release-input/windows/taildnsd.exe" ./cmd/tailscaled)
+          (cd "$core_dir" && env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 "$go_bin" build -trimpath -o "$GITHUB_WORKSPACE/release-input/windows/tailscale.exe" ./cmd/tailscale)
+          cp docs/local-dns-override/WINDOWS-RELEASE.md release-input/windows/README.md
+          cp LICENSE release-input/windows/ANDROID-LICENSE.txt
+          cp "$core_dir/LICENSE" release-input/windows/TAILSCALE-CORE-LICENSE.txt
+          cp android/build/outputs/apk/release/android-release-unsigned.apk release-input/taildns-unsigned.apk
+          cp docs/local-dns-override/RELEASE-NOTES.md release-input/release-notes.md
+          source tailscale.version
+          android_version="$(sed -n "s/.*versionName='\([^']*\)'.*/\1/p" < <("$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging release-input/taildns-unsigned.apk) | head -n 1)"
+          android_code="$(sed -n "s/.*versionCode='\([^']*\)'.*/\1/p" < <("$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging release-input/taildns-unsigned.apk) | head -n 1)"
+          test "$android_code" = "$VERSION_CODE_BASE"
+          cat > release-input/provenance.txt <<EOF
+          Release tag: $GITHUB_REF_NAME
+          Android source: $GITHUB_SHA
+          Core source: $VERSION_GIT_HASH
+          Core module: $(./tool/go list -m -f '{{.Replace.Path}} {{.Replace.Version}}' tailscale.com)
+          Android package: io.github.darkaxt.taildns
+          Android version code: $android_code
+          Android version name: $android_version
+          Android signer: verified after isolated signing
+          Windows target: windows/amd64
+          Windows Authenticode: not signed
+          Go: $($go_bin version)
+          EOF
+          (cd release-input/windows && sha256sum taildns.exe taildnsd.exe tailscale.exe > SHA256SUMS)
+          (cd release-input && zip -9 -r taildns-windows-amd64.zip windows)
+          rm -rf release-input/windows
+      - name: Preserve inert release inputs for isolated signing
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: release-input
+          path: release-input/
+          if-no-files-found: error
+          retention-days: 7
+
+  sign-and-publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Install pinned signing tools
+        run: '"$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "build-tools;36.0.0"'
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: release-input
+          path: candidate
+      # This job never checks out or executes repository code, build plugins, or packaged binaries.
+      - name: Sign and verify release artifacts
+        env:
+          KEYSTORE_BASE64: ${{ secrets.TAILDNS_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.TAILDNS_KEYSTORE_PASSWORD }}
+          EXPECTED_SIGNER: ${{ vars.TAILDNS_SIGNER_SHA256 }}
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          test -f candidate/taildns-unsigned.apk
+          test -f candidate/taildns-windows-amd64.zip
+          test -f candidate/provenance.txt
+          test -f candidate/release-notes.md
+          expected_code="$(sed -n 's/^Android version code: //p' candidate/provenance.txt)"
+          expected_name="$(sed -n 's/^Android version name: //p' candidate/provenance.txt)"
+          test -n "$expected_code"
+          test -n "$expected_name"
+          previous_tag="$(gh release list --repo "$GITHUB_REPOSITORY" --limit 100 --json tagName,isDraft --jq '.[] | select(.isDraft == false) | .tagName' | grep -- '-taildns\.' | head -n 1 || true)"
+          if [[ -n "$previous_tag" ]]; then
+            mkdir previous
+            gh release download "$previous_tag" --repo "$GITHUB_REPOSITORY" --pattern provenance.txt --dir previous
+            previous_code="$(sed -n 's/^Android version code: //p' previous/provenance.txt)"
+            test -n "$previous_code"
+            test "$expected_code" -gt "$previous_code"
+          fi
+          unzip -t candidate/taildns-windows-amd64.zip
+          for required in taildns.exe taildnsd.exe tailscale.exe README.md ANDROID-LICENSE.txt TAILSCALE-CORE-LICENSE.txt SHA256SUMS; do
+            unzip -Z1 candidate/taildns-windows-amd64.zip | grep -Fx "windows/$required"
+          done
+          key="$RUNNER_TEMP/taildns.jks"
+          trap 'rm -f "$key"' EXIT
+          printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$key"
+          tools="$ANDROID_HOME/build-tools/36.0.0"
+          mkdir release
+          "$tools/zipalign" -P 16 -f 4 candidate/taildns-unsigned.apk "$RUNNER_TEMP/aligned.apk"
+          "$tools/apksigner" sign --ks "$key" --ks-key-alias taildns --ks-pass env:KEYSTORE_PASSWORD --key-pass env:KEYSTORE_PASSWORD --out release/taildns-android.apk "$RUNNER_TEMP/aligned.apk"
+          "$tools/apksigner" verify --verbose --print-certs release/taildns-android.apk | tee release/signature.txt
+          test -n "$EXPECTED_SIGNER"
+          grep -F "Signer #1 certificate SHA-256 digest: $EXPECTED_SIGNER" release/signature.txt
+          "$tools/aapt" dump badging release/taildns-android.apk > release/package.txt
+          grep -F "package: name='io.github.darkaxt.taildns'" release/package.txt
+          grep -F "versionCode='$expected_code'" release/package.txt
+          grep -F "versionName='$expected_name'" release/package.txt
+          cp candidate/taildns-windows-amd64.zip candidate/provenance.txt release/
+          (cd release && find . -maxdepth 1 -type f ! -name SHA256SUMS -printf '%f\0' | sort -z | xargs -0 sha256sum > SHA256SUMS)
+      - name: Publish immutable GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF_TYPE" = tag
+          gh release create "$GITHUB_REF_NAME" release/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --verify-tag \
+            --title "TailDNS ${GITHUB_REF_NAME#v}" \
+            --notes-file candidate/release-notes.md
