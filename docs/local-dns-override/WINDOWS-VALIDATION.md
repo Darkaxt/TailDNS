@@ -39,6 +39,9 @@ Against the isolated fork before login:
 
 - `taildns --socket ... status` reaches the selected named pipe;
 - it truthfully reports no active profile, no configured override and no applied override;
+- JSON status reports empty profile/endpoint values with `Configured` and `Applied` both false;
+- an `http://` endpoint is rejected locally before any profile read or mutation;
+- a syntactically valid `set` and `clear` both exit nonzero with `daemon has no active profile`, rather than claiming a saved or applied change;
 - the separate login flow identifies only the isolated test node and leaves the official service untouched.
 
 ## Active acceptance work
