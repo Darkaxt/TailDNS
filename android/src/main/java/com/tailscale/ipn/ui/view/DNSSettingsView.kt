@@ -125,7 +125,15 @@ fun DNSSettingsView(
               var enabled by
                   remember(saved.ProfileID, saved.Configured) { mutableStateOf(saved.Configured) }
               var endpoint by
-                  remember(saved.ProfileID, saved.Endpoint) { mutableStateOf(saved.Endpoint) }
+                  remember(saved.ProfileID, saved.ManualEndpoint) {
+                    mutableStateOf(saved.ManualEndpoint)
+                  }
+              var followAndroid by
+                  remember(saved.ProfileID, saved.FollowAndroid) {
+                    mutableStateOf(
+                        saved.FollowAndroid || (!saved.Configured && saved.ManualEndpoint.isEmpty())
+                    )
+                  }
               val editable =
                   !dnsSettingsMDMDisposition.value.hiddenFromUser &&
                       saved.ProfileID.isNotEmpty() &&
@@ -134,18 +142,32 @@ fun DNSSettingsView(
                 Text(stringResource(R.string.local_dns_enable), Modifier.weight(1f))
                 Switch(checked = enabled, onCheckedChange = { enabled = it }, enabled = editable)
               }
-              OutlinedTextField(
-                  value = endpoint,
-                  onValueChange = { endpoint = it },
-                  label = { Text(stringResource(R.string.local_dns_endpoint)) },
-                  singleLine = true,
-                  enabled = editable,
-                  modifier = Modifier.fillMaxWidth(),
-              )
+              Row {
+                Text(stringResource(R.string.local_dns_follow), Modifier.weight(1f))
+                Switch(
+                    checked = followAndroid,
+                    onCheckedChange = { followAndroid = it },
+                    enabled = editable,
+                )
+              }
+              if (followAndroid) {
+                Text(stringResource(R.string.local_dns_follow_description))
+                if (saved.FollowAndroid && saved.Endpoint.isNotEmpty()) Text(saved.Endpoint)
+              } else
+                  OutlinedTextField(
+                      value = endpoint,
+                      onValueChange = { endpoint = it },
+                      label = { Text(stringResource(R.string.local_dns_endpoint)) },
+                      singleLine = true,
+                      enabled = editable,
+                      modifier = Modifier.fillMaxWidth(),
+                  )
               Text(saved.Reason)
               Button(
                   enabled = editable,
-                  onClick = { model.saveLocalDNS(saved.ProfileID, enabled, endpoint) },
+                  onClick = {
+                    model.saveLocalDNS(saved.ProfileID, enabled, endpoint, followAndroid)
+                  },
               ) {
                 Text(stringResource(R.string.local_dns_save))
               }

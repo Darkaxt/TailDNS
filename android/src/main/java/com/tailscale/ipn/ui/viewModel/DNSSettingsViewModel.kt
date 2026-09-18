@@ -58,6 +58,7 @@ class DNSSettingsViewModel : IpnViewModel() {
           ) { _, _, _, _, _ ->
             Unit
           }
+          .combine(App.get().privateDNSChanges) { _, _ -> Unit }
           .collect { refreshLocalDNS() }
     }
     viewModelScope.launch {
@@ -97,11 +98,18 @@ class DNSSettingsViewModel : IpnViewModel() {
     }
   }
 
-  fun saveLocalDNS(profileID: String, enabled: Boolean, endpoint: String) {
+  fun saveLocalDNS(
+      profileID: String,
+      enabled: Boolean,
+      endpoint: String,
+      followAndroid: Boolean = false,
+  ) {
     if (savingLocalDNS.value) return
     savingLocalDNS.value = true
     ++localDNSGeneration
-    Client(viewModelScope).editLocalDNS(LocalDNSUpdate(profileID, enabled, endpoint)) { result ->
+    Client(viewModelScope).editLocalDNS(
+        LocalDNSUpdate(profileID, enabled, endpoint, followAndroid)
+    ) { result ->
       savingLocalDNS.value = false
       localDNSError.value = result.isFailure
       // Re-read current state: a successful edit may have preceded a profile switch.

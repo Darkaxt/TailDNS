@@ -6,6 +6,7 @@ package libtailscale
 import (
 	"context"
 	"crypto/x509"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -148,6 +149,21 @@ func (a *App) runBackend(ctx context.Context, hardwareAttestation bool) error {
 	a.logIDPublicAtomic.Store(&b.logIDPublic)
 	a.logger.Store(b.logger)
 	a.backend = b.backend
+	a.backend.SetLocalDNSPlatform(func() (string, string, error) {
+		value, err := a.appCtx.ReadPrivateDNSProviderJSON()
+		if err != nil {
+			return "", "", errors.New("Android DNS settings unreadable")
+		}
+		var source struct {
+			Hostname string
+			Mode     string
+		}
+		if json.Unmarshal([]byte(value), &source) != nil {
+			return "", "", errors.New("Android DNS settings unreadable")
+		}
+		return source.Hostname, source.Mode, nil
+	}, a.appCtx.SetPrivateDNSObservation)
+	defer a.appCtx.SetPrivateDNSObservation(false)
 	if hardwareAttestation {
 		a.backend.SetHardwareAttested()
 	}

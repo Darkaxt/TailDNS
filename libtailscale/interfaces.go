@@ -62,6 +62,11 @@ type AppContext interface {
 	// configuration.
 	GetPlatformDNSConfig() string
 
+	// ReadPrivateDNSProviderJSON reads the saved hostname and system mode without
+	// privileged APIs. SetPrivateDNSObservation registers before the first read.
+	ReadPrivateDNSProviderJSON() (string, error)
+	SetPrivateDNSObservation(enabled bool) error
+
 	// GetSyspolicyStringValue returns the current string value for the given system policy.
 	GetSyspolicyStringValue(key string) (string, error)
 
@@ -140,6 +145,7 @@ type Application interface {
 	// NotifyPolicyChanged notifies the backend about a changed MDM policy,
 	// so it can re-read it via the [syspolicyHandler].
 	NotifyPolicyChanged()
+	NotifyPrivateDNSChanged()
 
 	// SetClientLoggingEnabled sets whether diagnostic logs are uploaded to
 	// Tailscale's logging backend. Changes take effect immediately.

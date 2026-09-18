@@ -5,7 +5,9 @@
     <string name="fork_app_name" translatable="false">TailDNS</string>
     <string name="local_dns_title">Local default DNS</string>
     <string name="local_dns_scope">Overrides the default resolver for this profile. MagicDNS and more-specific routes stay under Tailscale control. No generic-provider fallback is used. Generic resolver bootstrap may send only the provider hostname in plaintext to the underlying network DNS, outside an exit node.</string>
-    <string name="local_dns_enable">Use custom default resolver</string>
+    <string name="local_dns_enable">Use local default resolver</string>
+    <string name="local_dns_follow">Follow Android Private DNS provider</string>
+    <string name="local_dns_follow_description">Automatically follows the saved Android provider while the VPN is running, without reopening this screen or reconnecting. Control D hostnames are currently supported. Missing or unsupported providers block default DNS instead of falling back. Turn this option off for manual HTTPS configuration.</string>
     <string name="local_dns_endpoint">HTTPS DNS endpoint</string>
     <string name="local_dns_save">Save DNS setting</string>
     <string name="local_dns_strict_conflict">Strict Android Private DNS is active and may bypass or conflict with VPN DNS. TailDNS does not change that system setting.</string>

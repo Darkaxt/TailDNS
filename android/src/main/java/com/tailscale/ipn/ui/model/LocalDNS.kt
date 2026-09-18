@@ -12,11 +12,19 @@ data class LocalDNSStatus(
     val Endpoint: String = "",
     val Applied: Boolean = false,
     val Reason: String = "",
+    val FollowAndroid: Boolean = false,
+    val ManualEndpoint: String = "",
+    val SystemMode: String = "",
 ) {
   override fun toString() = "LocalDNSStatus(configured=$Configured, applied=$Applied)"
 }
 
 @Serializable
-data class LocalDNSUpdate(val ProfileID: String, val Enabled: Boolean, val Endpoint: String) {
+data class LocalDNSUpdate(
+    val ProfileID: String,
+    val Enabled: Boolean,
+    val Endpoint: String,
+    val FollowAndroid: Boolean = false,
+) {
   override fun toString() = "LocalDNSUpdate(enabled=$Enabled, endpoint=<redacted>)"
 }

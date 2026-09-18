@@ -1,6 +1,6 @@
 # Local DNS override — authoritative specification
 
-Version: 1.2. Date: 2026-09-18. Status: **implementation and temporary Thor testing authorized; Stage 1 BLOCKED pending user authentication**.
+Version: 1.2. Date: 2026-09-18. Status: **implementation and temporary Thor testing authorized; Stage 1 BLOCKED on controlled-network verification; Stage 2 ACTIVE**. Requirement text is unchanged; see the plan for current evidence.
 
 Revision 1.2 records the user's authorization to implement, establish GitHub signing, and publish a proper release. R15 adds signed release delivery; R16 adds upstream auto-update and current-task monitoring only after validation. The historical documentation-only boundaries below describe the earlier delivery, not a revocation of this authorization. Live device changes remain subject to the explicit safety boundaries in R10 and R14.
 

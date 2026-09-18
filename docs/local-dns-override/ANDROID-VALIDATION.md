@@ -25,9 +25,54 @@ and its original process and Guard monitor remain running. Guard/VPN switching
 has not yet occurred. Public name resolution and direct-IP reachability succeeded
 before setup, and public resolution still succeeds afterward. These checks are
 baseline controls, not proof that TailDNS or the custom provider resolved them.
-User authentication in TailDNS is pending; do not infer an authenticated profile
-from successful application launch. The additional connected Samsung tablet was
+At this installation checkpoint, authentication was pending; subsequent evidence
+is recorded below. The additional connected Samsung tablet was
 not modified.
+
+## Manual slice and restoration — 2026-09-18
+
+The user completed login and tailnet-lock authorization. With the exact Guard
+process suspended and official Always-on temporarily released, TailDNS reached
+Running. Through its editor, the supplied Control D URL was enabled and reported
+applied (not automatically lookup-verified). Explicit quad-100 queries for
+`example.org` returned A/AAAA answers, and a bounded packet capture established
+HTTPS traffic to Control D's maintained `76.76.2.22` address. A local tailnet
+MagicDNS name resolved to its expected tailnet address. Private names and profile
+identifiers are omitted.
+
+Disabling the override restored upstream selection and a public lookup succeeded.
+The generic `https://doh.opendns.com/dns-query` endpoint then applied and answered
+`example.net`. The observed base-DNS TCP bootstrap contained only provider-host
+A/AAAA lookups. This bounded capture is not proof of the complete leak/failure
+matrix. Ordinary logs showed redacted local endpoint markers.
+
+After testing, TailDNS was disconnected, the official VPN and Always-on assignment
+were restored, lockdown remained 0, and the verified Guard process was resumed.
+VPN ownership and Guard execution were inspected; an explicit quad-100 public
+lookup passed. Both apps and their login state remain installed. The user's saved
+Android provider remains in Automatic mode. The Samsung tablet was untouched.
+
+Stage 1 remains BLOCKED: this Thor network has no IPv6 route and no controlled
+IPv6-only/dual-stack/captive-portal environment is available. Remaining profile,
+lifecycle, policy, exit-node and failure-matrix checks are not passed or deferred.
+Stage 2 automatic observation/propagation has not yet received device proof.
+
+## Automatic-follow candidate procedure
+
+With the same entry/restoration controls, enable the local resolver and follow
+mode once. Confirm its derived endpoint matches the saved Android provider,
+without copying it into manual configuration. Leave the app UI. Change the saved
+hostname to an unsupported test hostname and verify public default queries fail
+closed while a locally answered MagicDNS query remains functional. Restore the
+user-supplied hostname and verify queries recover without a reconnect or opening
+the app. Inspect effective status on return; it must not retain a stale success.
+
+Verify successive saves, observer teardown on disable/manual selection, process
+recreation, profile isolation and mode-conflict reporting. Restore the user's
+hostname and Automatic mode after every destructive-to-test configuration case.
+Repeat on both specified devices with ordinary app permissions. ADB writes are
+test stimuli only: the application must neither write settings nor require a
+privileged grant. Do not substitute the unrelated connected tablet for the phone.
 
 ## Entry and recovery
 

@@ -50,8 +50,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -83,6 +86,21 @@ class App : UninitializedApp(), libtailscale.AppContext, ViewModelStoreOwner {
   }
 
   val dns = DnsConfig()
+  private val privateDNSRevision = MutableStateFlow(0L)
+  val privateDNSChanges = privateDNSRevision.asStateFlow()
+  private val privateDNSObserver by lazy {
+    PrivateDNSObserver(contentResolver) {
+      applicationScope.launch {
+        getLibtailscaleApp().notifyPrivateDNSChanged()
+        privateDNSRevision.update { it + 1 }
+      }
+    }
+  }
+
+  override fun readPrivateDNSProviderJSON(): String = privateDNSObserver.read()
+
+  override fun setPrivateDNSObservation(enabled: Boolean) = privateDNSObserver.setEnabled(enabled)
+
   private lateinit var connectivityManager: ConnectivityManager
   private lateinit var mdmChangeReceiver: MDMSettingsChangedReceiver
   private lateinit var app: libtailscale.Application
@@ -144,6 +162,7 @@ class App : UninitializedApp(), libtailscale.AppContext, ViewModelStoreOwner {
 
   override fun onTerminate() {
     super.onTerminate()
+    privateDNSObserver.setEnabled(false)
     Notifier.stop()
     notificationManager.cancelAll()
     applicationScope.cancel()

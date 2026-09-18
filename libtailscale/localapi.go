@@ -107,6 +107,11 @@ func (app *App) CallLocalAPIMultipart(timeoutMillis int, method, endpoint string
 	}
 }
 
+func (app *App) NotifyPrivateDNSChanged() {
+	app.ready.Wait()
+	app.backend.NotifyLocalDNSPlatformChanged()
+}
+
 func (app *App) NotifyPolicyChanged() {
 	app.policyStore.notifyChanged()
 }

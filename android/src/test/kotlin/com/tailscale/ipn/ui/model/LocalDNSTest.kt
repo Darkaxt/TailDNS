@@ -10,6 +10,23 @@ import org.junit.Test
 
 class LocalDNSTest {
   @Test
+  fun followSourceKeepsManualEndpointSeparateAndRedacted() {
+    val status =
+        LocalDNSStatus(
+            Configured = true,
+            FollowAndroid = true,
+            Endpoint = "https://dns.controld.com/follow-private",
+            ManualEndpoint = "https://resolver.example/manual-private",
+            SystemMode = "opportunistic",
+        )
+    assertEquals(status, Json.decodeFromString<LocalDNSStatus>(Json.encodeToString(status)))
+    assertFalse(status.toString().contains("private"))
+    val update = LocalDNSUpdate("profile", true, "", true)
+    assertEquals(update, Json.decodeFromString<LocalDNSUpdate>(Json.encodeToString(update)))
+    assertTrue(Json.encodeToString(update).contains("\"FollowAndroid\":true"))
+  }
+
+  @Test
   fun updatePreservesProfileAndEndpointButDoesNotLogThem() {
     val update = LocalDNSUpdate("profile-a", true, "https://dns.controld.com/private-client")
     val json = Json.encodeToString(update)
