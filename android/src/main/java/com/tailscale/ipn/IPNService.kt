@@ -45,61 +45,68 @@ open class IPNService : VpnService(), libtailscale.IPNService {
     }
   }
 
-  override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int =
-      when (intent?.action) {
-        ACTION_STOP_VPN -> {
-          app.setWantRunning(false)
+  override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    val action = intent?.action
+    if (shouldShowForegroundNotification(action)) {
+      // Android temporarily allowlists an always-on VPN process only long enough
+      // for it to promote the service. Without this, a system-started VPN is
+      // classified as a cached process and can be reclaimed while connected.
+      showForegroundNotification()
+    }
+
+    return when (action) {
+      ACTION_STOP_VPN -> {
+        app.setWantRunning(false)
+        close()
+        START_NOT_STICKY
+      }
+      ACTION_RESTART_VPN -> {
+        app.setWantRunning(false) {
           close()
-          START_NOT_STICKY
+          app.startVPN()
         }
-        ACTION_RESTART_VPN -> {
-          app.setWantRunning(false) {
-            close()
-            app.startVPN()
-          }
-          START_NOT_STICKY
+        START_NOT_STICKY
+      }
+      ACTION_START_FOREGROUND_ONLY -> {
+        // Start the foreground service notification without creating a VPN tunnel.
+        // This is used during interactive login so that Android does not freeze the process
+        // or restrict network access while the user completes auth in the browser.
+        START_NOT_STICKY
+      }
+      ACTION_START_VPN -> {
+        app.setWantRunning(true)
+        Libtailscale.requestVPN(this)
+        START_STICKY
+      }
+      VpnService.SERVICE_INTERFACE -> {
+        // This means we were started by Android due to Always On VPN.
+        // Refresh the foreground notification once managed settings and
+        // the current exit-node status are available.
+        scope.launch {
+          // Collect the first value of hideDisconnectAction asynchronously.
+          val hideDisconnectAction = MDMSettings.forceEnabled.flow.first()
+          val exitNodeName =
+              UninitializedApp.getExitNodeName(Notifier.prefs.value, Notifier.netmap.value)
+          app.notifyStatus(true, hideDisconnectAction.value, exitNodeName)
         }
-        ACTION_START_FOREGROUND_ONLY -> {
-          // Start the foreground service notification without creating a VPN tunnel.
-          // This is used during interactive login so that Android does not freeze the process
-          // or restrict network access while the user completes auth in the browser.
+        app.setWantRunning(true)
+        Libtailscale.requestVPN(this)
+        START_STICKY
+      }
+      else -> {
+        // This means that we were restarted after the service was killed
+        // (potentially due to OOM).
+        if (UninitializedApp.get().isAbleToStartVPN()) {
           showForegroundNotification()
-          START_NOT_STICKY
-        }
-        ACTION_START_VPN -> {
-          showForegroundNotification()
-          app.setWantRunning(true)
+          App.get()
           Libtailscale.requestVPN(this)
           START_STICKY
-        }
-        "android.net.VpnService" -> {
-          // This means we were started by Android due to Always On VPN.
-          // We show a non-foreground notification because we weren't
-          // started as a foreground service.
-          scope.launch {
-            // Collect the first value of hideDisconnectAction asynchronously.
-            val hideDisconnectAction = MDMSettings.forceEnabled.flow.first()
-            val exitNodeName =
-                UninitializedApp.getExitNodeName(Notifier.prefs.value, Notifier.netmap.value)
-            app.notifyStatus(true, hideDisconnectAction.value, exitNodeName)
-          }
-          app.setWantRunning(true)
-          Libtailscale.requestVPN(this)
-          START_STICKY
-        }
-        else -> {
-          // This means that we were restarted after the service was killed
-          // (potentially due to OOM).
-          if (UninitializedApp.get().isAbleToStartVPN()) {
-            showForegroundNotification()
-            App.get()
-            Libtailscale.requestVPN(this)
-            START_STICKY
-          } else {
-            START_NOT_STICKY
-          }
+        } else {
+          START_NOT_STICKY
         }
       }
+    }
+  }
 
   override fun close() {
     if (closed) return
@@ -258,6 +265,11 @@ open class IPNService : VpnService(), libtailscale.IPNService {
     const val ACTION_START_FOREGROUND_ONLY = "com.tailscale.ipn.START_FOREGROUND_ONLY"
   }
 }
+
+internal fun shouldShowForegroundNotification(action: String?): Boolean =
+    action == IPNService.ACTION_START_VPN ||
+        action == IPNService.ACTION_START_FOREGROUND_ONLY ||
+        action == VpnService.SERVICE_INTERFACE
 
 internal fun packagesForVpnBuilder(
     packagesList: List<String>,

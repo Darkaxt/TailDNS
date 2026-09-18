@@ -3,10 +3,21 @@
 
 package com.tailscale.ipn
 
+import android.net.VpnService
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class IPNServiceTest {
+  @Test
+  fun systemAlwaysOnStartRequiresForegroundServicePromotion() {
+    assertTrue(shouldShowForegroundNotification(VpnService.SERVICE_INTERFACE))
+    assertTrue(shouldShowForegroundNotification(IPNService.ACTION_START_VPN))
+    assertTrue(shouldShowForegroundNotification(IPNService.ACTION_START_FOREGROUND_ONLY))
+    assertFalse(shouldShowForegroundNotification(IPNService.ACTION_STOP_VPN))
+  }
+
   @Test
   fun allowedPackagesIncludeTailscale() {
     val packages =
