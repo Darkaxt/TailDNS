@@ -69,6 +69,12 @@ android {
 }
 
 dependencies {
+  constraints {
+    implementation("androidx.fragment:fragment:1.5.4") {
+      because("Align the compile classpath with the runtime Activity Result-compatible Fragment")
+    }
+  }
+
   // Android dependencies.
   implementation(libs.androidx.core)
   implementation(libs.androidx.coreKtx)
