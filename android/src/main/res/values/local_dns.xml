@@ -10,6 +10,6 @@
     <string name="local_dns_save">Save DNS setting</string>
     <string name="local_dns_strict_conflict">Strict Android Private DNS is active and may bypass or conflict with VPN DNS. TailDNS does not change that system setting.</string>
     <string name="local_dns_mode_unknown">Android Private DNS mode could not be determined. System mode compatibility is unverified.</string>
-    <string name="local_dns_tailnet_resolvers">Tailnet-advertised resolvers (local default override takes precedence)</string>
+    <string name="local_dns_tailnet_resolvers">Tailnet-advertised resolvers</string>
     <string name="local_dns_error">DNS settings could not be read or saved. Check the active profile, administrator policy and HTTPS endpoint. Unsaved edits have not been applied.</string>
 </resources>

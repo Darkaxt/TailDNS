@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.tailscale.ipn.App
 import com.tailscale.ipn.R
+import com.tailscale.ipn.mdm.MDMSettings
 import com.tailscale.ipn.ui.localapi.Client
 import com.tailscale.ipn.ui.model.Ipn
 import com.tailscale.ipn.ui.model.LocalDNSStatus
@@ -48,7 +49,15 @@ class DNSSettingsViewModel : IpnViewModel() {
 
   init {
     viewModelScope.launch {
-      combine(Notifier.state, Notifier.prefs, Notifier.netmap, loggedInUser) { _, _, _, _ -> Unit }
+      combine(
+              Notifier.state,
+              Notifier.prefs,
+              Notifier.netmap,
+              loggedInUser,
+              MDMSettings.useTailscaleDNSSettings.flow,
+          ) { _, _, _, _, _ ->
+            Unit
+          }
           .collect { refreshLocalDNS() }
     }
     viewModelScope.launch {

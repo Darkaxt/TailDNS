@@ -16,4 +16,6 @@ GitHub secrets: `TAILDNS_KEYSTORE_BASE64`, `TAILDNS_KEYSTORE_PASSWORD`. Public v
 
 The manual `TailDNS validation build` workflow only runs on this fork's `main`. Build/test and signing run on separate fresh runners; no repository code or build plugins run with secrets. It uploads a signed validation artifact, not a release. Candidate version codes are the workflow run number times ten. The final release pipeline must preserve this identity and allocate monotonically increasing version codes across both validation and release builds.
 
+Core provenance: `require tailscale.com` and its fork replacement must pin the same version. `scripts/fork-mkversion.sh` supplies the fork's Git history to upstream version generation, which otherwise ignores replacements. The embedded core hash must match the resolved module. For local builds, `TS_MKVERSION_OSS_GIT_CACHE` may point at the existing `Darkaxt/tailscale` checkout; otherwise an isolated `taildns-core` version cache is created. A different-origin cache is rejected, not repurposed.
+
 Status: identity provisioned; workflow execution and downloaded APK verification are still required. The production tag/release workflow and post-validation update automation belong to later stages and are not claimed complete here.
