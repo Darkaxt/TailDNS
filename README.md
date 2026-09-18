@@ -1,4 +1,24 @@
-# Tailscale Android Client
+# Tailscale Android — local DNS override fork
+
+An independent community fork of [tailscale/tailscale-android](https://github.com/tailscale/tailscale-android), maintained by [Darkaxt](https://github.com/Darkaxt). This project is not an official Tailscale product or endorsed by Tailscale.
+
+## Fork status
+
+**Specification published; local DNS override not implemented.** The current changes are documentation only. There is no fork feature APK or Windows companion release.
+
+The proposed feature lets a device choose its own DNS-over-HTTPS resolver, including a Control D endpoint/client, while preserving Tailscale's MagicDNS and applicable split-DNS routes. It does not require editing tailnet policy or changing other devices.
+
+- [Authoritative specification](docs/local-dns-override/SPECIFICATION.md): required behavior, precedence, platform boundaries, and acceptance criteria.
+- [Implementation evaluation](docs/local-dns-override/EVALUATION.md): source-backed corrections to the original recommendation and unresolved runtime evidence.
+- [Staged implementation plan](docs/local-dns-override/IMPLEMENTATION-PLAN.md): requirement mapping and verification gates; all implementation stages are **NOT STARTED**.
+
+On Android, the intended setup keeps system Private DNS at **Default/Automatic** while Tailscale is active. The proposed import reads the **saved hostname**, not `isPrivateDnsActive()` or `getPrivateDnsServerName()`. Import availability needs ordinary-app device verification; manual DoH entry remains available by design.
+
+This Android repository owns the specification and Android integration. Implementation also requires a separately maintained shared Go-core change. Windows requires that core plus a new minimal configuration frontend: the official Windows GUI is not open source. Those components have not been created or implemented here.
+
+## Upstream client documentation
+
+The material below describes the upstream client. Download links point to upstream/distributor builds, **not** builds containing this proposal. Existing build and release instructions are retained for reference; this documentation publication does not create or authorize a release.
 
 https://tailscale.com
 
@@ -159,8 +179,10 @@ adb shell pm uninstall com.tailscale.ipn
 
 ## Bugs
 
-Please file any issues about this code or the hosted service on
-[the tailscale issue tracker](https://github.com/tailscale/tailscale/issues).
+Please report this fork's specification or implementation issues in the
+[fork issue tracker](https://github.com/Darkaxt/tailscale-android/issues).
+Problems reproducible in an unmodified upstream client, or with the hosted
+service, belong in the [Tailscale issue tracker](https://github.com/tailscale/tailscale/issues).
 
 ## Contributing
 
@@ -173,10 +195,11 @@ We require [Developer Certificate of
 Origin](https://en.wikipedia.org/wiki/Developer_Certificate_of_Origin)
 `Signed-off-by` lines in commits.
 
-## About Us
+## Upstream attribution and license
 
-We are [Tailscale](https://tailscale.com). See
-https://tailscale.com/company for more about us and what we're
-building.
+The original client is developed by [Tailscale](https://tailscale.com).
+See [Tailscale's company information](https://tailscale.com/company) for details.
+The upstream [BSD 3-Clause license](LICENSE) and copyright notices are retained.
+This fork does not claim ownership of upstream trademarks.
 
 WireGuard is a registered trademark of Jason A. Donenfeld.
