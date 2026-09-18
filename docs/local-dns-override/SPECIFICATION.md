@@ -1,6 +1,6 @@
 # Local DNS override — authoritative specification
 
-Version: 1.5. Date: 2026-09-19. Status: **Stages 3–6 COMPLETE; Stage 7 post-release automation ACTIVE**. Test every acceptance path available on the authorized Thor and host environments. An unavailable edge-case environment or prohibited automation action must be recorded honestly, but must not stop implementation, deployment or release when the implemented behavior and accessible primary workflows pass.
+Version: 1.5. Date: 2026-09-19. Status: **Stages 3–7 COMPLETE**. Stages 1 and 2 remain parked only on the explicitly disclosed specification-1.5 validation gaps; every accessible required implementation, release and automation acceptance path is complete. An unavailable edge-case environment or prohibited automation action must be recorded honestly, but must not stop implementation, deployment or release when the implemented behavior and accessible primary workflows pass.
 
 Revision 1.5 records the user's explicit delivery instruction to complete deployment and test what can be tested rather than stopping on an unavailable edge case. This changes verification gating, not required product behavior: inaccessible IPv6/captive-portal variants and a tool-prohibited device-input action become disclosed validation gaps, not release blockers. No untested path may be described as tested, and the original Thor Guard scenarios remain required where they can be exercised on Thor.
 
@@ -21,7 +21,7 @@ Let a user explicitly choose a device-local DNS-over-HTTPS default resolver whil
 
 On Android, an opt-in follow mode automatically propagates the saved system provider into Tailscale. Independently, fix native Android DNS/service lifecycle defects so the rooted Thor Guard is unnecessary for its demonstrated failure scenarios. The Guard is diagnostic history, not an implementation template or a component to improve.
 
-The feature covers Android and a Windows shared-core/companion path. Both implementations, their primary real-device/host workflows, final cross-platform reconciliation and signed public release are complete. Post-release upstream automation and task monitoring remain governed by Stage 7.
+The feature covers Android and a Windows shared-core/companion path. Both implementations, their primary real-device/host workflows, final cross-platform reconciliation, signed public release and guarded post-release automation are complete.
 
 This specification controls behavior and acceptance. A plan or implementation cannot weaken it. Changes require an explicit specification revision that identifies the changed requirements.
 
@@ -202,4 +202,4 @@ For each requirement record: implementation commit(s), exact core/Android revisi
 
 For each blocker record the requirement, concrete cause, internal/external ownership, resolving condition and dependent work. A deferral is valid only when assigned to a named later stage without weakening the current stage's acceptance criteria. All required blockers and deferrals must be resolved before overall completion.
 
-Current evidence includes source inspection and a narrowly scoped ordinary-app test on the Samsung SM-F966B, Android 16/API 36, security patch 2026-08-05. A non-debuggable probe targeting SDK 36 with no requested permissions read the saved Control D hostname in Automatic mode and matched the shell-read value. Settings were unchanged; the probe was uninstalled and its source/APKs/key deleted. This establishes saved-setting readability on that build only, not observation, propagation, resolver transport or Thor reliability. No feature acceptance stage is complete.
+The final evidence set is indexed by [FINAL-RECONCILIATION.md](FINAL-RECONCILIATION.md), [RELEASE-VALIDATION.md](RELEASE-VALIDATION.md) and [UPSTREAM-UPDATES.md](UPSTREAM-UPDATES.md). It includes exact source revisions and GitHub runs, independently verified release artifacts, Guard-disabled Thor workflows, isolated Windows integration, real upstream candidate rehearsals, and the verified task-attached monitor. The unavailable environments and prohibited device-input action remain explicitly untested rather than being inferred from the passing evidence.

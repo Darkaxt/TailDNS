@@ -1,4 +1,4 @@
-# Final R01–R14 reconciliation
+# Final R01–R16 reconciliation
 
 Date: 2026-09-18. Specification: 1.5. Stage: 5 COMPLETE.
 
@@ -58,6 +58,13 @@ specification 1.5:
   second OS identity. Profile/store and authorization boundaries therefore use
   focused regressions plus the available real single-profile/system workflows.
 
-No required tracked deferral remains in Stage 5. The production tag/release
-workflow, publication, independent release download verification and update
-installation proof are R15 work in active Stage 6.
+R15 is satisfied by the non-draft
+[v1.0.0-taildns.2 release](https://github.com/Darkaxt/tailscale-android/releases/tag/v1.0.0-taildns.2),
+its tag-bound trusted workflow, independent download verification and in-place
+Thor update evidence in [RELEASE-VALIDATION.md](RELEASE-VALIDATION.md).
+
+R16 is satisfied by the guarded core and Android updater workflows, their dry
+and real candidate rehearsals, trusted read-only validation runs, deliberate
+unmerged review state, verified failure recovery and the daily task-attached
+`monitor-taildns-upstream-updates` heartbeat recorded in
+[UPSTREAM-UPDATES.md](UPSTREAM-UPDATES.md). No required tracked deferral remains.

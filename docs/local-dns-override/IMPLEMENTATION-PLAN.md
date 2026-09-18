@@ -3,7 +3,7 @@
 Authority: [SPECIFICATION.md](SPECIFICATION.md), version 1.5.
 Assessment: [EVALUATION.md](EVALUATION.md).
 
-Authorization: implementation, GitHub signing, final release, upstream auto-update and current-task monitoring are already authorized. Temporary Thor testing, Guard suspension/VPN switching with restoration, and saving the supplied Android provider were explicitly authorized. Stage 1 is BLOCKED on B3's unavailable controlled-network variants; Stage 2 is BLOCKED on B4's prohibited device-input action; Stages 3–6 are COMPLETE; Stage 7 is ACTIVE. Under specification 1.5, B3 and B4 remain honest validation gaps but do not block completion of the accessible workflow.
+Authorization: implementation, GitHub signing, final release, upstream auto-update and current-task monitoring are already authorized. Temporary Thor testing, Guard suspension/VPN switching with restoration, and saving the supplied Android provider were explicitly authorized. Stage 1 is BLOCKED on B3's unavailable controlled-network variants; Stage 2 is BLOCKED on B4's prohibited device-input action; Stages 3–7 are COMPLETE. Under specification 1.5, B3 and B4 remain honest validation gaps but do not block completion of the accessible workflow.
 
 There may be only one **ACTIVE** stage. Other allowed statuses are **NOT STARTED**, **BLOCKED**, and **COMPLETE**. Park an actual blocked stage with the exact requirement, cause, ownership, resolving condition and dependent work before activating another. Close a stage only with fresh evidence for every assigned criterion.
 
@@ -106,7 +106,7 @@ Satisfied: validation run [35395256020](https://github.com/Darkaxt/tailscale-and
 
 ## Stage 6 — GitHub signing and public release
 
-Status: **COMPLETE**. Stage 7 is now the sole active stage.
+Status: **COMPLETE**.
 
 Acceptance: complete R15's trusted GitHub signing/release workflow, publish the tested version, independently verify downloaded artifacts and signer/package/version/provenance, and verify update compatibility on an authorized test device. No incomplete stage can be concealed by a release.
 
@@ -114,11 +114,11 @@ Satisfied: tag-bound run [35399346673](https://github.com/Darkaxt/tailscale-andr
 
 ## Stage 7 — Post-validation auto-update and current-task monitoring
 
-Status: **ACTIVE**. Stages 5–6 are complete.
+Status: **COMPLETE**. No implementation stage remains active.
 
 Acceptance: complete R16's safe upstream-update workflow and rehearsal, then create and verify one recurring monitor in this task for actionable update failures and bounded verified fixes. Do not enable either automation early.
 
-Satisfied: none. Remaining: all R16 criteria. Blockers: none recorded. Tracked deferrals: none. Overall completion requires R01–R16 reconciliation including release and automation evidence.
+Satisfied: the core detector dry run [35400995349](https://github.com/Darkaxt/tailscale/actions/runs/35400995349) and Android detector dry run [35400997742](https://github.com/Darkaxt/tailscale-android/actions/runs/35400997742) composed current upstream state without creating a branch, pull request or release. The real core updater run [35401383779](https://github.com/Darkaxt/tailscale/actions/runs/35401383779) opened [core candidate PR 1](https://github.com/Darkaxt/tailscale/pull/1); trusted read-only run [35401479720](https://github.com/Darkaxt/tailscale/actions/runs/35401479720) passed affected core suites and all three Windows cross-builds. The real Android updater run [35401972916](https://github.com/Darkaxt/tailscale-android/actions/runs/35401972916) opened [Android candidate PR 1](https://github.com/Darkaxt/tailscale-android/pull/1); trusted read-only run [35402092785](https://github.com/Darkaxt/tailscale-android/actions/runs/35402092785) passed Android/native build, focused tests, release APK assembly, affected core suites and the three Windows cross-builds. Both candidates remain open and unmerged for human review, signing credentials were unavailable to candidate code, and the verified release did not change. Recovery from the first skipped bot dispatch was rehearsed by correcting the trusted-dispatch boundary and rerunning the detector/check successfully rather than weakening validation. The task-attached heartbeat `monitor-taildns-upstream-updates` is active daily at 08:30 UTC, stays quiet when healthy and unchanged, and is scoped to actionable updater failures and bounded verified repairs without merge, tag, release, signer or device authority. [UPSTREAM-UPDATES.md](UPSTREAM-UPDATES.md) records the operating contract. Remaining: none. Blockers: none. Tracked deferrals: none.
 
 ## Requirement ownership
 
