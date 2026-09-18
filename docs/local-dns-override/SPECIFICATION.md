@@ -1,6 +1,8 @@
 # Local DNS override — authoritative specification
 
-Version: 1.0. Date: 2026-09-18. Status: **specified; implementation NOT STARTED**.
+Version: 1.1. Date: 2026-09-18. Status: **specified; implementation NOT STARTED**.
+
+Revision 1.1 adds R12–R14: native Android DNS reliability fixes intended to make Thor Tailscale DNS Guard unnecessary. It also corrects R02 to automatic propagation (not manual import), records the ordinary-app access test, and clarifies the transport work required by R08. No feature implementation is authorized by this documentation revision.
 
 Owner repository: [Darkaxt/tailscale-android](https://github.com/Darkaxt/tailscale-android).
 Related documents: [evaluation and evidence](EVALUATION.md), [implementation stages](IMPLEMENTATION-PLAN.md).
@@ -8,6 +10,8 @@ Related documents: [evaluation and evidence](EVALUATION.md), [implementation sta
 ## 1. Objective and delivery boundary
 
 Let a user explicitly choose a device-local DNS-over-HTTPS default resolver while Tailscale is running, without changing tailnet policy or another device. Preserve MagicDNS and applicable more-specific DNS routing. Initial provider-specific assistance targets Control D; manually entered DoH endpoints are also supported.
+
+On Android, an opt-in follow mode automatically propagates the saved system provider into Tailscale. Independently, fix native Android DNS/service lifecycle defects so the rooted Thor Guard is unnecessary for its demonstrated failure scenarios. The Guard is diagnostic history, not an implementation template or a component to improve.
 
 The complete future feature covers Android and a Windows shared-core/companion path. This publication delivers only the evaluation, specification, plan, public Android fork, and README. It does not implement the feature, create a shared-core/Windows repository, build an APK, install software, or publish a release.
 
@@ -19,7 +23,7 @@ This specification controls behavior and acceptance. A plan or implementation ca
 - Forking the proprietary Windows GUI, supporting other desktop platforms, or replacing the Tailscale control server.
 - A second Android VPN, root helper, watchdog, system Private DNS writer, or permanent OS resolver modification.
 - Arbitrary DoT-to-DoH inference, plaintext custom resolvers, automatic provider failover, or a general DNS-provider framework.
-- Continuous synchronization with the Android saved hostname. Import is an explicit snapshot operation.
+- Improving, embedding, or shipping the Thor Guard, duplicate-connect recovery sequences, or process-restart watchdog loops as the native solution.
 - Intercepting applications that use their own DNS/DoH or making a whole-device anonymity/leak-proof guarantee.
 
 ## 3. Required behavior
@@ -28,17 +32,21 @@ This specification controls behavior and acceptance. A plan or implementation ca
 
 Default is **Use Tailscale DNS**: upstream behavior unchanged. The second mode is **Custom DoH** with exactly one validated endpoint. Configuration is local to the device **and current Tailscale profile**, persisted using existing protected preference storage, never sent to the control plane. New profiles start in upstream mode. Disabling custom mode retains its saved endpoint for later explicit reuse; deleting a profile removes its associated override.
 
+Android additionally offers **Follow Android Private DNS provider**. The opt-in choice is profile-local; its provider source is the device's saved system hostname. Manual and follow modes are mutually exclusive. Disabling follow unregisters its observation and prevents queued callbacks from applying to another mode/profile.
+
 All writers use one backend-owned preference contract. Invalid edits do not replace the previously committed configuration. Switching profiles cannot temporarily apply the previous profile's endpoint to the new profile.
 
 Acceptance: first-run, save/restart, disable/re-enable, two-profile switching, deletion, and invalid-edit tests prove these semantics without a tailnet configuration change.
 
-### R02 — Android saved-hostname import
+### R02 — Automatic propagation of the saved Android provider
 
-Expose **Import saved Android Private DNS hostname** in the custom resolver editor. Read the saved `private_dns_specifier` independently of `private_dns_mode`. Do not gate import on `isPrivateDnsActive()` and do not use `getPrivateDnsServerName()` as its source. Show the converted endpoint for explicit confirmation; only Save changes the backend preference.
+After the user enables follow mode once, changes to `private_dns_specifier` propagate without an import button, another confirmation, opening the fork UI, or reconnecting the VPN. Read the saved hostname independently of `private_dns_mode`; do not use `isPrivateDnsActive()` or `getPrivateDnsServerName()` as the provider source. Mode changes update R03 conflict status without erasing the saved provider.
 
-Import is a snapshot, not a live subscription. Later system-setting changes do not change the saved custom endpoint. A null, blank, denied, unreadable, unsupported or invalid value leaves existing configuration unchanged and offers manual entry. Ordinary-app access must be tested; neither AOSP source nor privileged shell reads establish third-party access.
+Use lifecycle-owned settings observation, an initial read, and re-read on backend/service recreation. Serialize updates through backend ownership and reject stale profile/configuration generations. Register/read ordering must not miss a concurrent save. Do not use periodic polling, arbitrary debounce delays or sleeps. Observe only while the relevant service/follow state needs it and unregister on teardown.
 
-Acceptance: with a supported saved Control D hostname and system mode Default/Automatic, import produces the correct endpoint even when active Private DNS is false or has no server name. Tests cover missing/denied values, unsupported providers, cancellation, repeat import, and system edits after import. Record actual OS builds and app target SDK.
+A missing, denied, invalid or unsupported current value is a visible follow error, not permission to revert to generic tailnet DNS or silently keep using an obsolete provider. Retain the last value for diagnostics only; ordinary default-domain queries must fail closed while follow remains selected and has no usable source. Preserve applicable specific routes. Manual mode or explicitly disabling follow remains the user's escape hatch. A transport outage uses R08 behavior, not a different provider.
+
+Acceptance: real system saves propagate while the fork UI is closed; successive edits converge on the latest value; restart, observer teardown, profile switches and invalid-to-valid recovery are tested. A saved provider is consumed in Default/Automatic even without an active Private DNS server name. Verify observer delivery on the Samsung phone and Thor; the successful one-shot read test does not establish notification delivery. Record OS builds and target SDK and test permission/read failures without privileged grants.
 
 ### R03 — Android operating mode and privilege boundary
 
@@ -52,16 +60,16 @@ Acceptance: ordinary installation works, mode changes are reported on return to 
 
 Manually entered endpoints must be absolute `https` URLs with a nonempty DNS hostname, an explicit path, and port absent or 443. Reject user information, fragments, whitespace/control characters, malformed escaping, raw IP hosts, and query strings. These are intentional initial input constraints, not claims about all possible DoH services. Preserve path case and content. Do not follow redirects to another origin or downgrade TLS.
 
-Control D import accepts a single label before the exact `.dns.controld.com` suffix. Normalize hostname case and allow one DNS trailing dot. In the supported grammar the resolver ID is nonempty ASCII alphanumeric; an optional first hyphen introduces a nonempty client name containing only ASCII letters, digits and hyphens. Preserve subsequent client hyphens. Do not impose the example ID length as a rule. Reject extra labels, invalid DNS label lengths and ambiguous/unsupported forms; manual DoH entry is the escape hatch.
+Control D hostname conversion accepts a single label before the exact `.dns.controld.com` suffix. Normalize hostname case and allow one DNS trailing dot. In the supported grammar the resolver ID is nonempty ASCII alphanumeric; an optional first hyphen introduces a nonempty client name containing only ASCII letters, digits and hyphens. Preserve subsequent client hyphens. Do not impose the example ID length as a rule. Reject extra labels, invalid DNS label lengths and ambiguous/unsupported forms; manual DoH entry is the escape hatch.
 
 Examples, using fictional identifiers:
 
-| Saved hostname | Imported endpoint |
+| Saved hostname | Derived endpoint |
 | --- | --- |
 | `abcd1234.dns.controld.com` | `https://dns.controld.com/abcd1234` |
 | `abcd1234-name-goes-here.dns.controld.com` | `https://dns.controld.com/abcd1234/name-goes-here` |
 
-The mapping follows [Control D documentation](https://docs.controld.com/docs/device-clients). Unknown providers require their actual DoH URL; never derive one by replacing a scheme or hostname suffix.
+The mapping follows [Control D documentation](https://docs.controld.com/docs/device-clients). Provider-independent observation must not be hard-wired to this mapping. Additional mappings require documented provider semantics; unknown providers cannot be guessed from a hostname. Until a mapping or native DoT implementation exists, report unsupported follow input and permit explicit manual DoH configuration. Universal DoT support is not claimed or silently added by this revision.
 
 Acceptance: table-driven positive/negative parser cases, exact-suffix spoof rejection, client preservation, and validated real queries for one Control D and one other DoH endpoint. Syntax validity alone does not claim service reachability.
 
@@ -79,7 +87,7 @@ Apply this order:
 
 1. Upstream lifecycle/management eligibility gates remain authoritative (R07).
 2. Upstream applicable **more-specific** MagicDNS, authoritative empty routes, split DNS, extra records, search domains and app-connector DNS behavior are preserved.
-3. For names not covered above, enabled Custom DoH replaces tailnet, DHCP and exit-node default resolvers.
+3. For names not covered above, the enabled manual/follow override replaces tailnet, DHCP and exit-node default resolvers. In the user's Control D setup, this replaces the generic tailnet profile with the Android-selected profile; the generic profile is not a fallback.
 4. With custom mode disabled, the entire upstream selection path is restored.
 
 An explicit root (`.`) route is a catch-all, not a more-specific route: while custom mode is active it must not bypass the custom default. Handle that case in composition without editing the original netmap. Preserve more-specific empty routes; they must not fall through to the public provider. Preserve upstream exit-node filtering of split routes rather than re-enabling routes upstream would omit.
@@ -96,7 +104,9 @@ Acceptance: transition tests and real restart/disconnect/reconnect/profile-chang
 
 ### R08 — Transport, exit nodes and failures
 
-Reuse Tailscale's existing DoH transport with certificate and hostname verification. While custom mode is eligible, ordinary default-domain queries must not fall back to plaintext, another provider, or an exit-node DNS proxy when the endpoint fails. Return the resolver error and expose degraded health; retain more-specific route behavior.
+Reuse Tailscale's existing DoH transport where supported, with certificate and hostname verification. The pinned core only accepts recognized DoH endpoints, including Control D and NextDNS; arbitrary HTTPS resolvers and `tls://` resolvers are explicitly rejected in its forwarder. Generic manual DoH support therefore requires an actual transport/bootstrap extension and tests, not merely accepting URLs in the editor. See the [pinned forwarder](https://github.com/tailscale/tailscale/blob/b5e07cbf538e2558eac3c5fe5c34be288819fff6/net/dns/resolver/forwarder.go) and [provider table](https://github.com/tailscale/tailscale/blob/b5e07cbf538e2558eac3c5fe5c34be288819fff6/net/dns/publicdns/publicdns.go).
+
+While custom mode is eligible, ordinary default-domain queries must not fall back to plaintext, another provider, or an exit-node DNS proxy when the endpoint fails. Return the resolver error and expose degraded health; retain more-specific route behavior.
 
 The custom endpoint remains selected when an exit node is selected. Its traffic follows the intended exit-node route; it must not silently use a protected/direct socket to bypass the exit node. Audit actual transport behavior rather than assuming a `DefaultResolvers` assignment guarantees this. Preserve the user's existing exit-node configuration.
 
@@ -118,7 +128,7 @@ Use the same shared-core preference and DNS composition contract in a forked Win
 
 Do not copy or claim to fork the proprietary official GUI. Do not silently replace an installed official service. Device testing requires an explicitly selected test installation and documented install/uninstall/restoration procedure; normal implementation authorization does not authorize user-host deployment.
 
-Acceptance: a real Windows test system proves frontend → authenticated local API → daemon → DoH, persistence, disable/restore, MagicDNS/split DNS, exit-node behavior, policy gates, unauthorized local mutation rejection, and incompatible-daemon handling. Windows resolver selection is explicit; Android saved-setting import has no Windows analogue.
+Acceptance: a real Windows test system proves frontend → authenticated local API → daemon → DoH, persistence, disable/restore, MagicDNS/split DNS, exit-node behavior, policy gates, unauthorized local mutation rejection, and incompatible-daemon handling. Windows resolver selection is explicit; Android saved-setting follow has no Windows analogue.
 
 ### R11 — Compatibility, verification and publication honesty
 
@@ -128,10 +138,40 @@ Future feature completion requires all acceptance criteria here, integration acr
 
 Acceptance: requirement-to-evidence reconciliation is complete, licenses and dependencies are auditable, both platform workflows have real evidence, and publication statements match the delivered code. A feature release remains a separately authorized action.
 
+### R12 — Root-cause audit of Android DNS reliability
+
+Audit the native Android service/backend startup, underlying-network callbacks, TUN replacement, internal DNS/netstack packet handling and upstream forwarding boundaries. Use [Thor Guard v1.1.0](https://github.com/Darkaxt/ThorTailscaleDnsGuard/tree/v1.1.0) as evidence of process-loss recovery and connected-but-DNS-dead scenarios. Do not modify the Guard. Its public-name probes do not independently establish a MagicDNS defect.
+
+For each scenario distinguish: process absent; service not initialized; locally answered MagicDNS failure; default/split upstream forwarding failure; Android resolver plumbing failure; upstream outage; or general connectivity loss. Capture actual DNS answers over UDP/TCP, not just ICMP reachability to `100.100.100.100`. Compare a locally answered tailnet name, a public name, a split-domain name, direct upstream queries, raw-IP connectivity, and PeerAPI where relevant. Associate observations with process, network and TUN generations, without exposing private names or provider identifiers in public evidence.
+
+Audit upstream issue/fix history against the exact pinned revision before duplicating changes. [Issue #21155](https://github.com/tailscale/tailscale/issues/21155) is a handover/netstack lead, not proof of the Thor's cause; [#19445](https://github.com/tailscale/tailscale/issues/19445) is a separate exit-node lead and its closure is not fix evidence. Record each candidate's current disposition and whether a relevant fix is already present.
+
+Acceptance: a reproducible baseline or captured failing-device evidence isolates the failing boundary for each targeted defect, with a test that fails before the proposed fix. Unreproduced scenarios remain explicitly unresolved; successful restarts, similar issue reports and symptom matching cannot substitute for causal evidence.
+
+### R13 — Native lifecycle fixes, not embedded recovery workarounds
+
+Fix the defects established by R12 at their owning lifecycle/packet boundaries. Once Android invokes a legitimate service start/restart, one start must initialize an operational tunnel and DNS path; repeated calls must be safe and idempotent, not required for success. Preserve explicit disconnect, logout, policy and accept-DNS intent. Handle Android process recreation and Always-on service entry without force-stop/connect loops, duplicate broadcasts, arbitrary sleeps or privileged helpers.
+
+Network handover, Wi-Fi roaming and TUN replacement must not leave the internal resolver permanently unable to receive or send while the VPN reports an otherwise healthy connection. Preserve correctly owned packet processing and resource teardown across replacement. Propagate actual failures to health reporting; do not label every external DNS timeout as internal corruption or restart the whole app to mask it. Recovery from ordinary external outages must not change the chosen resolver or violate R06–R08.
+
+An app cannot execute while its process is absent. Measure Android's actual restart behavior on the Thor. If the OS does not schedule the required restart and no supported unprivileged native mechanism resolves that scenario, record it as a blocker to Guard-obsolescence rather than silently excluding it or claiming guaranteed resurrection.
+
+Acceptance: pre-fix failing regressions pass after the minimal native changes; a single platform start restores real DNS; repeated starts do not create competing resources. Controlled process reclamation (not force-stop as a substitute), explicit disconnect, handover in both directions, Wi-Fi loss/return, and relevant TUN write/close failure tests preserve or correctly restore DNS without external assistance. Never kill or disrupt a user's device for testing without applicable live-test authority.
+
+### R14 — Demonstrate that Thor Guard is unnecessary
+
+The product objective is to make the Guard obsolete for its demonstrated scenarios, not improve the workaround. Perform real acceptance testing on the intended AYN Thor with the Guard disabled and absence of its monitor verified. Disabling/removing the Guard is a separately authorized live-device action; this document does not perform or authorize it. Keep an explicit recovery procedure and restore the previous setup if testing fails. Do not uninstall the user's Guard merely because unit tests pass.
+
+Record baseline and fixed app/core/OS revisions, Guard state, triggers, process/network generations and sanitized query results. The matrix must cover process reclamation with Always-on, a single subsequent service start, connected-but-DNS-dead reproductions, Wi-Fi loss/return and roaming, available network handovers, sleep/wake, exit node on/off, and both normal tailnet DNS and the automatic Android override. Cellular handovers unavailable on the console may be exercised on the Samsung phone, but do not replace Thor-specific reclamation and Wi-Fi evidence. Test locally answered MagicDNS, split DNS, public forwarding and direct-IP controls separately.
+
+Define a repeatable transition sequence and a recorded observation window based on the reproduced failure cadence before testing; observation bounds are diagnostics, not application recovery timers. A single successful lookup is insufficient. If a scenario remains unreproduced or an acceptance environment is unavailable, keep that criterion unresolved or blocked rather than declaring the Guard obsolete.
+
+Acceptance: R12–R13 defects are fixed, the recorded repeatability/observation criteria pass without the Guard or manual restart assistance, explicit disconnect remains respected, and provider propagation retains R06–R08 behavior. Final reconciliation explicitly states whether every original Guard scenario is covered. Only then recommend retirement; actual removal still requires user authorization.
+
 ## 4. Evidence record and completion rule
 
 For each requirement record: implementation commit(s), exact core/Android revision, test command and outcome, platform/OS/target SDK, configuration generation, real-boundary evidence where required, and redacted failure/restoration observations. Record unsupported environments explicitly. A compatibility claim must name the actual tested matrix rather than imply every OEM works.
 
 For each blocker record the requirement, concrete cause, internal/external ownership, resolving condition and dependent work. A deferral is valid only when assigned to a named later stage without weakening the current stage's acceptance criteria. All required blockers and deferrals must be resolved before overall completion.
 
-Current evidence is source inspection only, documented in the evaluation. There is no runtime acceptance evidence yet.
+Current evidence includes source inspection and a narrowly scoped ordinary-app test on the Samsung SM-F966B, Android 16/API 36, security patch 2026-08-05. A non-debuggable probe targeting SDK 36 with no requested permissions read the saved Control D hostname in Automatic mode and matched the shell-read value. Settings were unchanged; the probe was uninstalled and its source/APKs/key deleted. This establishes saved-setting readability on that build only, not observation, propagation, resolver transport or Thor reliability. No feature acceptance stage is complete.

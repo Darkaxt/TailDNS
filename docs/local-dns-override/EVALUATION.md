@@ -2,6 +2,14 @@
 
 Date: 2026-09-18. Scope: design assessment and documentation, not implementation or device certification.
 
+## Revision 1.1 follow-up
+
+The user clarified that automatic propagation, not snapshot import, is required. The authoritative R02 now defines an opt-in observer-driven follow mode. A no-permission, non-debuggable SDK-36 probe read the saved Control D hostname on the Samsung SM-F966B in Automatic mode and matched the shell-read value. The probe was removed, settings were unchanged, and no identifiers were published. This proves reading on that build, not notification delivery or actual resolver integration.
+
+Further inspection of the pinned [forwarder](https://github.com/tailscale/tailscale/blob/b5e07cbf538e2558eac3c5fe5c34be288819fff6/net/dns/resolver/forwarder.go) confirmed that arbitrary HTTPS and TLS resolvers are rejected. Recognized-provider DoH can be reused; generic DoH needs transport/bootstrap work. Native DoT is a possible separately specified expansion, not existing support.
+
+R12–R14 add a native reliability audit and fixes intended to make [Thor Guard v1.1.0](https://github.com/Darkaxt/ThorTailscaleDnsGuard/tree/v1.1.0) unnecessary. Its paired startup requests and public-DNS probes are symptom evidence, not proof of a particular MagicDNS root cause. The requirement is native single-start correctness and durable DNS through network/TUN transitions, followed by real Guard-disabled Thor verification. Upstream reports are audit leads, not confirmed causes on the user's devices.
+
 ## Verdict
 
 **Proceed with the corrected design, not the proposed patch as written.** A local DoH default resolver is a reasonable extension of the existing DNS engine. The original recommendation conflated active Android Private DNS with its saved setting, placed a URL in an IP-only interface, and understated the shared-core and Windows work.
@@ -26,9 +34,9 @@ The required Android operating setup is Default/Automatic, not strict provider-h
 
 AOSP's [Private DNS settings dialog](https://android.googlesource.com/platform/packages/apps/Settings/+/903d2610dd6479445633db86336bde3208e5b4da/src/com/android/settings/network/PrivateDnsModeDialogPreference.java) reads the hostname separately and writes it only when saving hostname mode. Changing mode need not erase the saved value. This supports a candidate read using `Settings.Global.getString(contentResolver, "private_dns_specifier")`, without requiring active Private DNS.
 
-That source is a privileged Settings app, **not proof that an ordinary third-party app can read the key on every supported Android/OEM build**. Import needs device evidence with the fork's actual target SDK. Missing, denied, empty, or unsupported values must produce a clear import error, not an invented endpoint. No root, ADB grant, hidden-API reflection, or system-setting write is part of the design.
+That source is a privileged Settings app, **not proof that an ordinary third-party app can read the key on every supported Android/OEM build**. Follow mode needs device evidence with the fork's actual target SDK; the later Samsung probe supplies only the reading portion on that build. Missing, denied, empty, or unsupported values must produce the R02 follow error, not an invented endpoint. No root, ADB grant, hidden-API reflection, or system-setting write is part of the design.
 
-**Decision:** provide an explicit import-and-confirm action that saves an app-local copy. Do not continuously follow or silently reactivate a dormant system setting. Later system edits require another import. This deliberate refinement gives deterministic ownership while retaining manual DoH entry when import is unavailable.
+**Revised decision:** after explicit one-time opt-in, follow the saved hostname automatically using lifecycle-owned observation. No import-and-confirm action is required for subsequent system saves. Preserve separate manual configuration, explicit error states and profile isolation as specified by R01–R03.
 
 ### 2. The Android base-DNS hook cannot carry DoH
 
@@ -46,7 +54,7 @@ The pinned [`dnsConfigForNetmap`](https://github.com/tailscale/tailscale/blob/b5
 
 [Control D's client documentation](https://docs.controld.com/docs/device-clients) supplies corresponding DoT hostname and DoH URL forms, including optional client names. Preserve client identity; do not convert only the endpoint portion. The specification defines supported parsing rather than assuming any DoT hostname has a predictable DoH endpoint.
 
-**Decision:** support the documented Control D import forms and generic manually supplied HTTPS endpoints. Reject unknown hostname mappings and ambiguous formats with manual-entry guidance. Do not invent a fixed resolver-ID length from documentation examples.
+**Decision:** support documented Control D hostname conversion and generic manually supplied HTTPS endpoints, with the additional core transport work the latter requires. Reject unknown hostname mappings and ambiguous formats with manual-entry guidance. Do not invent a fixed resolver-ID length from documentation examples.
 
 ### 5. Native tailnet policy is an alternative, not the requested local UX
 
@@ -70,10 +78,12 @@ The current Android [`DNSSettingsViewModel`](https://github.com/tailscale/tailsc
 
 These are implementation acceptance gates, not unresolved documentation work:
 
-1. Ordinary-app saved-setting access on an AOSP-like device/emulator and the intended physical Android device, with OS build and target SDK recorded.
+1. Saved-setting change notification delivery and full propagation on the phone and Thor; saved-setting reading alone is already demonstrated on the Samsung Android 16 build, not on every OEM.
 2. A real Android query reaching the configured Control D client, with MagicDNS and a private split-DNS name still working.
 3. Transport tracing for DoH bootstrap and exit-node routing: no recursive lookup, no unintended direct egress, and no ordinary-query plaintext fallback.
 4. IPv4-only, IPv6-only and dual-stack behavior, resolver outage, TLS failure, network handover, restart, profile switch, and restoration evidence.
 5. Windows daemon/CLI/frontend integration, authenticated local access, OS DNS restoration and coexistence boundaries.
 
-No device settings, tailnet policy, installed applications, or production DNS configuration were changed for this assessment. No feature build or runtime validation is claimed.
+6. Root-cause reproduction and native regressions for the Guard's failure scenarios, followed by the R14 real-device matrix with the Guard disabled and no external recovery assistance.
+
+The initial assessment was read-only. The subsequent explicitly authorized disposable probe was installed, tested and uninstalled; DNS settings and tailnet policy were unchanged. No fork feature build, observer verification, native reliability fix or full runtime acceptance is claimed.

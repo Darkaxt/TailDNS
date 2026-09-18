@@ -8,11 +8,13 @@ An independent community fork of [tailscale/tailscale-android](https://github.co
 
 The proposed feature lets a device choose its own DNS-over-HTTPS resolver, including a Control D endpoint/client, while preserving Tailscale's MagicDNS and applicable split-DNS routes. It does not require editing tailnet policy or changing other devices.
 
+Specification v1.1 also requires native Android DNS/service lifecycle fixes intended to make **Thor Tailscale DNS Guard unnecessary**, with real Thor verification while the Guard is disabled. The Guard is evidence of failure scenarios, not a component to improve or embed. No native fix or Guard-obsolescence claim has been verified yet.
+
 - [Authoritative specification](docs/local-dns-override/SPECIFICATION.md): required behavior, precedence, platform boundaries, and acceptance criteria.
 - [Implementation evaluation](docs/local-dns-override/EVALUATION.md): source-backed corrections to the original recommendation and unresolved runtime evidence.
 - [Staged implementation plan](docs/local-dns-override/IMPLEMENTATION-PLAN.md): requirement mapping and verification gates; all implementation stages are **NOT STARTED**.
 
-On Android, the intended setup keeps system Private DNS at **Default/Automatic** while Tailscale is active. The proposed import reads the **saved hostname**, not `isPrivateDnsActive()` or `getPrivateDnsServerName()`. Import availability needs ordinary-app device verification; manual DoH entry remains available by design.
+On Android, the intended setup keeps system Private DNS at **Default/Automatic** while Tailscale is active. Opt-in **automatic propagation** follows the saved hostname, not `isPrivateDnsActive()` or `getPrivateDnsServerName()`, without repeated imports or reconnects. An unprivileged probe confirmed saved-setting access on the Samsung Android 16 phone; change notifications, end-to-end propagation and Thor behavior remain unverified. Provider mappings require documented semantics. The pinned core supports recognized DoH providers, not arbitrary DoH or native DoT; generic manual DoH requires additional core work.
 
 This Android repository owns the specification and Android integration. Implementation also requires a separately maintained shared Go-core change. Windows requires that core plus a new minimal configuration frontend: the official Windows GUI is not open source. Those components have not been created or implemented here.
 

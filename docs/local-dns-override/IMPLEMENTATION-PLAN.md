@@ -1,6 +1,6 @@
 # Staged implementation plan
 
-Authority: [SPECIFICATION.md](SPECIFICATION.md), version 1.0.
+Authority: [SPECIFICATION.md](SPECIFICATION.md), version 1.1.
 Assessment: [EVALUATION.md](EVALUATION.md).
 
 All future implementation stages are **NOT STARTED**. Documentation publication is a separate delivery; it does not close a feature stage. There are currently no implementation blockers or tracked deferrals recorded, because implementation has not begun. The evidence gates below remain required work, not passing results.
@@ -22,24 +22,39 @@ Acceptance criteria:
 - R09 backend/manual-UI subset: configured/applied/verified state and redaction are accurate.
 - R03 manual-setup subset: Default/Automatic instructions and conflict/uncertainty reporting exist without privileged access or system writes.
 
-Satisfied: none. Remaining: all criteria above. Blockers: none recorded. Tracked deferrals: none. Android import-specific behavior is explicitly owned by Stage 2; Windows checks by Stage 3, not implied to pass here.
+Satisfied: none. Remaining: all criteria above. Blockers: none recorded. Tracked deferrals: none. Android automatic-follow behavior belongs to Stage 2; native Guard-obsolescence work to Stage 3; Windows checks to Stage 4. If a native reliability defect prevents this stage's real workflow, record and resolve that dependency rather than claiming the workflow passes.
 
-## Stage 2 — Saved Android provider import and complete Android UX
+## Stage 2 — Automatic Android provider propagation
 
 Status: **NOT STARTED**. Depends on Stage 1.
 
 Acceptance criteria:
 
-- R02: ordinary-app access is measured on an AOSP-like environment and the intended physical device; import works in Default/Automatic where readable, with specified handling where unavailable.
-- R04 import subset: Control D parser, exact client mapping, unsupported-value behavior and confirmation/cancellation tests pass.
-- R03 and R09 Android completion: mode conflicts, unavailable settings, import snapshots and subsequent OS changes are accurately reflected without silent preference changes.
-- Re-run the real Android flow using an imported endpoint, then verify manual entry still works without saved-setting access.
+- R02: verify initial read and real change notifications on the Samsung phone and Thor, and prove that saves propagate with the fork UI closed and without reconnect/import actions.
+- R04 follow subset: provider conversion, exact client mapping, unsupported-value behavior and invalid-to-valid recovery pass. No silent fallback or stale-provider use.
+- R01, R03 and R09: observer ownership, teardown, latest-value ordering, restart/profile isolation, mode conflicts and truthful effective-state reporting pass.
+- Re-run the Android flow with an automatically selected endpoint and verify independent manual configuration remains functional. Observation is provider-independent; documented mappings define supported follow inputs unless a separately specified native DoT path is added.
 
-Satisfied: none. Remaining: all criteria above. Blockers: none recorded. Tracked deferrals: none. If the intended device cannot expose a saved hostname, record that limitation and prove manual operation; do not falsely claim import support on that device. If no target permits the required successful import demonstration, this stage cannot close by silently dropping that criterion.
+Satisfied: none of this stage's end-to-end criteria. Preliminary evidence: ordinary-app saved-setting reads succeeded on the Samsung Android 16 phone; this is not observer or propagation verification. Remaining: all criteria above. Blockers: none recorded. Tracked deferrals: none. If required device observation cannot be demonstrated, record the blocked criterion; manual configuration is not a substitute for automatic propagation.
 
-## Stage 3 — Windows real companion workflow
+## Stage 3 — Native Android reliability and Guard-obsolescence proof
 
-Status: **NOT STARTED**. Depends on Stage 1; normally follows Stage 2 under the single-stage rule.
+Status: **NOT STARTED**. Normally follows Stage 2. R12 baseline investigation can proceed if an earlier stage is explicitly parked as BLOCKED by a reliability defect; only one stage may be ACTIVE.
+
+Scope: audit native lifecycle/packet paths, reproduce the Guard's scenarios, implement only evidence-backed root-cause fixes, and prove the Thor no longer needs the workaround. Do not modify or embed the Guard.
+
+Acceptance criteria:
+
+- R12: classify and reproduce each targeted defect, identify its failing boundary and upstream disposition, and establish pre-fix failing regression evidence.
+- R13: minimal native fixes pass those regressions; a single service start initializes working DNS; process recreation, repeated starts and network/TUN transitions preserve correct resource ownership without watchdogs or duplicate-connect sequences.
+- R14: perform the agreed real-device matrix with the Thor Guard disabled and verified absent from execution, with a recovery procedure and appropriate live-test authority. Distinguish process reclamation from force-stop and test explicit disconnect separately.
+- Verify the native fixes with normal tailnet DNS and the automatic provider override. Confirm public, local MagicDNS and split-DNS paths separately; no restart assistance or provider fallback may mask failures.
+
+Satisfied: none. Remaining: all criteria above. Blockers: none recorded. Tracked deferrals: none. An OS restart limitation, unreproduced required scenario, missing Thor or missing live-test authority prevents the relevant acceptance criterion from closing; it is not grounds to claim the Guard obsolete.
+
+## Stage 4 — Windows real companion workflow
+
+Status: **NOT STARTED**. Depends on Stage 1; normally follows Stage 3 under the single-stage rule.
 
 Acceptance criteria:
 
@@ -49,14 +64,14 @@ Acceptance criteria:
 
 Satisfied: none. Remaining: all criteria above. Blockers: none recorded. Tracked deferrals: none.
 
-## Stage 4 — Integrated reconciliation and verified handoff
+## Stage 5 — Integrated reconciliation and verified handoff
 
-Status: **NOT STARTED**. Depends on Stages 1–3.
+Status: **NOT STARTED**. Depends on Stages 1–4.
 
 Acceptance criteria:
 
 - R11: exact source provenance, license preservation, compatibility/identity decisions, reproducible evidence and honest README status are complete.
-- Reconcile **every R01–R11 acceptance criterion**, including each earlier platform-specific subset, against the integrated revisions.
+- Reconcile **every R01–R14 acceptance criterion**, including automatic propagation and Guard-disabled Thor evidence, against the integrated revisions. Do not retire the Guard or claim obsolescence while R14 is incomplete.
 - Run affected full suites and the required final real-device matrix; inspect the results, resolve all required blockers/deferrals, and verify restoration.
 - Commit the completed verified implementation. Do not deploy, tag a release, publish binaries or compile release artifacts without separate authorization.
 
@@ -66,16 +81,19 @@ Satisfied: none. Remaining: all criteria above. Blockers: none recorded. Tracked
 
 | Requirement | Initial delivery owner | Additional required verification |
 | --- | --- | --- |
-| R01 local ownership | Stage 1 | Windows Stage 3; final Stage 4 |
-| R02 saved import | Stage 2 | Final Stage 4 |
-| R03 Android mode/privileges | Stage 1 manual setup; Stage 2 import UX | Final Stage 4 |
-| R04 validation | Stage 1 manual URL; Stage 2 import parser | Windows Stage 3; final Stage 4 |
-| R05 shared core | Stage 1 | Windows Stage 3; final Stage 4 |
-| R06 precedence | Stage 1 | Windows Stage 3; final Stage 4 |
-| R07 lifecycle/policy | Stage 1 | Windows Stage 3; final Stage 4 |
-| R08 transport/failures | Stage 1 Android | Windows Stage 3; final Stage 4 |
-| R09 UI/diagnostics | Stage 1 manual; Stage 2 import | Windows Stage 3; final Stage 4 |
-| R10 Windows | Stage 3 | Final Stage 4 |
-| R11 completion/publication | Stage 4 | Earlier stages retain accurate milestone claims |
+| R01 local ownership | Stage 1 manual; Stage 2 follow | Windows Stage 4; final Stage 5 |
+| R02 automatic propagation | Stage 2 | Final Stage 5 |
+| R03 Android mode/privileges | Stage 1 manual setup; Stage 2 follow UX | Final Stage 5 |
+| R04 validation | Stage 1 manual URL; Stage 2 provider conversion | Windows Stage 4; final Stage 5 |
+| R05 shared core | Stage 1 | Windows Stage 4; final Stage 5 |
+| R06 precedence | Stage 1 | Reliability Stage 3; Windows Stage 4; final Stage 5 |
+| R07 lifecycle/policy | Stage 1 | Reliability Stage 3; Windows Stage 4; final Stage 5 |
+| R08 transport/failures | Stage 1 Android | Reliability Stage 3; Windows Stage 4; final Stage 5 |
+| R09 UI/diagnostics | Stage 1 manual; Stage 2 follow | Windows Stage 4; final Stage 5 |
+| R10 Windows | Stage 4 | Final Stage 5 |
+| R11 completion/publication | Stage 5 | Earlier stages retain accurate milestone claims |
+| R12 root-cause audit | Stage 3 | Final Stage 5 |
+| R13 native lifecycle fixes | Stage 3 | Final Stage 5 |
+| R14 Guard-obsolescence proof | Stage 3 | Final Stage 5 |
 
 Before each stage closure, update its evidence, satisfied/remaining criteria, blockers and tracked deferrals. Do not substitute commit volume, component count or passing-test totals for a demonstrated workflow. Unknown implementation details must be resolved inside the owning stage without introducing speculative infrastructure.
