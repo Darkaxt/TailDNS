@@ -22,6 +22,7 @@ android {
   compileSdk = androidApiLevel
 
   defaultConfig {
+    applicationId = "io.github.darkaxt.taildns"
     minSdk = 26
     targetSdk = androidApiLevel
 

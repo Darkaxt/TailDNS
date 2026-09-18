@@ -1,15 +1,15 @@
 # Staged implementation plan
 
-Authority: [SPECIFICATION.md](SPECIFICATION.md), version 1.1.
+Authority: [SPECIFICATION.md](SPECIFICATION.md), version 1.2.
 Assessment: [EVALUATION.md](EVALUATION.md).
 
-All future implementation stages are **NOT STARTED**. Documentation publication is a separate delivery; it does not close a feature stage. There are currently no implementation blockers or tracked deferrals recorded, because implementation has not begun. The evidence gates below remain required work, not passing results.
+Authorization: implementation, GitHub signing and final release are already authorized. Upstream auto-update and current-task monitoring are authorized only after validation. Stage 1 is ACTIVE; Stages 2–7 are NOT STARTED. No implementation stage is complete. Evidence gates remain required work, not passing results.
 
 There may be only one **ACTIVE** stage. Other allowed statuses are **NOT STARTED**, **BLOCKED**, and **COMPLETE**. Park an actual blocked stage with the exact requirement, cause, ownership, resolving condition and dependent work before activating another. Close a stage only with fresh evidence for every assigned criterion.
 
 ## Stage 1 — Real Android manual-resolver vertical slice
 
-Status: **NOT STARTED**.
+Status: **ACTIVE**.
 
 Scope: create the necessary shared-core fork when implementation is authorized; introduce the minimal local preference and composition path, pin that revision, and connect the Android custom editor/status to the actual engine. Start with a manually entered Control D URL. Do not build Windows infrastructure before this real slice works.
 
@@ -21,8 +21,11 @@ Acceptance criteria:
 - R08 Android transport subset: bootstrap, no-fallback failures, exit-node egress and the stated network matrix have evidence; assigning a resolver URL alone is insufficient.
 - R09 backend/manual-UI subset: configured/applied/verified state and redaction are accurate.
 - R03 manual-setup subset: Default/Automatic instructions and conflict/uncertainty reporting exist without privileged access or system writes.
+- R15 test-install subset: independent package identity and stable signing provisioned before real-device fork installation; no public feature release at this stage.
 
 Satisfied: none. Remaining: all criteria above. Blockers: none recorded. Tracked deferrals: none. Android automatic-follow behavior belongs to Stage 2; native Guard-obsolescence work to Stage 3; Windows checks to Stage 4. If a native reliability defect prevents this stage's real workflow, record and resolve that dependency rather than claiming the workflow passes.
+
+Stage 1 evidence in progress (2026-09-18): shared core `4d32ac4faace6977e9f15f5f759a7281e8908485` includes profile-pinned edits, default-only composition, TLS-verified route-aware DoH, explicit base-DNS bootstrap and managed-policy transitions. Affected host package suites passed after repository consistency fixes; live `example.com` queries passed for public Control D, Cloudflare and generic OpenDNS. Bootstrap fixtures assert provider-only lookup, protected TCP dialing and rejection of recursive service addresses. These are host evidence, not Android/exit-node/network-matrix acceptance. Android editor/status integration and independent identity are present; Kotlin formatting passed. The persistent signer and GitHub secrets/public pin are provisioned as described in [SIGNING.md](SIGNING.md). Android build and installed workflow verification are still outstanding. No stage is complete.
 
 ## Stage 2 — Automatic Android provider propagation
 
@@ -71,11 +74,27 @@ Status: **NOT STARTED**. Depends on Stages 1–4.
 Acceptance criteria:
 
 - R11: exact source provenance, license preservation, compatibility/identity decisions, reproducible evidence and honest README status are complete.
-- Reconcile **every R01–R14 acceptance criterion**, including automatic propagation and Guard-disabled Thor evidence, against the integrated revisions. Do not retire the Guard or claim obsolescence while R14 is incomplete.
+- Reconcile **every R01–R14 acceptance criterion**, including automatic propagation and Guard-disabled Thor evidence, against the integrated revisions. Reconcile R15 test-install identity before release preparation. Do not retire the Guard or claim obsolescence while R14 is incomplete.
 - Run affected full suites and the required final real-device matrix; inspect the results, resolve all required blockers/deferrals, and verify restoration.
-- Commit the completed verified implementation. Do not deploy, tag a release, publish binaries or compile release artifacts without separate authorization.
+- Commit the completed verified feature. The user has authorized the release, but publication occurs only in Stage 6 after this validation gate.
 
 Satisfied: none. Remaining: all criteria above. Blockers: none recorded. Tracked deferrals: none.
+
+## Stage 6 — GitHub signing and public release
+
+Status: **NOT STARTED**. Depends on Stage 5.
+
+Acceptance: complete R15's trusted GitHub signing/release workflow, publish the tested version, independently verify downloaded artifacts and signer/package/version/provenance, and verify update compatibility on an authorized test device. No incomplete stage can be concealed by a release.
+
+Satisfied: none. Remaining: all R15 final-release criteria. Blockers: none recorded. Tracked deferrals: none.
+
+## Stage 7 — Post-validation auto-update and current-task monitoring
+
+Status: **NOT STARTED**. Depends on Stages 5–6.
+
+Acceptance: complete R16's safe upstream-update workflow and rehearsal, then create and verify one recurring monitor in this task for actionable update failures and bounded verified fixes. Do not enable either automation early.
+
+Satisfied: none. Remaining: all R16 criteria. Blockers: none recorded. Tracked deferrals: none. Overall completion requires R01–R16 reconciliation including release and automation evidence.
 
 ## Requirement ownership
 
@@ -95,5 +114,7 @@ Satisfied: none. Remaining: all criteria above. Blockers: none recorded. Tracked
 | R12 root-cause audit | Stage 3 | Final Stage 5 |
 | R13 native lifecycle fixes | Stage 3 | Final Stage 5 |
 | R14 Guard-obsolescence proof | Stage 3 | Final Stage 5 |
+| R15 signing/release | Stage 1 test-install identity; Stage 6 release | Stage 6 downloaded artifact and update verification |
+| R16 auto-update/monitor | Stage 7 | Stage 7 rehearsal and task automation verification |
 
 Before each stage closure, update its evidence, satisfied/remaining criteria, blockers and tracked deferrals. Do not substitute commit volume, component count or passing-test totals for a demonstrated workflow. Unknown implementation details must be resolved inside the owning stage without introducing speculative infrastructure.

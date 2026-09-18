@@ -1,0 +1,81 @@
+name: TailDNS validation build
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    if: github.repository == 'Darkaxt/tailscale-android' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Build and test exact source
+        env:
+          VERSION_CODE_BASE: ${{ github.run_number }}0
+        run: |
+          set -euo pipefail
+          sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;23.1.7779620'
+          make version libtailscale
+          make go-test
+          core_dir="$(./tool/go list -m -f '{{.Dir}}' tailscale.com)"
+          go_bin="$(./tool/go env GOROOT)/bin/go"
+          (cd "$core_dir" && "$go_bin" test -mod=readonly ./ipn ./ipn/ipnlocal ./ipn/localapi ./net/dns/... ./types/dnstype)
+          cd android
+          ./gradlew ktfmtCheck test assembleRelease -PVERSION_CODE_BASE="$VERSION_CODE_BASE"
+      - name: Preserve unsigned candidate for isolated signing
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: unsigned-candidate
+          path: android/build/outputs/apk/release/android-release-unsigned.apk
+          if-no-files-found: error
+          retention-days: 7
+  sign:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install pinned signing tools
+        run: sdkmanager 'build-tools;36.0.0'
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: unsigned-candidate
+          path: candidate
+      # No repository code, Gradle plugins or upstream build scripts run with secrets.
+      - name: Sign and verify candidate
+        env:
+          KEYSTORE_BASE64: ${{ secrets.TAILDNS_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.TAILDNS_KEYSTORE_PASSWORD }}
+          EXPECTED_SIGNER: ${{ vars.TAILDNS_SIGNER_SHA256 }}
+        run: |
+          set -euo pipefail
+          umask 077
+          key="$RUNNER_TEMP/taildns.jks"
+          trap 'rm -f "$key"' EXIT
+          printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$key"
+          tools="$ANDROID_HOME/build-tools/36.0.0"
+          mkdir signed
+          "$tools/zipalign" -P 16 -f 4 candidate/android-release-unsigned.apk "$RUNNER_TEMP/aligned.apk"
+          "$tools/apksigner" sign --ks "$key" --ks-key-alias taildns --ks-pass env:KEYSTORE_PASSWORD --key-pass env:KEYSTORE_PASSWORD --out signed/taildns-validation.apk "$RUNNER_TEMP/aligned.apk"
+          "$tools/apksigner" verify --verbose --print-certs signed/taildns-validation.apk | tee signed/signature.txt
+          test -n "$EXPECTED_SIGNER"
+          grep -F "Signer #1 certificate SHA-256 digest: $EXPECTED_SIGNER" signed/signature.txt
+          "$tools/aapt" dump badging signed/taildns-validation.apk > signed/package.txt
+          grep -F "package: name='io.github.darkaxt.taildns'" signed/package.txt
+          printf 'Android source: %s\nValidation only; not a feature release.\n' "$GITHUB_SHA" > signed/provenance.txt
+          (cd signed && sha256sum taildns-validation.apk > SHA256SUMS)
+      - name: Upload signed validation artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: taildns-validation
+          path: signed/
+          if-no-files-found: error
+          retention-days: 14

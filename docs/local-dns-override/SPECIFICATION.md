@@ -1,6 +1,8 @@
 # Local DNS override — authoritative specification
 
-Version: 1.1. Date: 2026-09-18. Status: **specified; implementation NOT STARTED**.
+Version: 1.2. Date: 2026-09-18. Status: **implementation authorized; Stage 1 ACTIVE**.
+
+Revision 1.2 records the user's authorization to implement, establish GitHub signing, and publish a proper release. R15 adds signed release delivery; R16 adds upstream auto-update and current-task monitoring only after validation. The historical documentation-only boundaries below describe the earlier delivery, not a revocation of this authorization. Live device changes remain subject to the explicit safety boundaries in R10 and R14.
 
 Revision 1.1 adds R12–R14: native Android DNS reliability fixes intended to make Thor Tailscale DNS Guard unnecessary. It also corrects R02 to automatic propagation (not manual import), records the ordinary-app access test, and clarifies the transport work required by R08. No feature implementation is authorized by this documentation revision.
 
@@ -112,6 +114,8 @@ The custom endpoint remains selected when an exit node is selected. Its traffic 
 
 Resolver-host bootstrap is distinct from an ordinary DNS query. Reuse and document the existing supported bootstrap mechanism; prove it cannot recurse into itself. Record whether bootstrap exposes the resolver hostname to a base resolver, and its exit-node egress behavior. Do not advertise zero plaintext traffic if bootstrap requires such a lookup. Never use that exception to leak ordinary query names, disable TLS validation, or invent unmaintained provider IPs.
 
+Stage 1 transport decision: known providers use the core's maintained address table. Generic endpoints use explicit base nameservers supplied by the platform OS configurator, through Tailscale's protected system dialer and DNS-over-TCP. Only the provider hostname is bootstrapped; it may be visible in plaintext outside the exit node. Reject loopback and Tailscale/service addresses to prevent recursion, and fail if usable base DNS is unavailable. Do not substitute another public DNS provider. DERP bootstrap is not a generic resolver and must not be used for this path. The provider's subsequent HTTPS connection uses route-aware user dialing with normal TLS validation. Host tests do not satisfy the Android network matrix.
+
 Acceptance: packet/provider evidence covers successful DoH, cold bootstrap, TLS rejection, DNS/HTTPS outage, no unintended fallback, exit node on/off, IPv4-only, IPv6-only, dual stack, network handover and captive-portal failure/recovery. Diagnostic/protocol timeouts may report failure but must not change provider selection. Connection recovery follows real network/transport events.
 
 ### R09 — Truthful Android UI and diagnostics
@@ -167,6 +171,22 @@ Record baseline and fixed app/core/OS revisions, Guard state, triggers, process/
 Define a repeatable transition sequence and a recorded observation window based on the reproduced failure cadence before testing; observation bounds are diagnostics, not application recovery timers. A single successful lookup is insufficient. If a scenario remains unreproduced or an acceptance environment is unavailable, keep that criterion unresolved or blocked rather than declaring the Guard obsolete.
 
 Acceptance: R12–R13 defects are fixed, the recorded repeatability/observation criteria pass without the Guard or manual restart assistance, explicit disconnect remains respected, and provider propagation retains R06–R08 behavior. Final reconciliation explicitly states whether every original Guard scenario is covered. Only then recommend retirement; actual removal still requires user authorization.
+
+### R15 — GitHub signing and verified release delivery
+
+Establish an independent persistent Android signing identity and package/update identity before installing the fork for acceptance tests. Preserve the official app and its credentials; do not overwrite it or reuse unrelated application signing keys. Store private signing material only in protected local storage and GitHub encrypted secrets, never repository content, artifacts, logs or pull-request jobs. Record the public certificate fingerprint. Make artifact version codes deterministic and monotonically increasing for published updates.
+
+A tag-bound GitHub workflow must test the exact Android/core revisions, build the production APK, sign it with the pinned identity, verify package/version/certificate, generate checksums and publish a clearly branded release with source provenance and known limitations. Restrict signing/release permissions to trusted release execution; untrusted pull requests must never receive secrets. Preserve the identity for future updates and document recovery without disclosing secrets. Account for the Windows deliverable's packaging, license and integrity evidence; do not imply Authenticode signing if no certificate exists.
+
+Acceptance: after integrated validation, publish the completed release, independently download its artifacts and verify checksum, package/version and Android signer against the recorded expected values. Confirm the release corresponds to the tested commits and that update installation preserves fork preferences on an authorized test device. Do not publish intermediate incomplete feature releases. Signing configuration required for earlier live testing belongs to that test's stage; final public release belongs to Stage 6.
+
+### R16 — Post-validation upstream auto-update and task monitoring
+
+Only after successful integrated validation and the signed release gate, configure GitHub automation to detect upstream Android/core updates, integrate them in a reviewable candidate branch, and run the required regression/build/signing checks before promoting any update. Keep Android/core version compatibility and fork behavior intact. Failed or unverified candidates must not replace the last good release. Signing secrets must not be exposed to untrusted upstream changes. Document candidate review/promotion, rollback and signing continuity; do not turn unit-test success into a claim of new device validation.
+
+Then create one recurring monitor attached to this existing Codex task, not a new standalone task. Inspect existing automations to avoid duplicates. Monitor update workflow failures and stalled actionable updates; investigate and fix bounded pipeline/regression issues within this specification, verify the correction, and report significant changes or required user action. Stay quiet while healthy/unchanged. Do not weaken acceptance criteria, rotate signing identity, bypass security gates or perform destructive device changes automatically. Record the automation identity and chosen cadence (default daily unless the user specifies otherwise).
+
+Acceptance: a safe candidate/update rehearsal demonstrates detection, validation, failure containment and recoverability; GitHub automation is enabled only after the prerequisite gates, and the task-attached monitor is created and verified with the intended scope. Unresolved update failures cannot be hidden by disabling tests or publishing an unverified build.
 
 ## 4. Evidence record and completion rule
 

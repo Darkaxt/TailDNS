@@ -4,19 +4,20 @@ An independent community fork of [tailscale/tailscale-android](https://github.co
 
 ## Fork status
 
-**Specification published; local DNS override not implemented.** The current changes are documentation only. There is no fork feature APK or Windows companion release.
+**Stage 1 ACTIVE: manual Android vertical slice under implementation and validation.** Core host tests and live public-provider queries have passed. No Android end-to-end acceptance, automatic propagation, native reliability fix, Windows workflow or feature release is claimed yet.
 
 The proposed feature lets a device choose its own DNS-over-HTTPS resolver, including a Control D endpoint/client, while preserving Tailscale's MagicDNS and applicable split-DNS routes. It does not require editing tailnet policy or changing other devices.
 
-Specification v1.1 also requires native Android DNS/service lifecycle fixes intended to make **Thor Tailscale DNS Guard unnecessary**, with real Thor verification while the Guard is disabled. The Guard is evidence of failure scenarios, not a component to improve or embed. No native fix or Guard-obsolescence claim has been verified yet.
+Specification v1.2 also requires native Android DNS/service lifecycle fixes intended to make **Thor Tailscale DNS Guard unnecessary**, with real Thor verification while the Guard is disabled. The Guard is evidence of failure scenarios, not a component to improve or embed. No native fix or Guard-obsolescence claim has been verified yet. Signing and release are authorized after validation; upstream auto-update and task monitoring follow that gate.
 
 - [Authoritative specification](docs/local-dns-override/SPECIFICATION.md): required behavior, precedence, platform boundaries, and acceptance criteria.
 - [Implementation evaluation](docs/local-dns-override/EVALUATION.md): source-backed corrections to the original recommendation and unresolved runtime evidence.
-- [Staged implementation plan](docs/local-dns-override/IMPLEMENTATION-PLAN.md): requirement mapping and verification gates; all implementation stages are **NOT STARTED**.
+- [Staged implementation plan](docs/local-dns-override/IMPLEMENTATION-PLAN.md): requirement mapping and verification gates; Stage 1 is **ACTIVE**, Stages 2–7 are **NOT STARTED**.
+- [Signing identity and validation workflow](docs/local-dns-override/SIGNING.md): independent TailDNS package, public certificate fingerprint, key custody and validation-only artifacts.
 
-On Android, the intended setup keeps system Private DNS at **Default/Automatic** while Tailscale is active. Opt-in **automatic propagation** follows the saved hostname, not `isPrivateDnsActive()` or `getPrivateDnsServerName()`, without repeated imports or reconnects. An unprivileged probe confirmed saved-setting access on the Samsung Android 16 phone; change notifications, end-to-end propagation and Thor behavior remain unverified. Provider mappings require documented semantics. The pinned core supports recognized DoH providers, not arbitrary DoH or native DoT; generic manual DoH requires additional core work.
+On Android, the intended setup keeps system Private DNS at **Default/Automatic** while Tailscale is active. Opt-in **automatic propagation** follows the saved hostname, not `isPrivateDnsActive()` or `getPrivateDnsServerName()`, without repeated imports or reconnects. An unprivileged probe confirmed saved-setting access on the Samsung Android 16 phone; change notifications, end-to-end propagation and Thor behavior remain unverified. Provider mappings require documented semantics. The upstream baseline supports recognized DoH providers, not arbitrary DoH or native DoT; the fork's generic manual DoH extension is under Stage 1 validation. Native DoT is not implemented.
 
-This Android repository owns the specification and Android integration. Implementation also requires a separately maintained shared Go-core change. Windows requires that core plus a new minimal configuration frontend: the official Windows GUI is not open source. Those components have not been created or implemented here.
+This Android repository owns the specification and Android integration. The [shared Go-core fork](https://github.com/Darkaxt/tailscale/tree/local-dns-override) contains the manual resolver path under validation. Windows requires that core plus a new minimal configuration frontend: the official Windows GUI is not open source. Windows implementation has not started.
 
 ## Upstream client documentation
 

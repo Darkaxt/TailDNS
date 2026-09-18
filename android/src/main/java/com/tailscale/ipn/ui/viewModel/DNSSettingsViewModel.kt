@@ -3,6 +3,7 @@
 
 package com.tailscale.ipn.ui.viewModel
 
+import android.provider.Settings
 import androidx.annotation.StringRes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -10,9 +11,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.tailscale.ipn.App
 import com.tailscale.ipn.R
 import com.tailscale.ipn.ui.localapi.Client
 import com.tailscale.ipn.ui.model.Ipn
+import com.tailscale.ipn.ui.model.LocalDNSStatus
+import com.tailscale.ipn.ui.model.LocalDNSUpdate
 import com.tailscale.ipn.ui.model.Tailcfg
 import com.tailscale.ipn.ui.notifier.Notifier
 import com.tailscale.ipn.ui.theme.off
@@ -36,8 +40,17 @@ class DNSSettingsViewModel : IpnViewModel() {
   val enablementState: StateFlow<DNSEnablementState> =
       MutableStateFlow(DNSEnablementState.NOT_RUNNING)
   val dnsConfig: StateFlow<Tailcfg.DNSConfig?> = MutableStateFlow(null)
+  val localDNS = MutableStateFlow<LocalDNSStatus?>(null)
+  val localDNSError = MutableStateFlow(false)
+  val savingLocalDNS = MutableStateFlow(false)
+  val strictPrivateDNS = MutableStateFlow<Boolean?>(null)
+  private var localDNSGeneration = 0L
 
   init {
+    viewModelScope.launch {
+      combine(Notifier.state, Notifier.prefs, Notifier.netmap, loggedInUser) { _, _, _, _ -> Unit }
+          .collect { refreshLocalDNS() }
+    }
     viewModelScope.launch {
       Notifier.netmap
           .combine(Notifier.prefs) { netmap, prefs -> Pair(netmap, prefs) }
@@ -53,6 +66,37 @@ class DNSSettingsViewModel : IpnViewModel() {
             } ?: run { enablementState.set(DNSEnablementState.NOT_RUNNING) }
             netmap?.let { dnsConfig.set(netmap.DNS) }
           }
+    }
+  }
+
+  fun refreshLocalDNS() {
+    strictPrivateDNS.value =
+        runCatching {
+          when (Settings.Global.getString(App.get().contentResolver, "private_dns_mode")) {
+            "hostname" -> true
+            "opportunistic",
+            "off" -> false
+            else -> null
+          }
+        }
+            .getOrNull()
+    val generation = ++localDNSGeneration
+    Client(viewModelScope).localDNS { result ->
+      if (generation != localDNSGeneration) return@localDNS
+      localDNS.value = result.getOrNull()
+      localDNSError.value = result.isFailure
+    }
+  }
+
+  fun saveLocalDNS(profileID: String, enabled: Boolean, endpoint: String) {
+    if (savingLocalDNS.value) return
+    savingLocalDNS.value = true
+    ++localDNSGeneration
+    Client(viewModelScope).editLocalDNS(LocalDNSUpdate(profileID, enabled, endpoint)) { result ->
+      savingLocalDNS.value = false
+      localDNSError.value = result.isFailure
+      // Re-read current state: a successful edit may have preceded a profile switch.
+      if (result.isSuccess) refreshLocalDNS()
     }
   }
 

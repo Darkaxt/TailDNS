@@ -550,7 +550,7 @@ class MainActivity : ComponentActivity() {
   private fun deepLinkUri(intent: Intent?): Uri? {
     if (intent?.action != Intent.ACTION_VIEW) return null
     val uri = intent.data ?: return null
-    if (uri.scheme != "tailscale" || uri.host != "navigate") return null
+    if (uri.scheme != "taildns" || uri.host != "navigate") return null
     return uri
   }
 

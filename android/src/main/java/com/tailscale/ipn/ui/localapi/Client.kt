@@ -10,6 +10,8 @@ import com.tailscale.ipn.ui.model.Errors
 import com.tailscale.ipn.ui.model.Ipn
 import com.tailscale.ipn.ui.model.IpnLocal
 import com.tailscale.ipn.ui.model.IpnState
+import com.tailscale.ipn.ui.model.LocalDNSStatus
+import com.tailscale.ipn.ui.model.LocalDNSUpdate
 import com.tailscale.ipn.ui.model.StableNodeID
 import com.tailscale.ipn.ui.model.Tailcfg
 import com.tailscale.ipn.ui.util.InputStreamAdapter
@@ -32,6 +34,7 @@ private object Endpoint {
   const val DEBUG_LOG = "debug-log"
   const val BUG_REPORT = "bugreport"
   const val PREFS = "prefs"
+  const val LOCAL_DNS = "local-dns"
   const val FILE_TARGETS = "file-targets"
   const val UPLOAD_METRICS = "upload-client-metrics"
   const val START = "start"
@@ -102,6 +105,14 @@ class Client(private val scope: CoroutineScope) {
   fun editPrefs(prefs: Ipn.MaskedPrefs, responseHandler: (Result<Ipn.Prefs>) -> Unit) {
     val body = Json.encodeToString(prefs).toByteArray()
     return patch(Endpoint.PREFS, body, responseHandler = responseHandler)
+  }
+
+  fun localDNS(responseHandler: (Result<LocalDNSStatus>) -> Unit) {
+    get(Endpoint.LOCAL_DNS, responseHandler = responseHandler)
+  }
+
+  fun editLocalDNS(update: LocalDNSUpdate, responseHandler: (Result<LocalDNSStatus>) -> Unit) {
+    patch(Endpoint.LOCAL_DNS, Json.encodeToString(update).toByteArray(), responseHandler)
   }
 
   fun setUseExitNode(use: Boolean, responseHandler: (Result<Ipn.Prefs>) -> Unit) {

@@ -36,7 +36,7 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:banner="@drawable/tv_banner"
         android:icon="@mipmap/ic_launcher"
-        android:label="Tailscale"
+        android:label="@string/fork_app_name"
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:enableOnBackInvokedCallback="true"
@@ -45,7 +45,7 @@
             android:name="MainActivity"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
             android:exported="true"
-            android:label="@string/app_name"
+            android:label="@string/fork_app_name"
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
@@ -61,14 +61,14 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="tailscale" android:host="navigate" />
+                <data android:scheme="taildns" android:host="navigate" />
             </intent-filter>
         </activity>
         <activity
             android:name="ShareActivity"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
             android:exported="true"
-            android:label="@string/app_name"
+            android:label="@string/fork_app_name"
             android:launchMode="singleTask"
             android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar"
             android:windowSoftInputMode="adjustResize">
@@ -102,9 +102,9 @@
             android:name="IPNReceiver"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.tailscale.ipn.CONNECT_VPN" />
-                <action android:name="com.tailscale.ipn.DISCONNECT_VPN" />
-                <action android:name="com.tailscale.ipn.USE_EXIT_NODE" />
+                <action android:name="${applicationId}.CONNECT_VPN" />
+                <action android:name="${applicationId}.DISCONNECT_VPN" />
+                <action android:name="${applicationId}.USE_EXIT_NODE" />
             </intent-filter>
         </receiver>
 
@@ -133,7 +133,7 @@
             android:name=".QuickToggleService"
             android:exported="true"
             android:icon="@drawable/ic_tile"
-            android:label="@string/tile_name"
+            android:label="@string/fork_app_name"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
