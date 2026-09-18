@@ -1,6 +1,8 @@
 # Local DNS override — authoritative specification
 
-Version: 1.4. Date: 2026-09-18. Status: **implementation and temporary Thor testing authorized; Stage 1 BLOCKED on controlled-network verification; Stage 2 BLOCKED on device-input verification**. Requirements are unchanged by the blocker; see the staged plan.
+Version: 1.5. Date: 2026-09-18. Status: **implementation, Thor deployment testing and final release authorized; Stage 3 COMPLETE, Stage 4 ACTIVE**. Test every acceptance path available on the authorized Thor and host environments. An unavailable edge-case environment or prohibited automation action must be recorded honestly, but must not stop implementation, deployment or release when the implemented behavior and accessible primary workflows pass.
+
+Revision 1.5 records the user's explicit delivery instruction to complete deployment and test what can be tested rather than stopping on an unavailable edge case. This changes verification gating, not required product behavior: inaccessible IPv6/captive-portal variants and a tool-prohibited device-input action become disclosed validation gaps, not release blockers. No untested path may be described as tested, and the original Thor Guard scenarios remain required where they can be exercised on Thor.
 
 Revision 1.4 records the user's correction that Tailscale settings autosave. Local-resolver switches must commit immediately; there is no global Save DNS setting button. Manual URL text commits on keyboard Done with backend validation, not on each partially typed character. Explicitly selecting manual mode with no saved endpoint leaves the local override disabled until configured and enabled; an unusable source while follow remains selected still fails closed.
 
@@ -120,7 +122,7 @@ Resolver-host bootstrap is distinct from an ordinary DNS query. Reuse and docume
 
 Stage 1 transport decision: known providers use the core's maintained address table. Generic endpoints use explicit base nameservers supplied by the platform OS configurator, through Tailscale's protected system dialer and DNS-over-TCP. Only the provider hostname is bootstrapped; it may be visible in plaintext outside the exit node. Reject loopback and Tailscale/service addresses to prevent recursion, and fail if usable base DNS is unavailable. Do not substitute another public DNS provider. DERP bootstrap is not a generic resolver and must not be used for this path. The provider's subsequent HTTPS connection uses route-aware user dialing with normal TLS validation. Host tests do not satisfy the Android network matrix.
 
-Acceptance: packet/provider evidence covers successful DoH, cold bootstrap, TLS rejection, DNS/HTTPS outage, no unintended fallback, exit node on/off, IPv4-only, IPv6-only, dual stack, network handover and captive-portal failure/recovery. Diagnostic/protocol timeouts may report failure but must not change provider selection. Connection recovery follows real network/transport events.
+Acceptance: packet/provider evidence covers successful DoH, cold bootstrap, TLS rejection, DNS/HTTPS outage, no unintended fallback, exit node on/off, IPv4-only, IPv6-only, dual stack, network handover and captive-portal failure/recovery. Diagnostic/protocol timeouts may report failure but must not change provider selection. Connection recovery follows real network/transport events. Per revision 1.5, matrix variants unavailable in the authorized environment are recorded as untested known limitations and do not by themselves block deployment or release; accessible primary paths, failure semantics and host-level invariants must still pass.
 
 ### R09 — Truthful Android UI and diagnostics
 
@@ -130,7 +132,7 @@ The DNS screen shows source, configured endpoint, backend-applied mode, inactivi
 
 Resolver paths and Control D IDs/client names can identify a user. Display them only where needed for deliberate local configuration; redact from ordinary logs, exported diagnostics, telemetry, screenshots in public evidence, and crash reports. Do not add background diagnostic queries or provider-account access.
 
-Acceptance: editor/screen tests cover all modes and error states; actual status corresponds to backend state; logging and diagnostic review finds no unredacted identifier. A lookup check uses a disclosed non-sensitive test name and reports what it actually verified.
+Acceptance: editor/screen tests cover all modes and error states; actual status corresponds to backend state; logging and diagnostic review finds no unredacted identifier. A lookup check uses a disclosed non-sensitive test name and reports what it actually verified. If device automation policy prohibits one input action, retain the host regression and source/UI contract evidence, record the missing device action, and leave final full-release phone interaction to the user without blocking deployment.
 
 ### R10 — Windows implementation boundary
 
@@ -174,7 +176,7 @@ The product objective is to make the Guard obsolete for its demonstrated scenari
 
 Record baseline and fixed app/core/OS revisions, Guard state, triggers, process/network generations and sanitized query results. The matrix must cover process reclamation with Always-on, a single subsequent service start, connected-but-DNS-dead reproductions, Wi-Fi loss/return and roaming, available network handovers, sleep/wake, exit node on/off, and both normal tailnet DNS and the automatic Android override. Cellular handovers unavailable on the console may be exercised on the Samsung phone, but do not replace Thor-specific reclamation and Wi-Fi evidence. Test locally answered MagicDNS, split DNS, public forwarding and direct-IP controls separately.
 
-Define a repeatable transition sequence and a recorded observation window based on the reproduced failure cadence before testing; observation bounds are diagnostics, not application recovery timers. A single successful lookup is insufficient. If a scenario remains unreproduced or an acceptance environment is unavailable, keep that criterion unresolved or blocked rather than declaring the Guard obsolete.
+Define a repeatable transition sequence and a recorded observation window based on the reproduced failure cadence before testing; observation bounds are diagnostics, not application recovery timers. A single successful lookup is insufficient. A demonstrated original Guard scenario that can be exercised on Thor remains unresolved until tested. Unavailable cellular, captive-portal or other environment variants are disclosed validation gaps under revision 1.5: they do not block release, but they cannot support a claim that those variants were tested.
 
 Acceptance: R12–R13 defects are fixed, the recorded repeatability/observation criteria pass without the Guard or manual restart assistance, explicit disconnect remains respected, and provider propagation retains R06–R08 behavior. Final reconciliation explicitly states whether every original Guard scenario is covered. Only then recommend retirement; actual removal still requires user authorization.
 

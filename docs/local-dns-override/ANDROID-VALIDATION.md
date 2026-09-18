@@ -139,6 +139,83 @@ Still required: allowed keyboard-Done/invalid-input UI verification, direct
 follow-enabled disconnect and controlled recreation checks, and final Stage 2
 reconciliation. No release or Guard-obsolescence claim follows from this pass.
 
+## Native-reliability candidate evidence — 2026-09-18
+
+Run [35366855618](https://github.com/Darkaxt/tailscale-android/actions/runs/35366855618)
+passed the exact native/Android build, focused and affected suites, Android tests,
+lint, APK build and isolated signing. Android source
+`ec2ba1d53938f63754e87e1a53f0d943b01a0e6a`, core
+`423bcd55b5cce99e7a3bb4ed78b276e3f8ad77e0`. Independent verification found
+package `io.github.darkaxt.taildns`, code 80,
+`1.103.260-t423bcd55b-gec2ba1d53`, target SDK 36, all four ABIs, the pinned
+signer, and SHA-256
+`eb24bf61930e4ed740dc403f37a41d91bf7d3c42379c1302177499474005f517`.
+The in-place Thor update preserved login and resolver preferences.
+
+With the exact Guard process suspended and verified stopped, a single exported
+connect request from a genuinely absent process initialized the backend from
+`NoState`, reached `Running`, established one VPN, and passed public DNS, local
+MagicDNS and direct-IP controls. No second request or UI action was used. A
+direct follow-enabled disconnect removed its three Android settings observers
+after the backend reached `Stopped`; reconnect recreated exactly three.
+Two additional connect requests were idempotent: the process stayed constant,
+with one VPN network and one active TUN.
+
+Two strict/Automatic mode cycles kept public and local DNS functional and
+restored the saved provider and Automatic mode. Three Wi-Fi loss/return cycles
+kept locally answered MagicDNS available while offline and restored public DNS,
+MagicDNS and direct-IP traffic in the same process after Wi-Fi returned. A
+sleep/wake cycle passed the same controls. Enabling and then disabling an
+available exit node replaced the active TUN in both directions; public DNS and
+MagicDNS passed after each live replacement with no `injectToHost` EIO or fatal
+packet-pump error. These live transitions exercise the retry added for the
+upstream TUN replacement failure, rather than relying only on its focused host
+regression.
+
+Process-reclamation testing exposed a separate Always-on lifecycle defect. When
+Android started the VPN via `android.net.VpnService`, the service never promoted
+itself to foreground. `dumpsys activity services` reported
+`startForegroundCount=0`, and after a controlled process removal ActivityManager
+classified the connected process as `cch+5 CEM` (cached/killable). App-started
+and system-started instances did not autonomously return after an external
+`SIGKILL`; one legitimate connect request restored the VPN and both DNS paths.
+Battery-optimization exemption did not change that synthetic `SIGKILL` result.
+
+Android source `d9ba4b23152f7421ddad8e0d9a899b3c6b4e5b75` addresses the actionable
+cause by synchronously promoting app-started, login-only and system Always-on
+entries to foreground before continuing initialization. Run
+[35370729766](https://github.com/Darkaxt/tailscale-android/actions/runs/35370729766)
+passed the exact build, tests, lint and isolated signing. Independent
+verification found package `io.github.darkaxt.taildns`, code 90,
+`1.103.260-t423bcd55b-gd9ba4b231`, target SDK 36, all four ABIs, the pinned
+signer, and SHA-256
+`58d6cc72cc7d8abaa89c7380620f69dc4306f6b76ea8b1c7b770c53ad11a82e2`.
+
+The in-place update preserved login and preferences. With the Guard process
+suspended, the official VPN disconnected and TailDNS absent, enabling the
+fork's Always-on switch through Android Settings caused the system
+`android.net.VpnService` binding to start the VPN. `dumpsys` reported
+`startForegroundCount=1`, `isForeground=true`, process state 4 and one
+connected VPN. Public DNS, locally answered MagicDNS, direct IP and the three
+Android-setting observers passed. `am kill` left the same foreground PID
+running, whereas the pre-fix system-started process had been cached/killable.
+
+On the same candidate, enabling and disabling an available exit node replaced
+the active TUN in both directions; public and local DNS passed after each
+transition. Wi-Fi loss kept local MagicDNS available, and after Android had an
+assigned address again, public and local DNS recovered in the same process.
+Neither path logged `injectToHost` EIO, a fatal packet-pump error or a competing
+resource error. External root `SIGKILL` remains a separate synthetic diagnostic,
+not an in-process recovery guarantee and not a reason to introduce another
+watchdog. The accessible Thor scenarios therefore satisfy the native
+Guard-obsolescence stage under specification 1.5.
+
+After the candidate-90 matrix, the fork was disconnected with zero observers,
+the official VPN and its real Settings-managed Always-on switch were restored,
+the original Guard process was resumed, Automatic Private DNS and the saved
+provider were preserved, and the official VPN was verified active. A temporary
+fork battery exemption remained removed. The Samsung tablet remained untouched.
+
 ## Automatic-follow candidate procedure
 
 With the same entry/restoration controls, enable the local resolver and follow
@@ -206,5 +283,7 @@ or unrelated network infrastructure without authority.
 For every case record trigger, configuration/network generation, expected and
 observed result, evidence location and restoration. Missing access, unavailable
 network families or an unobservable destination remain explicit acceptance gaps;
-host fixtures and mocks cannot close them. No stage or release is complete until
-the full assigned criteria are satisfied.
+host fixtures and mocks cannot close them. Under specification 1.5, unavailable
+IPv6/cellular/captive-portal variants remain disclosed gaps and cannot be claimed
+as tested, but they do not stop deployment or release after accessible primary
+flows and failure semantics pass.
