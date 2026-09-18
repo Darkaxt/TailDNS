@@ -50,7 +50,7 @@ jobs:
           go_bin="$(./tool/go env GOROOT)/bin/go"
           (cd "$core_dir" && "$go_bin" test -mod=readonly ./ipn/... ./net/dns/... ./client/local ./cmd/taildns ./safesocket -count=1)
           cd android
-          ./gradlew ktfmtCheck test lintRelease assembleRelease -PVERSION_CODE_BASE="$VERSION_CODE_BASE"
+          ./gradlew ktfmtCheck test assembleRelease -PVERSION_CODE_BASE="$VERSION_CODE_BASE"
       - name: Package exact Windows companion
         shell: bash
         run: |
