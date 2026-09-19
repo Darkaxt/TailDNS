@@ -38,7 +38,9 @@ jobs:
           bash scripts/test-append-taildns-version.sh
           bash scripts/test-taildns-branding.sh
           bash scripts/test-sync-core-toolchain-rev.sh
+          GOTOOLCHAIN=local go mod download tailscale.com
           core_dir="$(GOTOOLCHAIN=local go list -m -f '{{.Dir}}' tailscale.com)"
+          test -n "$core_dir"
           bash scripts/sync-core-toolchain-rev.sh --check "$core_dir" "$PWD"
           TAILDNS_RELEASE_SEQUENCE="$release_sequence" bash scripts/fork-mkversion.sh > tailscale.version
           source tailscale.version
