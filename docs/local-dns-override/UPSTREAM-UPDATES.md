@@ -53,14 +53,14 @@ automatic device mutation or a release.
 On 2026-09-19, core and Android dry runs detected and composed their current
 upstream inputs without creating branches, pull requests or releases:
 [core run 35400995349](https://github.com/Darkaxt/tailscale/actions/runs/35400995349)
-and [Android run 35400997742](https://github.com/Darkaxt/tailscale-android/actions/runs/35400997742).
+and [Android run 35400997742](https://github.com/Darkaxt/TailDNS/actions/runs/35400997742).
 
 The real core updater [run 35401383779](https://github.com/Darkaxt/tailscale/actions/runs/35401383779)
 opened [core PR 1](https://github.com/Darkaxt/tailscale/pull/1), whose exact
 candidate passed trusted read-only [run 35401479720](https://github.com/Darkaxt/tailscale/actions/runs/35401479720).
-The real Android updater [run 35401972916](https://github.com/Darkaxt/tailscale-android/actions/runs/35401972916)
-opened [Android PR 1](https://github.com/Darkaxt/tailscale-android/pull/1), whose
-exact candidate passed trusted read-only [run 35402092785](https://github.com/Darkaxt/tailscale-android/actions/runs/35402092785).
+The real Android updater [run 35401972916](https://github.com/Darkaxt/TailDNS/actions/runs/35401972916)
+opened [Android PR 1](https://github.com/Darkaxt/TailDNS/pull/1), whose
+exact candidate passed trusted read-only [run 35402092785](https://github.com/Darkaxt/TailDNS/actions/runs/35402092785).
 Both pull requests remain deliberately unmerged for human review, and the
 published release remained unchanged.
 

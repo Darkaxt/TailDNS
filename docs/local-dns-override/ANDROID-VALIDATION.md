@@ -141,7 +141,7 @@ reconciliation. No release or Guard-obsolescence claim follows from this pass.
 
 ## Native-reliability candidate evidence — 2026-09-18
 
-Run [35366855618](https://github.com/Darkaxt/tailscale-android/actions/runs/35366855618)
+Run [35366855618](https://github.com/Darkaxt/TailDNS/actions/runs/35366855618)
 passed the exact native/Android build, focused and affected suites, Android tests,
 lint, APK build and isolated signing. Android source
 `ec2ba1d53938f63754e87e1a53f0d943b01a0e6a`, core
@@ -184,7 +184,7 @@ Battery-optimization exemption did not change that synthetic `SIGKILL` result.
 Android source `d9ba4b23152f7421ddad8e0d9a899b3c6b4e5b75` addresses the actionable
 cause by synchronously promoting app-started, login-only and system Always-on
 entries to foreground before continuing initialization. Run
-[35370729766](https://github.com/Darkaxt/tailscale-android/actions/runs/35370729766)
+[35370729766](https://github.com/Darkaxt/TailDNS/actions/runs/35370729766)
 passed the exact build, tests, lint and isolated signing. Independent
 verification found package `io.github.darkaxt.taildns`, code 90,
 `1.103.260-t423bcd55b-gd9ba4b231`, target SDK 36, all four ABIs, the pinned
@@ -218,7 +218,7 @@ fork battery exemption remained removed. The Samsung tablet remained untouched.
 
 ## Final integrated candidate evidence — 2026-09-18
 
-Run [35395256020](https://github.com/Darkaxt/tailscale-android/actions/runs/35395256020)
+Run [35395256020](https://github.com/Darkaxt/TailDNS/actions/runs/35395256020)
 passed clean exact-source build, native/Android tests, lint and isolated signing
 for Android `186daa5a70644ea0d4f0216c25cdd28bc6fad070` and core
 `ebe4cb48e6f37f54f469346d4a21773d2b5d1db7`. Independent verification found

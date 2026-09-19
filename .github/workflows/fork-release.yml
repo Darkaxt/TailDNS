@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   build:
-    if: github.repository == 'Darkaxt/tailscale-android' && github.ref_type == 'tag' && github.actor == github.repository_owner
+    if: github.repository == 'Darkaxt/TailDNS' && github.ref_type == 'tag' && github.actor == github.repository_owner
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -36,6 +36,7 @@ jobs:
           test "$(git rev-list -n 1 "$GITHUB_REF_NAME")" = "$GITHUB_SHA"
           release_sequence="${GITHUB_REF_NAME##*.}"
           bash scripts/test-append-taildns-version.sh
+          bash scripts/test-taildns-branding.sh
           TAILDNS_RELEASE_SEQUENCE="$release_sequence" bash scripts/fork-mkversion.sh > tailscale.version
           source tailscale.version
           test "$GITHUB_REF_NAME" = "v${VERSION_SHORT}-taildns.${release_sequence}"

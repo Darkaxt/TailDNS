@@ -1,13 +1,13 @@
-# Final R01–R16 reconciliation
+# Final R01–R17 reconciliation
 
-Specification: 1.6. Stages 3–6 COMPLETE; Stage 7 ACTIVE. Stages 1 and 2
+Specification: 1.7. Stages 3–6 COMPLETE; Stage 7 ACTIVE. Stages 1 and 2
 retain only the explicitly disclosed validation gaps.
 
 Primary Stage 5 integrated revisions:
 
 - Android: `186daa5a70644ea0d4f0216c25cdd28bc6fad070`.
 - Shared core: `ebe4cb48e6f37f54f469346d4a21773d2b5d1db7`.
-- GitHub validation: [run 35395256020](https://github.com/Darkaxt/tailscale-android/actions/runs/35395256020).
+- GitHub validation: [run 35395256020](https://github.com/Darkaxt/TailDNS/actions/runs/35395256020).
 - Independently verified APK: package `io.github.darkaxt.taildns`, code 100,
   version `1.103.262-tebe4cb48e-g186daa5a7`, target SDK 36, four ABIs, pinned
   signer, SHA-256
@@ -61,7 +61,7 @@ specification 1.5:
   focused regressions plus the available real single-profile/system workflows.
 
 R15 is satisfied by the non-draft
-[v1.0.0-taildns.2 release](https://github.com/Darkaxt/tailscale-android/releases/tag/v1.0.0-taildns.2),
+[v1.0.0-taildns.2 release](https://github.com/Darkaxt/TailDNS/releases/tag/v1.0.0-taildns.2),
 its tag-bound trusted workflow, independent download verification and in-place
 Thor update evidence in [RELEASE-VALIDATION.md](RELEASE-VALIDATION.md).
 
@@ -69,3 +69,10 @@ R16 is not yet satisfied. GitHub detection and validation pass, but the initial
 automation incorrectly left validated candidates unmerged and published no
 successor release. Stage 7 now owns the missing dependency-ordered promotion,
 release and independent verification. No required tracked deferral remains.
+
+R17 is ACTIVE. The independent package, navigation scheme and launcher label
+already identify TailDNS. The remaining user-visible product strings and README
+heading now do as well, with a repeatable branding contract. Completion still
+requires the public repository rename plus trusted candidate and released-APK
+verification. Technically required upstream Tailscale service/module/namespace,
+license, copyright and attribution references intentionally remain.

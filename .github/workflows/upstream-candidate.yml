@@ -22,7 +22,7 @@ concurrency:
 
 jobs:
   candidate:
-    if: github.repository == 'Darkaxt/tailscale-android' && github.ref == 'refs/heads/main'
+    if: github.repository == 'Darkaxt/TailDNS' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683

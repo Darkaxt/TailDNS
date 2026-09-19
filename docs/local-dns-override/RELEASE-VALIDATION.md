@@ -2,7 +2,7 @@
 
 Date: 2026-09-19. Stage: 6 COMPLETE.
 
-Release: [v1.0.0-taildns.2](https://github.com/Darkaxt/tailscale-android/releases/tag/v1.0.0-taildns.2). Workflow: [35399346673](https://github.com/Darkaxt/tailscale-android/actions/runs/35399346673).
+Release: [v1.0.0-taildns.2](https://github.com/Darkaxt/TailDNS/releases/tag/v1.0.0-taildns.2). Workflow: [35399346673](https://github.com/Darkaxt/TailDNS/actions/runs/35399346673).
 
 The tag resolves to Android `04631d14fa1021217208caee3e6e7317f51a6c86`.
 The pinned shared core is

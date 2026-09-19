@@ -7,7 +7,7 @@ param(
     [string]$Keytool = 'C:\Program Files\Zulu\zulu-21\bin\keytool.exe'
 )
 $ErrorActionPreference = 'Stop'
-$repository = 'Darkaxt/tailscale-android'
+$repository = 'Darkaxt/TailDNS'
 $directory = [IO.Path]::GetFullPath($SigningDirectory)
 if (Test-Path -LiteralPath $directory) {
     if ((Get-Item -LiteralPath $directory).Attributes -band [IO.FileAttributes]::ReparsePoint) {

@@ -1,10 +1,12 @@
-# Tailscale Android — local DNS override fork
+# TailDNS
 
-An independent community fork of [tailscale/tailscale-android](https://github.com/tailscale/tailscale-android), maintained by [Darkaxt](https://github.com/Darkaxt). This project is not an official Tailscale product or endorsed by Tailscale.
+TailDNS is an independent community fork of [tailscale/tailscale-android](https://github.com/tailscale/tailscale-android), maintained by [Darkaxt](https://github.com/Darkaxt). This project is not an official Tailscale product or endorsed by Tailscale.
 
 ## Fork status
 
-**Stages 3–6 are complete and Stage 7 automatic promotion/release is active; Stage 1's unavailable network variants and Stage 2's prohibited device-input action are disclosed validation gaps under specification 1.6, not release stops.** The exact integrated Android/core revisions passed the GitHub build and focused suites, isolated signing, independent artifact verification and a final Guard-disabled Thor matrix. UI-closed provider changes failed closed, retained MagicDNS, raised and cleared resolver health, and recovered without reconnecting. Cold app and system Always-on starts, Wi-Fi loss/return, exit-node transitions, observer teardown/recreation and foreground process protection passed. The isolated Windows companion passed authenticated set/status/clear, real DoH, MagicDNS, split-route, exit-node, restart-persistence, failure-health and restoration checks without replacing the official service. The signed [TailDNS 1.0.0 release](https://github.com/Darkaxt/tailscale-android/releases/tag/v1.0.0-taildns.2) contains the verified Android APK and Windows AMD64 companion. GitHub detects and validates upstream candidates; the task-attached monitor must promote passing candidates and publish the next independently verified release.
+**Stages 3–6 are complete and Stage 7 automatic promotion/release is active; Stage 1's unavailable network variants and Stage 2's prohibited device-input action are disclosed validation gaps under specification 1.7, not release stops.** The exact integrated Android/core revisions passed the GitHub build and focused suites, isolated signing, independent artifact verification and a final Guard-disabled Thor matrix. UI-closed provider changes failed closed, retained MagicDNS, raised and cleared resolver health, and recovered without reconnecting. Cold app and system Always-on starts, Wi-Fi loss/return, exit-node transitions, observer teardown/recreation and foreground process protection passed. The isolated Windows companion passed authenticated set/status/clear, real DoH, MagicDNS, split-route, exit-node, restart-persistence, failure-health and restoration checks without replacing the official service. The signed [TailDNS 1.0.0 release](https://github.com/Darkaxt/TailDNS/releases/tag/v1.0.0-taildns.2) contains the verified Android APK and Windows AMD64 companion. GitHub detects and validates upstream candidates; the task-attached monitor must promote passing candidates and publish the next independently verified release.
+
+TailDNS is the product identity. Upstream technical identifiers such as the `com.tailscale.ipn` source namespace, `tailscale.com` Go module, Tailscale service/API URLs, protocol feature names, and original license/copyright/trademark notices remain where required for compatibility, truthful attribution, and maintainable upstream merges; they do not identify the installed app or published release as an official Tailscale product.
 
 The proposed feature lets a device choose its own DNS-over-HTTPS resolver, including a Control D endpoint/client, while preserving Tailscale's MagicDNS and applicable split-DNS routes. It does not require editing tailnet policy or changing other devices.
 
@@ -185,7 +187,7 @@ adb shell pm uninstall com.tailscale.ipn
 ## Bugs
 
 Please report this fork's specification or implementation issues in the
-[fork issue tracker](https://github.com/Darkaxt/tailscale-android/issues).
+[TailDNS issue tracker](https://github.com/Darkaxt/TailDNS/issues).
 Problems reproducible in an unmodified upstream client, or with the hosted
 service, belong in the [Tailscale issue tracker](https://github.com/tailscale/tailscale/issues).
 

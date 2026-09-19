@@ -1,6 +1,8 @@
 # Local DNS override — authoritative specification
 
-Version: 1.6. Date: 2026-09-19. Status: **Stages 3–6 COMPLETE; Stage 7 ACTIVE**. Stages 1 and 2 remain parked only on the explicitly disclosed validation gaps. Stage 7 was reopened because its first implementation stopped after GitHub detection and validation instead of promoting passing updates and publishing the next verified release. An unavailable edge-case environment or prohibited automation action must be recorded honestly, but must not stop implementation, deployment or release when the implemented behavior and accessible primary workflows pass.
+Version: 1.7. Date: 2026-09-19. Status: **Stages 3–6 COMPLETE; Stage 7 ACTIVE**. Stages 1 and 2 remain parked only on the explicitly disclosed validation gaps. Stage 7 was reopened because its first implementation stopped after GitHub detection and validation instead of promoting passing updates and publishing the next verified release. An unavailable edge-case environment or prohibited automation action must be recorded honestly, but must not stop implementation, deployment or release when the implemented behavior and accessible primary workflows pass.
+
+Revision 1.7 records the user's correction that the fork product is TailDNS, not an app still presented as Tailscale. R17 requires TailDNS naming across the public repository and user-visible app/release identity while retaining technically required upstream namespaces, protocol terminology, URLs, licenses, copyrights and attribution.
 
 Revision 1.6 records the user's correction that GitHub already owns upstream detection and candidate validation. The scheduled Codex task owns the remaining outcome: consume exact passing results, merge the validated core and Android candidates in dependency order, create the next signed release, independently verify it, and repair failures. A passing current candidate must not be parked indefinitely as a supposed safety measure.
 
@@ -14,7 +16,7 @@ Revision 1.2 records the user's authorization to implement, establish GitHub sig
 
 Revision 1.1 adds R12–R14: native Android DNS reliability fixes intended to make Thor Tailscale DNS Guard unnecessary. It also corrects R02 to automatic propagation (not manual import), records the ordinary-app access test, and clarifies the transport work required by R08. No feature implementation is authorized by this documentation revision.
 
-Owner repository: [Darkaxt/tailscale-android](https://github.com/Darkaxt/tailscale-android).
+Owner repository: the public Darkaxt TailDNS fork of `tailscale/tailscale-android`.
 Related documents: [evaluation and evidence](EVALUATION.md), [implementation stages](IMPLEMENTATION-PLAN.md).
 
 ## 1. Objective and delivery boundary
@@ -197,6 +199,14 @@ Only after successful integrated validation and the signed release gate, use Git
 Use one recurring monitor attached to this existing Codex task, not a new standalone task. Inspect existing automations to avoid duplicates. It must consume GitHub's detection/check results, perform the gated merge/release sequence above, investigate and fix bounded pipeline/regression failures, verify corrections, and remain attached through independent release verification. Stay quiet while healthy with no new candidate. Notify on a completed release, a genuine blocker or required user action. Do not weaken acceptance criteria, rotate signing identity, bypass security gates or perform device changes automatically. Record the automation identity and chosen cadence.
 
 Acceptance: an end-to-end upstream rehearsal demonstrates detection, exact-head validation, dependency-ordered core and Android promotion, signed release publication, independent artifact verification, failure containment and recoverability. The task-attached monitor is verified with that scope. Unresolved failures cannot be hidden by leaving passing candidates parked, disabling tests or publishing an unverified build.
+
+### R17 — TailDNS product identity
+
+Present the fork as **TailDNS** in the repository title, Android launcher/activity/tile labels, onboarding, About/settings identity, app-owned status and failure notifications, release titles and public documentation. The public repository name must also identify the project as TailDNS. Do not present the fork itself as the official Tailscale Android app.
+
+Retain Tailscale where it truthfully names the upstream service, protocol concepts, Tailscale DNS/addresses/subnets, control/admin endpoints, Go module, source namespace, binary compatibility boundary, original copyright/trademark notice or upstream attribution. Do not perform a source-namespace rewrite that would obscure provenance or make upstream integration needlessly fragile.
+
+Acceptance: a repeatable branding contract checks the public project heading and Android product-identity strings; the manifest uses the independent TailDNS label; the trusted candidate and release workflows execute that contract; the public repository and release identify TailDNS while the README explains which Tailscale-derived technical identifiers intentionally remain.
 
 ## 4. Evidence record and completion rule
 
