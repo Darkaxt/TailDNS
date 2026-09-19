@@ -3,7 +3,7 @@
 Authority: [SPECIFICATION.md](SPECIFICATION.md), version 1.6.
 Assessment: [EVALUATION.md](EVALUATION.md).
 
-Authorization: implementation, GitHub signing, release, upstream auto-update and current-task monitoring are already authorized. Stage 1 is BLOCKED on B3's unavailable controlled-network variants; Stage 2 is BLOCKED on B4's prohibited device-input action; Stages 3–6 are COMPLETE; Stage 7 is ACTIVE. Under specification 1.7, B3 and B4 remain honest validation gaps but do not block completion of the accessible workflow.
+Authorization: implementation, GitHub signing, release, upstream auto-update and current-task monitoring are already authorized. Stage 1 is BLOCKED on B3's unavailable controlled-network variants; Stage 2 is BLOCKED on B4's prohibited device-input action; Stages 3–7 are COMPLETE. Under specification 1.7, B3 and B4 remain honest validation gaps but do not block completion of the accessible workflow.
 
 There may be only one **ACTIVE** stage. Other allowed statuses are **NOT STARTED**, **BLOCKED**, and **COMPLETE**. Park an actual blocked stage with the exact requirement, cause, ownership, resolving condition and dependent work before activating another. Close a stage only with fresh evidence for every assigned criterion.
 
@@ -114,11 +114,11 @@ Satisfied: tag-bound run [35399346673](https://github.com/Darkaxt/TailDNS/action
 
 ## Stage 7 — Post-validation auto-update and current-task monitoring
 
-Status: **ACTIVE**. The initial detector/check rehearsal passed, but automatic promotion and release were missing.
+Status: **COMPLETE**.
 
 Acceptance: complete R16's dependency-ordered promotion and release workflow and R17's TailDNS product identity, then verify the recurring task monitor performs promotion/release and repairs failures without weakening gates.
 
-Satisfied: GitHub detection, candidate creation, no-secret validation and failure recovery are proven by runs and PRs recorded in [UPSTREAM-UPDATES.md](UPSTREAM-UPDATES.md). The task heartbeat `monitor-taildns-upstream-updates` is active daily at 08:30 UTC and has been corrected to own validated merge, monotonic signed release and independent verification. TailDNS launcher identity already existed, and a failing-then-passing branding contract now covers the remaining product-facing repository/app strings. Remaining: rename the public Android repository to TailDNS, run the branding contract in trusted candidate/release workflows, merge the exact refreshed Android candidate, publish and independently verify the next release, then record the successful rehearsal. Blockers: none. Tracked deferrals: none.
+Satisfied: core PR [1](https://github.com/Darkaxt/tailscale/pull/1) promoted exact checked head `43a88f96bb81206f4baad0047763646761bcc764` as core `f5de5ace94bb3fb21794d1e10184029709242aa0`; Android PR [1](https://github.com/Darkaxt/TailDNS/pull/1) then promoted exact checked head `cb270f27a2b641fc7b296d7306bce40e6fbcd3fa` as Android `ab93b54cbccd3e148ebd53b3d943548f9e85960b`. Candidate run [35455837978](https://github.com/Darkaxt/TailDNS/actions/runs/35455837978) passed the branding, version, core/toolchain, native and Android gates after two contained pipeline failures were diagnosed and repaired. Tag-bound run [35456966765](https://github.com/Darkaxt/TailDNS/actions/runs/35456966765) published the non-draft [v1.103.312-taildns.3 release](https://github.com/Darkaxt/TailDNS/releases/tag/v1.103.312-taildns.3), preserving upstream `VERSION_SHORT=1.103.312` and appending only `-taildns.3`. Independent public downloads matched every checksum, exact source provenance, package, TailDNS label, monotonic code `298306220`, four ABIs, pinned signer, v2/v3 signatures and the expected Windows x86-64 unsigned boundary. The public Android repository is named TailDNS and both public forks now expose only `main`; the core fork's inherited CI and Dependabot PR creation were disabled in favor of the two TailDNS candidate workflows. The task heartbeat `monitor-taildns-upstream-updates` remains active daily at 08:30 UTC and owns dependency-ordered promotion, monotonic signed release, independent verification and bounded failure repair without device control. Remaining: none. Blockers: none. Tracked deferrals: none.
 
 ## Requirement ownership
 

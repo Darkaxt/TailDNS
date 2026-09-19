@@ -20,10 +20,11 @@ because it merged or compiled.
    core suites, Android formatting/tests/release assembly, and Windows
    cross-compilation. A candidate-branch push trigger also validates later
    human fixes without granting write or secret access.
-4. A human reviews the diffs and checks. After merge to trusted `main`, run the
-   isolated signed validation workflow and perform risk-appropriate device
-   checks. Publication still requires a separate owner-created release tag;
-   the updater cannot create one.
+4. The task-attached monitor reviews exact heads and passing checks, promotes
+   core before Android, then creates the next owner-controlled release tag on
+   the exact merged Android commit. The tag-bound workflow alone receives the
+   signing identity and publication permission. The monitor independently
+   downloads and verifies the release; it never controls a device.
 
 The core schedule is 02:17 UTC daily and the Android schedule is 04:17 UTC
 daily. Manual dry runs detect and compose locally but deliberately push no
@@ -61,7 +62,7 @@ candidate passed trusted read-only [run 35401479720](https://github.com/Darkaxt/
 The real Android updater [run 35401972916](https://github.com/Darkaxt/TailDNS/actions/runs/35401972916)
 opened [Android PR 1](https://github.com/Darkaxt/TailDNS/pull/1), whose
 exact candidate passed trusted read-only [run 35402092785](https://github.com/Darkaxt/TailDNS/actions/runs/35402092785).
-Both pull requests remain deliberately unmerged for human review, and the
+Those initial pull requests demonstrated detection and validation while the
 published release remained unchanged.
 
 The first core bot dispatch exposed an actor-boundary mistake and skipped the
@@ -70,8 +71,26 @@ candidate ref, then the updater and candidate checks were rerun successfully.
 This rehearsed failure containment and recovery without exposing secrets,
 disabling checks or publishing the candidate.
 
+The completed promotion rehearsal then merged core PR
+[1](https://github.com/Darkaxt/tailscale/pull/1) as
+`f5de5ace94bb3fb21794d1e10184029709242aa0`, refreshed Android PR
+[1](https://github.com/Darkaxt/TailDNS/pull/1), and passed exact-candidate run
+[35455837978](https://github.com/Darkaxt/TailDNS/actions/runs/35455837978).
+Two earlier Android candidate attempts failed safely on a core Go-toolchain
+pin mismatch and a missing deterministic module download; neither was merged
+or published. After bounded repairs, Android merged as
+`ab93b54cbccd3e148ebd53b3d943548f9e85960b` and release run
+[35456966765](https://github.com/Darkaxt/TailDNS/actions/runs/35456966765)
+published and verified
+[v1.103.312-taildns.3](https://github.com/Darkaxt/TailDNS/releases/tag/v1.103.312-taildns.3).
+
+Both public forks were reduced to the canonical `main` branch. The core fork's
+1,275 inherited branches and five regenerated Dependabot branches were removed;
+inherited static workflows and dependency-PR creation were disabled so the two
+TailDNS core candidate workflows remain the only fork-owned Actions surface.
+
 The task-attached heartbeat `monitor-taildns-upstream-updates` runs daily at
-08:30 UTC. It stays quiet while healthy and unchanged; it reports meaningful
-new candidates or actionable failures and may make only bounded, verified
-pipeline repairs. It cannot merge candidates, create tags or releases, rotate
-the signer, change tailnet registration, or control a device.
+08:30 UTC. It stays quiet while healthy and unchanged; it owns exact-head
+review, dependency-ordered merge, monotonic `v<VERSION_SHORT>-taildns.N`
+release, independent verification and bounded pipeline repair. It cannot rotate
+the signer, change tailnet registration or control a device.

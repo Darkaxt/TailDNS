@@ -1,6 +1,6 @@
 # Final R01–R17 reconciliation
 
-Specification: 1.7. Stages 3–6 COMPLETE; Stage 7 ACTIVE. Stages 1 and 2
+Specification: 1.7. Stages 3–7 COMPLETE. Stages 1 and 2
 retain only the explicitly disclosed validation gaps.
 
 Primary Stage 5 integrated revisions:
@@ -65,14 +65,16 @@ R15 is satisfied by the non-draft
 its tag-bound trusted workflow, independent download verification and in-place
 Thor update evidence in [RELEASE-VALIDATION.md](RELEASE-VALIDATION.md).
 
-R16 is not yet satisfied. GitHub detection and validation pass, but the initial
-automation incorrectly left validated candidates unmerged and published no
-successor release. Stage 7 now owns the missing dependency-ordered promotion,
-release and independent verification. No required tracked deferral remains.
+R16 is satisfied. The core candidate was checked and promoted first, the
+Android candidate then pinned that exact core, and the successor release was
+built, signed, published and independently downloaded. Failed candidate runs
+left the previous release unchanged and were repaired without weakening the
+gates. The task-attached daily monitor now owns this complete sequence.
 
-R17 is ACTIVE. The independent package, navigation scheme and launcher label
-already identify TailDNS. The remaining user-visible product strings and README
-heading now do as well, with a repeatable branding contract. Completion still
-requires the public repository rename plus trusted candidate and released-APK
-verification. Technically required upstream Tailscale service/module/namespace,
-license, copyright and attribution references intentionally remain.
+R17 is satisfied. The public Android repository, project heading, package,
+launcher/activity/tile labels, onboarding, About/settings identity,
+notifications and release title identify TailDNS. The trusted candidate and
+release workflows run the repeatable branding contract, and the downloaded APK
+reports `application-label:'TailDNS'`. Technically required upstream Tailscale
+service/module/namespace, license, copyright and attribution references
+intentionally remain.
