@@ -85,7 +85,10 @@ jobs:
             GOTOOLCHAIN=local go mod tidy
             versions="$(GOTOOLCHAIN=local go list -m -f '{{.Version}} {{.Replace.Version}} {{.Replace.Path}}' tailscale.com)"
             test "$versions" = "$core_version $core_version github.com/Darkaxt/tailscale"
-            git add go.mod go.sum
+            core_dir="$(GOTOOLCHAIN=local go list -m -f '{{.Dir}}' tailscale.com)"
+            bash scripts/sync-core-toolchain-rev.sh --write "$core_dir" "$PWD"
+            bash scripts/sync-core-toolchain-rev.sh --check "$core_dir" "$PWD"
+            git add go.mod go.sum go.toolchain.rev
             git commit -m "update TailDNS shared core to ${core_head:0:12}"
           fi
           if [[ "$DRY_RUN" == true ]]; then

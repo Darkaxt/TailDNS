@@ -35,6 +35,9 @@ jobs:
           set -euo pipefail
           bash scripts/test-append-taildns-version.sh
           bash scripts/test-taildns-branding.sh
+          bash scripts/test-sync-core-toolchain-rev.sh
+          core_dir="$(GOTOOLCHAIN=local go list -m -f '{{.Dir}}' tailscale.com)"
+          bash scripts/sync-core-toolchain-rev.sh --check "$core_dir" "$PWD"
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-36' 'build-tools;36.0.0' 'ndk;23.1.7779620'
           version_code_base="$(( $(git show -s --format=%ct HEAD) / 60 * 10 ))"
           test "$version_code_base" -lt 2147483640
