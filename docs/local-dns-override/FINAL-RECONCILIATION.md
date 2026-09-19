@@ -33,14 +33,15 @@ branded and does not copy or replace the proprietary official GUI.
 | R08 transport/failures | Satisfied under specification 1.5. TLS/redirect/bootstrap/failure/no-fallback/health suites pass. Android captured Control D TLS, fail-closed provider loss, warning/recovery, exit-node on/off and Wi-Fi transitions; Windows repeated real DoH, exit-node and failure-health checks. Unavailable network variants are listed below. |
 | R09 truthful UI/diagnostics | Satisfied. Source switches autosave; no global save button remains. Screen tests distinguish configured/applied/verified and conflict/error states. Public evidence and ordinary logs redact private resolver identifiers. |
 | R10 Windows boundary | Satisfied. The isolated standard-user daemon and `taildns` CLI passed authenticated set/status/clear, incompatible-daemon rejection, persistence, real DoH, MagicDNS/split routing, exit-node, failure health and exact restoration while the official service stayed running. A second Windows identity was unavailable; HTTP authorization regression proves read-only mutation returns 403. |
-| R11 compatibility/publication honesty | Satisfied for the pre-release gate. License, exact provenance, identity, signing custody and known gaps are documented. This repository still states that no public feature release exists; R15 publication belongs to Stage 6. |
+| R11 compatibility/publication honesty | Satisfied. License, exact provenance, identity, signing custody and known gaps are documented. The public release is explicitly identified as the independent TailDNS fork and does not claim official Tailscale compatibility, ownership or Authenticode signing. |
 | R12 root-cause audit | Satisfied. Pre-fix evidence isolated cold-start readiness, TUN replacement and missing Always-on foreground ownership. Each received a failing regression before its owning-boundary fix; upstream issue reports were treated only as leads. |
 | R13 native fixes | Satisfied. One cold start initializes the backend; repeated starts are idempotent. Explicit TUN replacement retry, foreground Always-on entry and resolver failure health pass host and real-Thor checks without a watchdog, restart loop or arbitrary recovery timer. |
 | R14 Guard obsolescence | Satisfied for every reproducible Guard scenario available on Thor. With the Guard stopped, cold and system Always-on starts, foreground process protection, DNS-dead/fail-recover, Wi-Fi loss/return, sleep/wake, exit-node transitions, explicit disconnect and resolver precedence passed. External root `SIGKILL` is not an in-process recovery contract and is not replaced with another watchdog. Actual Guard removal remains the user's decision. |
 
 R15 test-install identity is also reconciled: the persistent independent signer,
 fork package and monotonic validation codes supported multiple in-place updates
-without replacing official Tailscale. Production publication remains Stage 6.
+without replacing official Tailscale. Production publication and downloaded
+artifact verification are recorded below.
 
 ## Disclosed validation gaps
 
