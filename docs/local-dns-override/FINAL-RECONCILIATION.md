@@ -1,7 +1,7 @@
 # Final R01–R16 reconciliation
 
-Completed: 2026-09-19. Specification: 1.5. Stages 3–7 COMPLETE; Stages 1
-and 2 retain only the explicitly disclosed specification-1.5 validation gaps.
+Specification: 1.6. Stages 3–6 COMPLETE; Stage 7 ACTIVE. Stages 1 and 2
+retain only the explicitly disclosed validation gaps.
 
 Primary Stage 5 integrated revisions:
 
@@ -65,8 +65,7 @@ R15 is satisfied by the non-draft
 its tag-bound trusted workflow, independent download verification and in-place
 Thor update evidence in [RELEASE-VALIDATION.md](RELEASE-VALIDATION.md).
 
-R16 is satisfied by the guarded core and Android updater workflows, their dry
-and real candidate rehearsals, trusted read-only validation runs, deliberate
-unmerged review state, verified failure recovery and the daily task-attached
-`monitor-taildns-upstream-updates` heartbeat recorded in
-[UPSTREAM-UPDATES.md](UPSTREAM-UPDATES.md). No required tracked deferral remains.
+R16 is not yet satisfied. GitHub detection and validation pass, but the initial
+automation incorrectly left validated candidates unmerged and published no
+successor release. Stage 7 now owns the missing dependency-ordered promotion,
+release and independent verification. No required tracked deferral remains.
