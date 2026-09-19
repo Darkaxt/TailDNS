@@ -35,9 +35,9 @@ Final candidate result: run 35350671598 completed successfully, including releas
 
 2026-09-18 reconciliation: B2 is resolved by successful Thor authentication. The manual editor applied the supplied Control D endpoint, explicit queries through quad-100 returned answers, and packet capture established HTTPS traffic to the maintained Control D address. A tailnet MagicDNS name resolved locally; disabling custom DNS restored upstream selection. A generic OpenDNS endpoint also applied and answered queries; packet capture showed only its hostname in the observed base-DNS TCP A/AAAA bootstrap. Logs redacted the custom endpoint. These establish the narrow real slice, not the full R01/R06–R09 matrix.
 
-Stage 1 validation gap B3: R08 IPv6-only/dual-stack and captive-portal variants require a controlled network environment not currently available. The Thor has no IPv6 route; only the existing user Wi-Fi is in scope. Specification 1.5 requires these variants to remain disclosed as untested but forbids stopping deployment on them. Ordinary remaining profile, lifecycle, policy and exit-node checks are not reclassified as passed or deferred. No tracked deferrals. The original official VPN, Always-on assignment and Guard execution were restored; an explicit quad-100 lookup passed afterward. The saved Android provider requested by the user remains in Automatic mode. Stage 3 is now the sole ACTIVE stage.
+Stage 1 validation gap B3: R08 IPv6-only/dual-stack and captive-portal variants require a controlled network environment not currently available. The Thor has no IPv6 route; only the existing user Wi-Fi is in scope. Specification 1.5 requires these variants to remain disclosed as untested but forbids stopping deployment on them. Ordinary remaining profile, lifecycle, policy and exit-node checks are not reclassified as passed or deferred. No tracked deferrals. The original official VPN, Always-on assignment and Guard execution were restored; an explicit quad-100 lookup passed afterward. The saved Android provider requested by the user remains in Automatic mode. At this checkpoint Stage 3 became the sole ACTIVE stage.
 
-Status: **BLOCKED**. The real Stage 1 manual slice is demonstrated; Stage 1 remains parked on B3 and is not COMPLETE. Stage 2's B4 is below; Stage 3 is the sole ACTIVE implementation stage.
+Status: **BLOCKED**. The real Stage 1 manual slice is demonstrated; Stage 1 remains parked on B3 and is not COMPLETE. Stage 2's B4 is below. At this checkpoint Stage 3 became the sole ACTIVE implementation stage.
 
 Acceptance criteria:
 
@@ -64,7 +64,7 @@ Candidate 35361257936 passed native/Android build, affected core suites, Android
 
 ## Stage 3 — Native Android reliability and Guard-obsolescence proof
 
-Status: **COMPLETE**. Stages 1 and 2 remain parked on their recorded external verification blockers. Stage 4 is now the sole active implementation stage.
+Status: **COMPLETE**. Stages 1 and 2 remain parked on their recorded external verification blockers. At this closure checkpoint Stage 4 became the sole ACTIVE implementation stage.
 
 Scope: audit native lifecycle/packet paths, reproduce the Guard's scenarios, implement only evidence-backed root-cause fixes, and prove the Thor no longer needs the workaround. Do not modify or embed the Guard.
 
@@ -81,7 +81,7 @@ Final evidence: run [35370729766](https://github.com/Darkaxt/tailscale-android/a
 
 ## Stage 4 — Windows real companion workflow
 
-Status: **COMPLETE**. Stage 5 is now the sole active implementation stage under the revision-1.5 continuation rule.
+Status: **COMPLETE**. At this closure checkpoint Stage 5 became the sole ACTIVE implementation stage under the revision-1.5 continuation rule.
 
 Acceptance criteria:
 
@@ -93,7 +93,7 @@ Satisfied: the independently branded `taildns` CLI and compatible shared-core da
 
 ## Stage 5 — Integrated reconciliation and verified handoff
 
-Status: **COMPLETE**. Stages 1 and 2 remain parked only on the specification-1.5 disclosed validation gaps. Stage 6 is now the sole active stage.
+Status: **COMPLETE**. Stages 1 and 2 remain parked only on the specification-1.5 disclosed validation gaps. At this closure checkpoint Stage 6 became the sole ACTIVE stage.
 
 Acceptance criteria:
 
