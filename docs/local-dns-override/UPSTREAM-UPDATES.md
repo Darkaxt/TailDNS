@@ -7,11 +7,11 @@ because it merged or compiled.
 ## Daily flow
 
 1. The shared-core fork checks canonical `tailscale/tailscale` first. When its
-   `local-dns-override` branch is behind, it composes
+   `main` branch is behind, it composes
    `automation/upstream-core` and opens or updates a pull request. It does not
    execute merged upstream code and has no signing secret.
 2. The Android fork later checks canonical `tailscale/tailscale-android` and
-   the reviewed head of `Darkaxt/tailscale:local-dns-override`. It composes
+   the reviewed head of `Darkaxt/tailscale:main`. It composes
    `automation/upstream-candidate`, updates the exact Go-module pin when needed,
    and opens or updates a pull request.
 3. The updater explicitly dispatches a trusted default-branch check for the

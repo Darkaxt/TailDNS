@@ -47,7 +47,7 @@ jobs:
           git fetch --no-tags canonical refs/heads/main:refs/remotes/canonical/main
           git fetch --no-tags origin "$base"
           android_head="$(git rev-parse refs/remotes/canonical/main)"
-          core_head="$(git ls-remote https://github.com/Darkaxt/tailscale.git refs/heads/local-dns-override | awk '{print $1}')"
+          core_head="$(git ls-remote https://github.com/Darkaxt/tailscale.git refs/heads/main | awk '{print $1}')"
           test -n "$core_head"
           current_core_version="$(GOTOOLCHAIN=local go list -m -f '{{.Replace.Version}}' tailscale.com)"
           current_core_short="${current_core_version##*-}"
