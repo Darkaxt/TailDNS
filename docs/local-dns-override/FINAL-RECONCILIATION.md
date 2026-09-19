@@ -1,8 +1,9 @@
 # Final R01–R16 reconciliation
 
-Date: 2026-09-18. Specification: 1.5. Stage: 5 COMPLETE.
+Completed: 2026-09-19. Specification: 1.5. Stages 3–7 COMPLETE; Stages 1
+and 2 retain only the explicitly disclosed specification-1.5 validation gaps.
 
-Integrated revisions:
+Primary Stage 5 integrated revisions:
 
 - Android: `186daa5a70644ea0d4f0216c25cdd28bc6fad070`.
 - Shared core: `ebe4cb48e6f37f54f469346d4a21773d2b5d1db7`.
