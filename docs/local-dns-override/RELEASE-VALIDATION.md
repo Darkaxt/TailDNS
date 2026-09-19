@@ -91,3 +91,41 @@ licenses, README and checksum manifest. All internal hashes matched; each
 executable parsed as x86-64 PE and Windows reported `NotSigned`, agreeing with
 the provenance. No Android device was installed, launched or controlled during
 this successor release; final Samsung interaction remains user-owned.
+
+## Android startup-stamp hotfix and Thor replacement
+
+The `.3` APK aborted during native startup because its generated Go
+`VERSION_LONG` value was `1.103.312-taildns.3`; the runtime accepts the
+upstream `<short>-t<core>-g<android>` form only. A regression first reproduced
+the bad stamping contract. Android commit
+`fae5a1e5f2aa19597f0eb44ddc6e981629892f7a` preserves that Go value and adds a
+separate Android `TAILDNS_VERSION_NAME`. Signed validation run
+[35463656654](https://github.com/Darkaxt/TailDNS/actions/runs/35463656654)
+passed the exact source and signing jobs. Its APK launched on Thor without the
+panic and retained the authorized profile.
+
+Tag-bound run [35464607187](https://github.com/Darkaxt/TailDNS/actions/runs/35464607187)
+published the non-draft, non-prerelease
+[v1.103.312-taildns.4 release](https://github.com/Darkaxt/TailDNS/releases/tag/v1.103.312-taildns.4).
+The tag resolves to Android `7a15a58f24792870837a4a487340da3eafc221f8`
+and pins core `f5de5ace94bb3fb21794d1e10184029709242aa0`. All public
+assets matched `SHA256SUMS`; the APK hash is
+`cfd82086d31bcca5d70f85ce394a397153c07fc2e0cf30a7f109ac0f0fc35bc7`,
+package `io.github.darkaxt.taildns`, version code `298307710`, version name
+`1.103.312-taildns.4`, and signer SHA-256
+`dcd0ede91eb7e0ed88a72b5289f84f8d4a61ccc22707f36378e15540b99d32e1`.
+The Windows archive expanded successfully, its three executable hashes matched
+the internal manifest, and all remained truthfully `NotSigned` by
+Authenticode.
+
+The public APK updated the Thor candidate in place and Android Always-on
+restarted it as VPN owner UID 10162. Fresh logs reported
+`machineAuthorized=true`, matching Tailnet Lock heads, and `Running`; no
+startup panic occurred. Direct traffic to Beacon, MagicDNS resolution of
+`beacon.tail94fa2c.ts.net`, and Control D's verification domain passed. Android
+Private DNS remained `opportunistic` with saved provider
+`8b42rmrayt.dns.controld.com`. The official `com.tailscale.ipn` package was
+then uninstalled at the user's request. It is absent, while TailDNS remains
+installed, selected as Always-on with lockdown off, connected, and resolving
+after removal. Thor Tailscale DNS Guard was not running and was not removed;
+that package remains a separate user decision. No Samsung device was touched.
