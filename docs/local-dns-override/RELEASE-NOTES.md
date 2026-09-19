@@ -1,6 +1,11 @@
-# TailDNS first public release
+# TailDNS upstream refresh
 
-TailDNS is an independently branded Tailscale Android fork that automatically
+This release refreshes the reviewed upstream Android/shared-core revisions
+while retaining the independently branded TailDNS behavior. The upstream
+Tailscale version component is unchanged; the TailDNS release sequence is
+appended as `-taildns.N`.
+
+TailDNS automatically
 uses the provider hostname saved in Android's Private DNS settings while the
 system setting remains **Automatic**. It preserves MagicDNS and more-specific
 tailnet routes, fails closed instead of silently changing providers, and reacts

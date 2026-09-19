@@ -34,16 +34,24 @@ jobs:
           [[ "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-taildns\.[0-9]+$ ]]
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
           test "$(git rev-list -n 1 "$GITHUB_REF_NAME")" = "$GITHUB_SHA"
+          release_sequence="${GITHUB_REF_NAME##*.}"
+          bash scripts/test-append-taildns-version.sh
+          TAILDNS_RELEASE_SEQUENCE="$release_sequence" bash scripts/fork-mkversion.sh > tailscale.version
+          source tailscale.version
+          test "$GITHUB_REF_NAME" = "v${VERSION_SHORT}-taildns.${release_sequence}"
+          test "$VERSION_LONG" = "${VERSION_SHORT}-taildns.${release_sequence}"
           commit_epoch="$(git show -s --format=%ct "$GITHUB_SHA")"
           version_code_base="$((commit_epoch / 60 * 10))"
           test "$version_code_base" -gt 100
           test "$version_code_base" -lt 2147483640
           echo "VERSION_CODE_BASE=$version_code_base" >> "$GITHUB_ENV"
+          echo "TAILDNS_RELEASE_SEQUENCE=$release_sequence" >> "$GITHUB_ENV"
       - name: Build and test exact source
         shell: bash
         run: |
           set -euo pipefail
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-36' 'build-tools;36.0.0' 'ndk;23.1.7779620'
+          test -n "$TAILDNS_RELEASE_SEQUENCE"
           make version libtailscale
           make go-test
           core_dir="$(./tool/go list -m -f '{{.Dir}}' tailscale.com)"

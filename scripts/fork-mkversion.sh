@@ -20,4 +20,8 @@ if [[ "$origin" != "https://github.com/Darkaxt/tailscale.git" ]]; then
     echo 'Version cache is not the TailDNS core fork; refusing to change it.' >&2
     exit 1
 fi
-exec ./tool/go run tailscale.com/cmd/mkversion
+if [[ -n "${TAILDNS_RELEASE_SEQUENCE:-}" ]]; then
+    ./tool/go run tailscale.com/cmd/mkversion | bash scripts/append-taildns-version.sh "$TAILDNS_RELEASE_SEQUENCE"
+else
+    exec ./tool/go run tailscale.com/cmd/mkversion
+fi
