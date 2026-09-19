@@ -45,7 +45,8 @@ jobs:
           TAILDNS_RELEASE_SEQUENCE="$release_sequence" bash scripts/fork-mkversion.sh > tailscale.version
           source tailscale.version
           test "$GITHUB_REF_NAME" = "v${VERSION_SHORT}-taildns.${release_sequence}"
-          test "$VERSION_LONG" = "${VERSION_SHORT}-taildns.${release_sequence}"
+          test "$TAILDNS_VERSION_NAME" = "${VERSION_SHORT}-taildns.${release_sequence}"
+          [[ "$VERSION_LONG" =~ ^[0-9]+\.[0-9]+\.[0-9]+-t[0-9a-f]{6,}-g[0-9a-f]{6,}$ ]]
           commit_epoch="$(git show -s --format=%ct "$GITHUB_SHA")"
           version_code_base="$((commit_epoch / 60 * 10))"
           test "$version_code_base" -gt 100

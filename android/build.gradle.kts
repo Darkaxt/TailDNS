@@ -27,7 +27,7 @@ android {
     targetSdk = androidApiLevel
 
     versionCode = computeVersionCode()
-    versionName = getVersionProperty("VERSION_LONG")
+    versionName = getVersionProperty("TAILDNS_VERSION_NAME") ?: getVersionProperty("VERSION_LONG")
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
     buildConfigField(
@@ -149,11 +149,11 @@ fun getLocalProperty(key: String, defaultValue: String): String {
   }
 }
 
-fun getVersionProperty(key: String): String {
+fun getVersionProperty(key: String): String? {
   val versionProperties = Properties()
   project.file("../tailscale.version").inputStream().use(versionProperties::load)
 
-  return versionProperties.getProperty(key).replace(Regex("^\"|\"$"), "")
+  return versionProperties.getProperty(key)?.replace(Regex("^\"|\"$"), "")
 }
 
 fun computeVersionCode(): Int {

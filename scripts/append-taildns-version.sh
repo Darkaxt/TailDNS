@@ -28,10 +28,5 @@ if [[ "$short_count" -ne 1 || "$long_count" -ne 1 || ! "$short" =~ ^[0-9]+\.[0-9
   exit 1
 fi
 
-for line in "${lines[@]}"; do
-  if [[ "$line" == VERSION_LONG=* ]]; then
-    printf 'VERSION_LONG="%s-taildns.%s"\n' "$short" "$sequence"
-  else
-    printf '%s\n' "$line"
-  fi
-done
+printf '%s\n' "${lines[@]}"
+printf 'TAILDNS_VERSION_NAME="%s-taildns.%s"\n' "$short" "$sequence"

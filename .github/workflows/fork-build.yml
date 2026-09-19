@@ -2,6 +2,11 @@ name: TailDNS validation build
 
 on:
   workflow_dispatch:
+    inputs:
+      release_sequence:
+        description: Optional TailDNS release sequence to validate without publishing
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -20,9 +25,15 @@ jobs:
           distribution: temurin
           java-version: '21'
       - name: Derive deterministic version code
+        env:
+          RELEASE_SEQUENCE: ${{ inputs.release_sequence }}
         shell: bash
         run: |
           set -euo pipefail
+          if [[ -n "$RELEASE_SEQUENCE" ]]; then
+            [[ "$RELEASE_SEQUENCE" =~ ^[1-9][0-9]*$ ]]
+            echo "TAILDNS_RELEASE_SEQUENCE=$RELEASE_SEQUENCE" >> "$GITHUB_ENV"
+          fi
           commit_epoch="$(git show -s --format=%ct "$GITHUB_SHA")"
           version_code_base="$((commit_epoch / 60 * 10))"
           test "$version_code_base" -gt 100
