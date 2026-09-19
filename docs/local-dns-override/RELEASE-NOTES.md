@@ -1,6 +1,12 @@
-# TailDNS upstream refresh
+# TailDNS 1.103.312-taildns.4
 
-This release refreshes the reviewed upstream Android/shared-core revisions
+This is a release-packaging hotfix for `1.103.312-taildns.3`. That release put
+the TailDNS suffix into the shared core's `VERSION_LONG` value, which the Go
+runtime rejects during startup. This release keeps the upstream-compatible
+`VERSION_LONG` form and applies `-taildns.4` only to the Android-visible
+version name. It contains the same upstream feature revision as `.3`.
+
+The release refreshes the reviewed upstream Android/shared-core revisions
 while retaining the independently branded TailDNS behavior. The upstream
 Tailscale version component is unchanged; the TailDNS release sequence is
 appended as `-taildns.N`.
