@@ -3,7 +3,7 @@ name: TailDNS release
 on:
   push:
     tags:
-      - 'v*+*'
+      - 'v*\+*'
 
 permissions:
   contents: read

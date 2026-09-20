@@ -74,6 +74,11 @@ if ! grep -Fq '[[ "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+\+[1-9][0-9]*$ ]
   exit 1
 fi
 
+if ! grep -Fq -- "- 'v*\\+*'" .github/workflows/fork-release.yml; then
+  echo 'Release trigger does not escape the literal plus sign.' >&2
+  exit 1
+fi
+
 if ! grep -Fq '[[ "$VERSION_LONG" =~ ^[0-9]+\.[0-9]+\.[0-9]+-t[0-9a-f]{6,}-g[0-9a-f]{6,}$ ]]' .github/workflows/fork-release.yml; then
   echo 'Release workflow does not reject a malformed Go runtime version.' >&2
   exit 1
