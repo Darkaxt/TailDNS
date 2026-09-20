@@ -18,7 +18,7 @@ VERSION_SHORT="1.103.262"
 VERSION_LONG="1.103.262-tabcdef-g123456789"
 VERSION_GIT_HASH="abcdef"
 VERSION_TRACK="unstable"
-TAILDNS_VERSION_NAME="1.103.262-taildns.3"'
+TAILDNS_VERSION_NAME="1.103.262+3"'
 
 actual="$(printf '%s\n' "$sample" | bash scripts/append-taildns-version.sh 3)"
 if [[ "$actual" != "$expected" ]]; then
@@ -37,8 +37,40 @@ if ! grep -Fq 'versionName = getVersionProperty("TAILDNS_VERSION_NAME") ?: getVe
   exit 1
 fi
 
-if ! grep -Fq 'test "$TAILDNS_VERSION_NAME" = "${VERSION_SHORT}-taildns.${release_sequence}"' .github/workflows/fork-release.yml; then
+standard_numeric_build='^v?[0-9]+\.[0-9]+\.[0-9]+\+[1-9][0-9]*$'
+if [[ "1.103.312-taildns.6" =~ $standard_numeric_build ]]; then
+  echo 'legacy TailDNS version unexpectedly matches the standard updater contract' >&2
+  exit 1
+fi
+if [[ ! "1.103.312+7" =~ $standard_numeric_build || ! "v1.103.312+7" =~ $standard_numeric_build ]]; then
+  echo 'corrected TailDNS version does not match the standard updater contract' >&2
+  exit 1
+fi
+
+# ObtainX 2.10.00 falls back to a digit-shape comparison for non-standard
+# versions. The leading v in a GitHub tag makes the legacy pair incompatible.
+version_shape() {
+  sed -E 's/[0-9]+/#/g' <<< "$1"
+}
+if [[ "$(version_shape '1.103.312-taildns.5')" == "$(version_shape 'v1.103.312-taildns.6')" ]]; then
+  echo 'legacy installed and tag shapes unexpectedly reconcile' >&2
+  exit 1
+fi
+
+current_sequence="${TAILDNS_VERSION_NAME##*+}"
+next_version="${VERSION_SHORT}+$((current_sequence + 1))"
+if [[ "$next_version" != "1.103.262+4" || ! "$next_version" =~ $standard_numeric_build ]]; then
+  echo 'successive corrected TailDNS releases are not automatically comparable' >&2
+  exit 1
+fi
+
+if ! grep -Fq 'test "$TAILDNS_VERSION_NAME" = "${VERSION_SHORT}+${release_sequence}"' .github/workflows/fork-release.yml; then
   echo 'Release workflow does not validate the TailDNS version name.' >&2
+  exit 1
+fi
+
+if ! grep -Fq '[[ "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+\+[1-9][0-9]*$ ]]' .github/workflows/fork-release.yml; then
+  echo 'Release workflow does not enforce the updater-compatible tag.' >&2
   exit 1
 fi
 

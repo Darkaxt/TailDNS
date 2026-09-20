@@ -29,4 +29,4 @@ if [[ "$short_count" -ne 1 || "$long_count" -ne 1 || ! "$short" =~ ^[0-9]+\.[0-9
 fi
 
 printf '%s\n' "${lines[@]}"
-printf 'TAILDNS_VERSION_NAME="%s-taildns.%s"\n' "$short" "$sequence"
+printf 'TAILDNS_VERSION_NAME="%s+%s"\n' "$short" "$sequence"

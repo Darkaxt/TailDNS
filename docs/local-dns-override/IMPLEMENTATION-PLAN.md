@@ -1,9 +1,9 @@
 # Staged implementation plan
 
-Authority: [SPECIFICATION.md](SPECIFICATION.md), version 1.9.
+Authority: [SPECIFICATION.md](SPECIFICATION.md), version 2.0.
 Assessment: [EVALUATION.md](EVALUATION.md).
 
-Authorization: implementation, GitHub signing, release, upstream auto-update and current-task monitoring are already authorized. The user explicitly authorized the Stage 9 APK update after live Fold validation. Stage 1 is BLOCKED on B3's unavailable controlled-network variants; Stage 2 is BLOCKED on B4's prohibited device-input action; Stages 3–8 are COMPLETE and Stage 9 is BLOCKED only on the target Fold's current ADB disconnection. Under specification 1.9, B3 and B4 remain honest validation gaps but do not block completion of the accessible workflow.
+Authorization: implementation, GitHub signing, release, upstream auto-update and current-task monitoring are already authorized. The user explicitly authorized the Stage 9 APK update after live Fold validation and the Stage 10 corrective release plus Thor deployment. Stage 1 is BLOCKED on B3's unavailable controlled-network variants; Stage 2 is BLOCKED on B4's prohibited device-input action; Stages 3–8 are COMPLETE; Stage 9 is BLOCKED only on the target Fold's current ADB disconnection; and Stage 10 is ACTIVE. Under specification 2.0, B3 and B4 remain honest validation gaps but do not block completion of the accessible workflow.
 
 There may be only one **ACTIVE** stage. Other allowed statuses are **NOT STARTED**, **BLOCKED**, and **COMPLETE**. Park an actual blocked stage with the exact requirement, cause, ownership, resolving condition and dependent work before activating another. Close a stage only with fresh evidence for every assigned criterion.
 
@@ -173,6 +173,22 @@ must remain untouched. Resolving condition: reconnect the Fold. Dependent work:
 the real-device acceptance criterion, Stage 9 closure and final evidence commit.
 Tracked deferrals: none.
 
+## Stage 10 — Updater-compatible version repair and Thor deployment
+
+Status: **ACTIVE**.
+
+Objective: close R20 by replacing the non-standard `-taildns.N` version qualifier with the standard numeric build suffix `+N`, publish the next signed TailDNS release without changing `VERSION_SHORT=1.103.312`, and seed the corrected update line on Thor with one UI-free direct installation of the public APK.
+
+Acceptance criteria:
+
+- A focused compatibility contract reproduces why the legacy APK/tag pair is classified as non-standard and verifies that `1.103.312+7` followed by `1.103.312+8` is automatically comparable under ObtainX 2.10.00 and current Obtainium standard-version rules.
+- The formatter and tag-bound workflow accept only positive numeric fork sequences, emit Android `1.103.312+N` and tag `v1.103.312+N`, preserve the upstream-compatible Go `VERSION_LONG`, and compare the new Android version code against either a legacy or corrected prior release.
+- Trusted validation and the tag-bound signing/release workflow pass. Independent public downloads match checksums, package `io.github.darkaxt.taildns`, expected corrected version, pinned signer and exact source provenance.
+- The public APK updates only Thor serial `bfa98654` in place without UI automation. The first-install identity, package data/profile, Android Private DNS provider/mode, Follow Android behavior and Always-on assignment remain intact; TailDNS runs and public plus MagicDNS resolution pass.
+- Release, signing, updater and validation documentation records the one-time direct migration for installations already marked pseudo and automatic comparison for subsequent `+N` releases. Changes are committed and pushed.
+
+Satisfied: root-cause inspection of ObtainX 2.10.00 and current Obtainium shows that `taildns` is outside their standard version qualifier grammar. ObtainX's arbitrary-shape fallback also sees legacy installed `1.103.312-taildns.5` and GitHub tag `v1.103.312-taildns.6` as different shapes because of the tag's leading `v`, causing automatic pseudo-version classification. Thor confirms ObtainX 2.10.00 and installed TailDNS `1.103.312-taildns.5`. Remaining: implement and verify the corrected contract, publish and independently verify `v1.103.312+7`, deploy its public APK to Thor and record the evidence. Blockers: none. Tracked deferrals: none.
+
 ## Requirement ownership
 
 | Requirement | Initial delivery owner | Additional required verification |
@@ -196,5 +212,6 @@ Tracked deferrals: none.
 | R17 TailDNS identity | Stage 7 | Stage 7 candidate, public repository and release verification |
 | R18 AYN Clear-all resilience | Stage 8 | Thor real Clear all, DNS/MagicDNS and public-release verification |
 | R19 source-first interaction | Stage 9 | Fold invalid-path UI contract, signed update and restored DNS/MagicDNS validation |
+| R20 updater-compatible subversion | Stage 10 | Public release verification, one-time Thor migration and next-release comparison contract |
 
 Before each stage closure, update its evidence, satisfied/remaining criteria, blockers and tracked deferrals. Do not substitute commit volume, component count or passing-test totals for a demonstrated workflow. Unknown implementation details must be resolved inside the owning stage without introducing speculative infrastructure.

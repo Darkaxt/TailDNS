@@ -1,4 +1,15 @@
-# TailDNS 1.103.312-taildns.6
+# TailDNS 1.103.312+7
+
+This release corrects TailDNS versioning for ObtainX, Obtainium and other
+updaters. The official upstream Tailscale version remains exactly
+`1.103.312`; TailDNS now appends only its numeric fork build as `+7`. Future
+releases use the same standard `+N` form, so their ordering is automatic.
+
+Existing TailDNS installations whose legacy `-taildns.N` version was already
+classified as a pseudo version may need this APK installed directly once.
+Android treats it as an in-place update because the package, signing identity
+and monotonically increasing version code are unchanged. After this transition,
+subsequent `+N` releases are updater-comparable.
 
 This release fixes the Android DNS source-selection flow. **Use local default
 resolver** is now unavailable until either Follow Android is selected or a
@@ -15,7 +26,7 @@ watchdog, root component, task-lock dependency or device-wide whitelist entry.
 The release refreshes the reviewed upstream Android/shared-core revisions
 while retaining the independently branded TailDNS behavior. The upstream
 Tailscale version component is unchanged; the TailDNS release sequence is
-appended as `-taildns.N`.
+appended only as the standard numeric build component `+N`.
 
 TailDNS automatically
 uses the provider hostname saved in Android's Private DNS settings while the

@@ -24,7 +24,9 @@ because it merged or compiled.
    core before Android, then creates the next owner-controlled release tag on
    the exact merged Android commit. The tag-bound workflow alone receives the
    signing identity and publication permission. The monitor independently
-   downloads and verifies the release; it never controls a device.
+   downloads and verifies the release; it never controls a device. The release
+   keeps upstream `VERSION_SHORT` unchanged and appends only the numeric TailDNS
+   build sequence as `+N`.
 
 The core schedule is 02:17 UTC daily and the Android schedule is 04:17 UTC
 daily. Manual dry runs detect and compose locally but deliberately push no
@@ -91,6 +93,6 @@ TailDNS core candidate workflows remain the only fork-owned Actions surface.
 
 The task-attached heartbeat `monitor-taildns-upstream-updates` runs daily at
 08:30 UTC. It stays quiet while healthy and unchanged; it owns exact-head
-review, dependency-ordered merge, monotonic `v<VERSION_SHORT>-taildns.N`
+review, dependency-ordered merge, monotonic `v<VERSION_SHORT>+N`
 release, independent verification and bounded pipeline repair. It cannot rotate
 the signer, change tailnet registration or control a device.

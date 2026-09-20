@@ -3,7 +3,7 @@ name: TailDNS release
 on:
   push:
     tags:
-      - 'v*-taildns.*'
+      - 'v*+*'
 
 permissions:
   contents: read
@@ -31,10 +31,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          [[ "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-taildns\.[0-9]+$ ]]
+          [[ "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+\+[1-9][0-9]*$ ]]
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
           test "$(git rev-list -n 1 "$GITHUB_REF_NAME")" = "$GITHUB_SHA"
-          release_sequence="${GITHUB_REF_NAME##*.}"
+          release_sequence="${GITHUB_REF_NAME##*+}"
           bash scripts/test-append-taildns-version.sh
           bash scripts/test-taildns-branding.sh
           bash scripts/test-thor-recents-resilience.sh
@@ -45,8 +45,8 @@ jobs:
           bash scripts/sync-core-toolchain-rev.sh --check "$core_dir" "$PWD"
           TAILDNS_RELEASE_SEQUENCE="$release_sequence" bash scripts/fork-mkversion.sh > tailscale.version
           source tailscale.version
-          test "$GITHUB_REF_NAME" = "v${VERSION_SHORT}-taildns.${release_sequence}"
-          test "$TAILDNS_VERSION_NAME" = "${VERSION_SHORT}-taildns.${release_sequence}"
+          test "$GITHUB_REF_NAME" = "v${VERSION_SHORT}+${release_sequence}"
+          test "$TAILDNS_VERSION_NAME" = "${VERSION_SHORT}+${release_sequence}"
           [[ "$VERSION_LONG" =~ ^[0-9]+\.[0-9]+\.[0-9]+-t[0-9a-f]{6,}-g[0-9a-f]{6,}$ ]]
           commit_epoch="$(git show -s --format=%ct "$GITHUB_SHA")"
           version_code_base="$((commit_epoch / 60 * 10))"
@@ -143,7 +143,7 @@ jobs:
           expected_name="$(sed -n 's/^Android version name: //p' candidate/provenance.txt)"
           test -n "$expected_code"
           test -n "$expected_name"
-          previous_tag="$(gh release list --repo "$GITHUB_REPOSITORY" --limit 100 --json tagName,isDraft --jq '.[] | select(.isDraft == false) | .tagName' | grep -- '-taildns\.' | head -n 1 || true)"
+          previous_tag="$(gh release list --repo "$GITHUB_REPOSITORY" --limit 100 --json tagName,isDraft --jq '.[] | select(.isDraft == false) | .tagName' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+(-taildns\.[1-9][0-9]*|\+[1-9][0-9]*)$' | head -n 1 || true)"
           if [[ -n "$previous_tag" ]]; then
             mkdir previous
             gh release download "$previous_tag" --repo "$GITHUB_REPOSITORY" --pattern provenance.txt --dir previous
