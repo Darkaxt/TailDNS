@@ -44,6 +44,7 @@
         <activity
             android:name="MainActivity"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
+            android:excludeFromRecents="true"
             android:exported="true"
             android:label="@string/fork_app_name"
             android:launchMode="singleTask"
@@ -67,6 +68,7 @@
         <activity
             android:name="ShareActivity"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
+            android:excludeFromRecents="true"
             android:exported="true"
             android:label="@string/fork_app_name"
             android:launchMode="singleTask"

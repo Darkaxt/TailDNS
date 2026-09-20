@@ -331,3 +331,11 @@ host fixtures and mocks cannot close them. Under specification 1.5, unavailable
 IPv6/cellular/captive-portal variants remain disclosed gaps and cannot be claimed
 as tested, but they do not stop deployment or release after accessible primary
 flows and failure semantics pass.
+
+## 2026-09-20 AYN Launcher Clear-all root cause and Stage 8 gate
+
+After the public `.4` APK had remained healthy for more than four hours, Android recorded process exit reason `USER REQUESTED`, subreason `FORCE STOP` at `2026-09-20 02:10:44.912`. The caller was PID 4187, AYN's privileged `com.android.launcher3`, not TailDNS and not ActivityManager memory reclamation. The same launcher operation force-stopped TailDNS, Settings and the active test application together. TailDNS had no crash at that transition; Always-on still named the fork afterward, but Android correctly retained the package stopped bit and did not restart its VPN service.
+
+Static inspection of the exact device launcher `/system_ext/priv-app/Launcher3QuickStepEX6/Launcher3QuickStepEX6.apk`, version 13, found the vendor `RecentsView.removeTaskInternal` path. It calls `shouldForceStopPackage(packageName)` and then `ActivityManager.forceStopPackage(packageName)` before removing an unlocked recent task. The predicate exempts only a short hard-coded system list or packages in the device-wide `Settings.System` `app_whiteList`. Device logs immediately before the incident showed TailDNS's task lock state was false. This establishes AYN Clear all as the owner of the process loss and explains why ordinary Always-on foreground-service protections could not recover it.
+
+Specification 1.8 R18 therefore moves the fix to the task-visibility boundary: every TailDNS task-owning activity must set `android:excludeFromRecents="true"`. The pre-fix regression failed for both `MainActivity` and `ShareActivity`; it passed after the two manifest attributes were added. No vendor whitelist mutation, root helper, task-lock dependency or restart watchdog is introduced. Candidate build, merged-manifest inspection, real Clear all survival, DNS/MagicDNS checks and the public-release update remain required before Stage 8 can close.

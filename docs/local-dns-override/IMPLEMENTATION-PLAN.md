@@ -1,9 +1,9 @@
 # Staged implementation plan
 
-Authority: [SPECIFICATION.md](SPECIFICATION.md), version 1.6.
+Authority: [SPECIFICATION.md](SPECIFICATION.md), version 1.8.
 Assessment: [EVALUATION.md](EVALUATION.md).
 
-Authorization: implementation, GitHub signing, release, upstream auto-update and current-task monitoring are already authorized. Stage 1 is BLOCKED on B3's unavailable controlled-network variants; Stage 2 is BLOCKED on B4's prohibited device-input action; Stages 3–7 are COMPLETE. Under specification 1.7, B3 and B4 remain honest validation gaps but do not block completion of the accessible workflow.
+Authorization: implementation, GitHub signing, release, upstream auto-update and current-task monitoring are already authorized. The user explicitly authorized the Stage 8 hotfix, next signed release and Thor deployment with the supplied Control D follow setting. Stage 1 is BLOCKED on B3's unavailable controlled-network variants; Stage 2 is BLOCKED on B4's prohibited device-input action; Stages 3–7 are COMPLETE; Stage 8 is the sole ACTIVE stage. Under specification 1.8, B3 and B4 remain honest validation gaps but do not block completion of the accessible workflow.
 
 There may be only one **ACTIVE** stage. Other allowed statuses are **NOT STARTED**, **BLOCKED**, and **COMPLETE**. Park an actual blocked stage with the exact requirement, cause, ownership, resolving condition and dependent work before activating another. Close a stage only with fresh evidence for every assigned criterion.
 
@@ -122,6 +122,21 @@ Satisfied: core PR [1](https://github.com/Darkaxt/tailscale/pull/1) promoted exa
 
 Post-closure repair: device launch exposed an invalid `.3` Go runtime version stamp. A focused regression and validation run [35463656654](https://github.com/Darkaxt/TailDNS/actions/runs/35463656654) separated the Android-visible suffix from upstream-compatible `VERSION_LONG`. Release run [35464607187](https://github.com/Darkaxt/TailDNS/actions/runs/35464607187) published verified [v1.103.312-taildns.4](https://github.com/Darkaxt/TailDNS/releases/tag/v1.103.312-taildns.4) without increasing the official version component. The public APK then passed Thor startup, authentication/Tailnet Lock, Always-on, MagicDNS, Control D, and official-package replacement checks recorded in [RELEASE-VALIDATION.md](RELEASE-VALIDATION.md).
 
+## Stage 8 — AYN Clear-all resilience and Thor hotfix release
+
+Status: **ACTIVE**.
+
+Objective: close R18 with the narrowest app-owned fix, publish the next signed TailDNS subversion, install it on Thor, restore the supplied Control D follow configuration and prove the real AYN Clear all workflow no longer force-stops the VPN.
+
+Acceptance criteria:
+
+- Root-cause evidence identifies the caller and exact vendor behavior rather than treating the process loss as a TailDNS crash.
+- A pre-fix manifest regression fails because TailDNS task-owning activities are visible in Recents; the minimal manifest change makes it pass without adding restart machinery or modifying the Thor vendor whitelist.
+- Focused tests, Android build/lint and the trusted candidate workflow pass; the downloaded APK's package, upstream-preserving version, signer and source provenance verify independently.
+- On Thor, the signed update preserves the existing profile, selects Follow Android Private DNS provider with the supplied saved Control D hostname in Automatic mode, and reaches a working foreground VPN.
+- After opening TailDNS and invoking AYN Launcher's real Clear all action, TailDNS remains absent from Recents, its process/VPN/Always-on state remains live, the package is not stopped, and Control D public resolution plus MagicDNS pass.
+- Publish and independently verify the next monotonic `v1.103.312-taildns.N` release, install that public artifact on Thor, repeat the relevant checks, update the evidence documents, commit and push. Blockers: none currently. Tracked deferrals: none.
+
 ## Requirement ownership
 
 | Requirement | Initial delivery owner | Additional required verification |
@@ -143,5 +158,6 @@ Post-closure repair: device launch exposed an invalid `.3` Go runtime version st
 | R15 signing/release | Stage 1 test-install identity; Stage 6 release | Stage 6 downloaded artifact and update verification |
 | R16 auto-update/monitor | Stage 7 | Stage 7 rehearsal and task automation verification |
 | R17 TailDNS identity | Stage 7 | Stage 7 candidate, public repository and release verification |
+| R18 AYN Clear-all resilience | Stage 8 | Thor real Clear all, DNS/MagicDNS and public-release verification |
 
 Before each stage closure, update its evidence, satisfied/remaining criteria, blockers and tracked deferrals. Do not substitute commit volume, component count or passing-test totals for a demonstrated workflow. Unknown implementation details must be resolved inside the owning stage without introducing speculative infrastructure.

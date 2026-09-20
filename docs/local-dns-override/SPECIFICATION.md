@@ -1,6 +1,8 @@
 # Local DNS override — authoritative specification
 
-Version: 1.7. Date: 2026-09-19. Status: **Stages 3–7 COMPLETE**. Stages 1 and 2 remain parked only on the explicitly disclosed validation gaps. Stage 7 was reopened because its first implementation stopped after GitHub detection and validation instead of promoting passing updates and publishing the next verified release; the dependency-ordered promotion, successor release and independent verification are now complete. An unavailable edge-case environment or prohibited automation action must be recorded honestly, but must not stop implementation, deployment or release when the implemented behavior and accessible primary workflows pass.
+Version: 1.8. Date: 2026-09-20. Status: **Stage 8 ACTIVE**. Stages 3–7 remain complete; Stages 1 and 2 remain parked only on the explicitly disclosed validation gaps. Stage 8 addresses the newly reproduced AYN Android 13 launcher behavior that force-stops unlocked recent-task packages during Clear all. An unavailable edge-case environment or prohibited automation action must be recorded honestly, but must not stop implementation, deployment or release when the implemented behavior and accessible primary workflows pass.
+
+Revision 1.8 records the user's correction that the final Thor replacement must survive AYN Launcher's Clear all behavior without the rooted Guard. R18 requires TailDNS activities to stay out of Recents on Android so the vendor launcher has no TailDNS task to force-stop, while preserving normal launcher/settings access, Always-on VPN operation and the selected Control D follow configuration. This must be solved at the task-visibility boundary, not with a restart watchdog or privileged whitelist mutation.
 
 Revision 1.7 records the user's correction that the fork product is TailDNS, not an app still presented as Tailscale. R17 requires TailDNS naming across the public repository and user-visible app/release identity while retaining technically required upstream namespaces, protocol terminology, URLs, licenses, copyrights and attribution.
 
@@ -207,6 +209,14 @@ Present the fork as **TailDNS** in the repository title, Android launcher/activi
 Retain Tailscale where it truthfully names the upstream service, protocol concepts, Tailscale DNS/addresses/subnets, control/admin endpoints, Go module, source namespace, binary compatibility boundary, original copyright/trademark notice or upstream attribution. Do not perform a source-namespace rewrite that would obscure provenance or make upstream integration needlessly fragile.
 
 Acceptance: a repeatable branding contract checks the public project heading and Android product-identity strings; the manifest uses the independent TailDNS label; the trusted candidate and release workflows execute that contract; the public repository and release identify TailDNS while the README explains which Tailscale-derived technical identifiers intentionally remain.
+
+### R18 — AYN Clear-all resilience without a watchdog
+
+On the AYN Thor Android 13 build, the vendor Launcher3 Clear all implementation calls `ActivityManager.forceStopPackage()` for each unlocked recent task unless its package is on a vendor system whitelist. TailDNS must not expose `MainActivity`, `ShareActivity`, or another app-owned task in Recents, so Clear all cannot select the TailDNS package for force-stop. The app remains launchable from its launcher icon, deep links, shares and Android VPN settings; excluding tasks from Recents must not disable, disconnect or hide the foreground VPN service itself.
+
+Do not modify the device-wide vendor whitelist, require task locking, add a root helper, restart loop, broadcast loop, periodic poll or watchdog. An explicit user or administrator force-stop remains authoritative and is not bypassed.
+
+Acceptance: a regression contract fails when either task-owning activity is not excluded from Recents; the built manifest confirms the exclusion; and a real Thor run proves that after opening TailDNS and using AYN Launcher's Clear all, the TailDNS foreground process and VPN owner remain present, the package is not marked stopped, Always-on still names TailDNS, Android Private DNS remains Automatic with the saved provider, and public Control D resolution plus MagicDNS both pass. The exact launcher/package/OS evidence and release artifact identity are recorded. Publish and install the next `-taildns.N` release without increasing the official Tailscale version component.
 
 ## 4. Evidence record and completion rule
 

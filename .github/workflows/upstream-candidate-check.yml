@@ -35,6 +35,7 @@ jobs:
           set -euo pipefail
           bash scripts/test-append-taildns-version.sh
           bash scripts/test-taildns-branding.sh
+          bash scripts/test-thor-recents-resilience.sh
           bash scripts/test-sync-core-toolchain-rev.sh
           GOTOOLCHAIN=local go mod download tailscale.com
           core_dir="$(GOTOOLCHAIN=local go list -m -f '{{.Dir}}' tailscale.com)"
