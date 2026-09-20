@@ -132,10 +132,10 @@ try {
         throw 'The activated daemon does not expose the TailDNS LocalAPI.'
     }
     if ($DnsEndpoint) {
-        & $resolverCli set $DnsEndpoint
-        if ($LASTEXITCODE -ne 0) {
-            throw 'The supplied DNS endpoint could not be applied.'
-        }
+        Set-TailDnsResolverAndWait `
+            -ResolverCli $resolverCli `
+            -TailscaleCli $tailDnsCli `
+            -Endpoint $DnsEndpoint
     }
 } catch {
     if ($activationStarted) {

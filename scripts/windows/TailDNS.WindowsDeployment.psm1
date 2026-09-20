@@ -147,6 +147,47 @@ function Wait-TailDnsBackendReady {
     }
 }
 
+function Get-TailDnsResolverStatus {
+    [CmdletBinding()]
+    param([Parameter(Mandatory)][string]$ResolverCli)
+
+    $statusText = & $ResolverCli --json status
+    $invocationSucceeded = $?
+    $nativeExitCode = Get-Variable -Name LASTEXITCODE -ValueOnly -ErrorAction SilentlyContinue
+    if (-not $invocationSucceeded -or ($null -ne $nativeExitCode -and $nativeExitCode -ne 0)) {
+        throw "Unable to read TailDNS resolver status through $ResolverCli."
+    }
+    try {
+        return ($statusText | ConvertFrom-Json)
+    } catch {
+        throw "TailDNS resolver status from $ResolverCli was not valid JSON."
+    }
+}
+
+function Set-TailDnsResolverAndWait {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][string]$ResolverCli,
+        [Parameter(Mandatory)][string]$TailscaleCli,
+        [Parameter(Mandatory)][string]$Endpoint
+    )
+
+    & $ResolverCli set $Endpoint | Out-Null
+    $status = Get-TailDnsResolverStatus -ResolverCli $ResolverCli
+    if (-not $status.Configured -or [string]$status.Endpoint -ne $Endpoint) {
+        throw 'The TailDNS daemon did not retain the requested resolver.'
+    }
+
+    if (-not $status.Applied -and [string]$status.Reason -eq 'Tailscale is not running') {
+        Wait-TailDnsBackendReady -TailscaleCli $TailscaleCli
+        $status = Get-TailDnsResolverStatus -ResolverCli $ResolverCli
+    }
+
+    if (-not $status.Configured -or [string]$status.Endpoint -ne $Endpoint -or -not $status.Applied) {
+        throw "The supplied DNS endpoint was saved but not applied: $($status.Reason)"
+    }
+}
+
 function Set-TailDnsServiceImagePath {
     [CmdletBinding()]
     param(
@@ -211,4 +252,4 @@ function Restore-TailDnsOriginalService {
     }
 }
 
-Export-ModuleMember -Function Test-TailDnsPayload, Assert-TailDnsIdentityContinuity, New-TailDnsDeploymentRecord, Get-TailDnsIdentity, Wait-TailDnsBackendReady, Set-TailDnsServiceImagePath, Wait-TailDnsServiceState, Restore-TailDnsOriginalService
+Export-ModuleMember -Function Test-TailDnsPayload, Assert-TailDnsIdentityContinuity, New-TailDnsDeploymentRecord, Get-TailDnsIdentity, Wait-TailDnsBackendReady, Set-TailDnsResolverAndWait, Set-TailDnsServiceImagePath, Wait-TailDnsServiceState, Restore-TailDnsOriginalService

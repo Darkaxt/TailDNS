@@ -1,4 +1,4 @@
-# TailDNS 1.103.312+9
+# TailDNS 1.103.312+10
 
 This release adds a transactional Windows AMD64 in-place upgrade. It reuses the
 existing Windows service pipe and state, preserving the authenticated machine,
@@ -14,8 +14,14 @@ The installer now waits on the daemon's authenticated backend state after
 service activation instead of treating the earlier Service Control Manager
 `Running` notification as LocalAPI readiness.
 
+It also handles the Windows GUI reconnect transition deterministically: when
+the resolver preference is saved while the backend is temporarily restarting,
+the installer waits for the next authenticated Running state and then verifies
+that the exact endpoint is applied. A resolver that remains unapplied still
+causes automatic rollback.
+
 The official upstream Tailscale version remains exactly `1.103.312`; TailDNS
-appends only its numeric fork build as `+9`.
+appends only its numeric fork build as `+10`.
 
 The preceding release corrected TailDNS versioning for ObtainX, Obtainium and other
 updaters. The official upstream Tailscale version remains exactly

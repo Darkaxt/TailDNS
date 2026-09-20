@@ -35,7 +35,7 @@ try {
     foreach ($name in 'taildns.exe', 'taildnsd.exe', 'tailscale.exe') {
         [System.IO.File]::WriteAllText((Join-Path $payload $name), "fixture-$name")
     }
-    [System.IO.File]::WriteAllText((Join-Path $payload 'TAILDNS-VERSION.txt'), "VERSION_SHORT=1.103.312`nTAILDNS_VERSION=1.103.312+9`n")
+    [System.IO.File]::WriteAllText((Join-Path $payload 'TAILDNS-VERSION.txt'), "VERSION_SHORT=1.103.312`nTAILDNS_VERSION=1.103.312+10`n")
     $sumLines = foreach ($name in 'taildns.exe', 'taildnsd.exe', 'tailscale.exe') {
         $hash = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $payload $name)).Hash.ToLowerInvariant()
         "$hash  $name"
@@ -43,7 +43,7 @@ try {
     [System.IO.File]::WriteAllLines((Join-Path $payload 'SHA256SUMS'), $sumLines)
 
     $verified = Test-TailDnsPayload -PayloadDirectory $payload
-    Assert-True ($verified.Version -eq '1.103.312+9') 'Payload version was not parsed exactly.'
+    Assert-True ($verified.Version -eq '1.103.312+10') 'Payload version was not parsed exactly.'
     Assert-True ($verified.Files.Count -eq 3) 'Payload verification did not cover all three executables.'
 
     [System.IO.File]::AppendAllText((Join-Path $payload 'taildnsd.exe'), 'tampered')
@@ -85,9 +85,48 @@ try {
         Wait-TailDnsBackendReady -TailscaleCli $waitCli
     } 'A failed backend readiness wait was accepted.'
 
+    $resolverState = Join-Path $tempRoot 'resolver-state.txt'
+    $resolverCli = Join-Path $tempRoot 'resolver-cli.ps1'
+    [System.IO.File]::WriteAllText(
+        $resolverCli,
+        @"
+param([Parameter(ValueFromRemainingArguments=`$true)][string[]]`$CliArguments)
+if (`$CliArguments[0] -eq 'set') {
+    'saved' | Set-Content -LiteralPath '$resolverState'
+    Write-Output 'resolver saved but not applied: Tailscale is not running'
+    `$global:LASTEXITCODE = 1
+    return
+}
+if (`$CliArguments[0] -eq '--json' -and `$CliArguments[1] -eq 'status') {
+    `$applied = (Test-Path -LiteralPath '$waitRecord') -and ((Get-Content -Raw -LiteralPath '$waitRecord').Trim() -eq 'wait --timeout=0s')
+    [pscustomobject]@{
+        ProfileID = 'profile-test'
+        Configured = `$true
+        Applied = `$applied
+        Endpoint = 'https://dns.example/query'
+        Reason = if (`$applied) { 'Applied; provider reachability not verified' } else { 'Tailscale is not running' }
+    } | ConvertTo-Json
+    `$global:LASTEXITCODE = 0
+    return
+}
+`$global:LASTEXITCODE = 2
+"@
+    )
+    [System.IO.File]::WriteAllText(
+        $waitCli,
+        "param([Parameter(ValueFromRemainingArguments=`$true)][string[]]`$CliArguments)`n[System.IO.File]::WriteAllText('$waitRecord', (`$CliArguments -join ' '))`n`$global:LASTEXITCODE = 0`n"
+    )
+    Remove-Item -LiteralPath $waitRecord -Force -ErrorAction SilentlyContinue
+    Set-TailDnsResolverAndWait `
+        -ResolverCli $resolverCli `
+        -TailscaleCli $waitCli `
+        -Endpoint 'https://dns.example/query'
+    Assert-True ((Get-Content -Raw -LiteralPath $resolverState).Trim() -eq 'saved') 'Resolver preference was not saved.'
+    Assert-True ((Get-Content -Raw -LiteralPath $waitRecord).Trim() -eq 'wait --timeout=0s') 'Transient resolver state was not followed by a backend-ready wait.'
+
     $record = New-TailDnsDeploymentRecord `
         -OriginalServicePath 'C:\Program Files\Tailscale\tailscaled.exe' `
-        -TailDnsServicePath 'C:\Program Files\TailDNS\versions\1.103.312+9\taildnsd.exe' `
+        -TailDnsServicePath 'C:\Program Files\TailDNS\versions\1.103.312+10\taildnsd.exe' `
         -OriginalAutoUpdateCheck $true `
         -OriginalAutoUpdateApply $true `
         -Identity $before
@@ -99,6 +138,7 @@ try {
     $installer = Get-Content -Raw -LiteralPath $installerPath
     Assert-True ($installer -match '#Requires\s+-RunAsAdministrator') 'Installer does not require elevation.'
     Assert-True ($installer -match 'Wait-TailDnsBackendReady') 'Installer does not wait for authenticated backend readiness.'
+    Assert-True ($installer -match 'Set-TailDnsResolverAndWait') 'Installer does not verify a saved resolver after transient backend state.'
     Assert-True ($installer -match 'Assert-TailDnsIdentityContinuity') 'Installer does not gate activation on identity continuity.'
     Assert-True ($installer -match 'Restore-TailDnsOriginalService') 'Installer has no automatic rollback path.'
     Assert-True ($installer -notmatch 'Remove-Item[^\r\n]+ProgramData[^\r\n]+Tailscale') 'Installer may delete live Tailscale state.'
