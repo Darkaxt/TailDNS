@@ -2,7 +2,7 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-manifest_file="$repo_root/android/src/main/AndroidManifest.xml"
+manifest_file="${1:-$repo_root/android/src/main/AndroidManifest.xml}"
 
 python3 - "$manifest_file" <<'PY'
 import sys
