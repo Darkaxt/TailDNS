@@ -171,3 +171,36 @@ all survived unchanged. Fresh `example.com` and
 `beacon.tail94fa2c.ts.net` queries passed afterward. Official Tailscale was
 absent; the Thor Guard remained installed but stopped. No Samsung device was
 touched.
+
+## Fold source-selection hotfix release
+
+Validation run [35520700127](https://github.com/Darkaxt/TailDNS/actions/runs/35520700127)
+passed the clean native/core and Android build, affected tests, formatting,
+release assembly and isolated signing for Android source
+`011e8dc9c14fecf4ee5840667e7c2b5e03ad582a`. Its independently downloaded
+candidate reported package `io.github.darkaxt.taildns`, version code
+`298319870`, version `1.103.312-taildns.6`, the pinned signer and valid v2/v3
+signatures. Its SHA-256 was
+`94ba04681b915095f1ca783c317d7fd8fc61b60487904620bdfdcbac1c332b7d`.
+
+Tag-bound run [35521188296](https://github.com/Darkaxt/TailDNS/actions/runs/35521188296)
+published the non-draft, non-prerelease
+[v1.103.312-taildns.6 release](https://github.com/Darkaxt/TailDNS/releases/tag/v1.103.312-taildns.6).
+The annotated tag resolves to the same Android source and pins core
+`f5de5ace94bb3fb21794d1e10184029709242aa0`. The upstream version component
+remains exactly `1.103.312`; only the TailDNS suffix advanced to `.6`.
+
+All seven independently downloaded public assets matched `SHA256SUMS`. The APK
+SHA-256 is
+`a0197287c01d006006c7b918ca2323ad0eb9686b18aeef274228090fa54e7b62`;
+Android SDK 37 confirmed package, code, version, one pinned signer and valid
+v2/v3 signatures. The Windows archive SHA-256 is
+`d7489fd6a7c47b1a61ea5b600aaf47e33d11955c6906a47eac1e3007bdd72f77`;
+it expanded successfully, all internal executable hashes matched, and all three
+AMD64 executables remained truthfully `NotSigned` by Authenticode.
+
+The public APK has not yet been installed on the Fold because that target
+disconnected from ADB after the pre-fix baseline. Only the Thor remained
+visible and it was intentionally left untouched. Reconnecting the Fold resolves
+this external blocker; the in-place update and post-update UI/DNS evidence are
+still required before Stage 9 can close.

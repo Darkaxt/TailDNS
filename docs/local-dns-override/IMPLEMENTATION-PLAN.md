@@ -3,7 +3,7 @@
 Authority: [SPECIFICATION.md](SPECIFICATION.md), version 1.9.
 Assessment: [EVALUATION.md](EVALUATION.md).
 
-Authorization: implementation, GitHub signing, release, upstream auto-update and current-task monitoring are already authorized. The user explicitly authorized the Stage 9 APK update after live Fold validation. Stage 1 is BLOCKED on B3's unavailable controlled-network variants; Stage 2 is BLOCKED on B4's prohibited device-input action; Stages 3–8 are COMPLETE and Stage 9 is ACTIVE. Under specification 1.9, B3 and B4 remain honest validation gaps but do not block completion of the accessible workflow.
+Authorization: implementation, GitHub signing, release, upstream auto-update and current-task monitoring are already authorized. The user explicitly authorized the Stage 9 APK update after live Fold validation. Stage 1 is BLOCKED on B3's unavailable controlled-network variants; Stage 2 is BLOCKED on B4's prohibited device-input action; Stages 3–8 are COMPLETE and Stage 9 is BLOCKED only on the target Fold's current ADB disconnection. Under specification 1.9, B3 and B4 remain honest validation gaps but do not block completion of the accessible workflow.
 
 There may be only one **ACTIVE** stage. Other allowed statuses are **NOT STARTED**, **BLOCKED**, and **COMPLETE**. Park an actual blocked stage with the exact requirement, cause, ownership, resolving condition and dependent work before activating another. Close a stage only with fresh evidence for every assigned criterion.
 
@@ -141,7 +141,7 @@ Satisfied: the caller and force-stop behavior were traced to AYN Launcher3 rathe
 
 ## Stage 9 — Fold source-first interaction hotfix and signed update
 
-Status: **ACTIVE**.
+Status: **BLOCKED**.
 
 Objective: close R19 with the narrowest Android UI policy change, publish the next signed TailDNS subversion, update the authorized Galaxy Z Fold 7 in place and prove the selected Android provider remains effective.
 
@@ -151,7 +151,27 @@ Acceptance criteria:
 - A test-first state matrix reproduces the defect by allowing local enablement with no selected source, then passes after the minimal UI policy change. The backend validation remains unchanged.
 - Focused Android tests, formatting/lint, release validation and the tag-bound signing workflow pass; the public APK preserves `VERSION_SHORT=1.103.312`, appends only the next `-taildns.N`, and independently verifies against checksums, package, signer and source provenance.
 - The public APK updates the Fold in place without losing login, profile, Automatic Private DNS or saved provider. On the real screen, empty manual mode cannot submit local enablement; Follow Android remains selectable; the restored enabled follow state is applied and public plus MagicDNS resolve.
-- Update the evidence documents, commit and push. Blockers: none currently. Tracked deferrals: none.
+- Update the evidence documents, commit and push.
+
+Satisfied: the Android 16 Fold baseline proved that Automatic Private DNS and
+the saved provider are readable and that Follow Android plus local-default
+applies `<local-dns>` while public and MagicDNS resolve. The invalid first-click
+path produced the expected backend HTTP 400 before the fix. The focused policy
+matrix failed before and passed after the minimal source gate. Candidate run
+[35520700127](https://github.com/Darkaxt/TailDNS/actions/runs/35520700127)
+passed the clean native/Android build, tests and isolated signing. Tag-bound run
+[35521188296](https://github.com/Darkaxt/TailDNS/actions/runs/35521188296)
+published the independently verified public
+[`v1.103.312-taildns.6`](https://github.com/Darkaxt/TailDNS/releases/tag/v1.103.312-taildns.6)
+without changing `VERSION_SHORT=1.103.312`.
+
+Remaining: install the public APK in place on the authorized Fold and verify
+profile/settings retention, the disabled empty-source control, Follow Android
+selection, restored applied status, public DNS and MagicDNS. External blocker:
+the Fold disconnected from ADB after the baseline; only the Thor is visible and
+must remain untouched. Resolving condition: reconnect the Fold. Dependent work:
+the real-device acceptance criterion, Stage 9 closure and final evidence commit.
+Tracked deferrals: none.
 
 ## Requirement ownership
 
