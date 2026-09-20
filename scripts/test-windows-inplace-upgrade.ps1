@@ -35,7 +35,7 @@ try {
     foreach ($name in 'taildns.exe', 'taildnsd.exe', 'tailscale.exe') {
         [System.IO.File]::WriteAllText((Join-Path $payload $name), "fixture-$name")
     }
-    [System.IO.File]::WriteAllText((Join-Path $payload 'TAILDNS-VERSION.txt'), "VERSION_SHORT=1.103.312`nTAILDNS_VERSION=1.103.312+8`n")
+    [System.IO.File]::WriteAllText((Join-Path $payload 'TAILDNS-VERSION.txt'), "VERSION_SHORT=1.103.312`nTAILDNS_VERSION=1.103.312+9`n")
     $sumLines = foreach ($name in 'taildns.exe', 'taildnsd.exe', 'tailscale.exe') {
         $hash = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $payload $name)).Hash.ToLowerInvariant()
         "$hash  $name"
@@ -43,7 +43,7 @@ try {
     [System.IO.File]::WriteAllLines((Join-Path $payload 'SHA256SUMS'), $sumLines)
 
     $verified = Test-TailDnsPayload -PayloadDirectory $payload
-    Assert-True ($verified.Version -eq '1.103.312+8') 'Payload version was not parsed exactly.'
+    Assert-True ($verified.Version -eq '1.103.312+9') 'Payload version was not parsed exactly.'
     Assert-True ($verified.Files.Count -eq 3) 'Payload verification did not cover all three executables.'
 
     [System.IO.File]::AppendAllText((Join-Path $payload 'taildnsd.exe'), 'tampered')
@@ -69,9 +69,24 @@ try {
     $after.NodeID = 'node-2'
     Assert-Throws { Assert-TailDnsIdentityContinuity -Before $before -After $after } 'Changed node identity was accepted.'
 
+    $waitRecord = Join-Path $tempRoot 'wait-arguments.txt'
+    $waitCli = Join-Path $tempRoot 'wait-cli.cmd'
+    [System.IO.File]::WriteAllText(
+        $waitCli,
+        "@echo off`r`necho %* > `"$waitRecord`"`r`nexit /b 0`r`n"
+    )
+    Wait-TailDnsBackendReady -TailscaleCli $waitCli
+    $waitArguments = (Get-Content -Raw -LiteralPath $waitRecord).Trim()
+    Assert-True ($waitArguments -eq 'wait --timeout=0s') 'Backend readiness did not use the CLI state wait without a deadline.'
+
+    [System.IO.File]::WriteAllText($waitCli, "@echo off`r`nexit /b 7`r`n")
+    Assert-Throws {
+        Wait-TailDnsBackendReady -TailscaleCli $waitCli
+    } 'A failed backend readiness wait was accepted.'
+
     $record = New-TailDnsDeploymentRecord `
         -OriginalServicePath 'C:\Program Files\Tailscale\tailscaled.exe' `
-        -TailDnsServicePath 'C:\Program Files\TailDNS\versions\1.103.312+8\taildnsd.exe' `
+        -TailDnsServicePath 'C:\Program Files\TailDNS\versions\1.103.312+9\taildnsd.exe' `
         -OriginalAutoUpdateCheck $true `
         -OriginalAutoUpdateApply $true `
         -Identity $before
@@ -82,6 +97,7 @@ try {
 
     $installer = Get-Content -Raw -LiteralPath $installerPath
     Assert-True ($installer -match '#Requires\s+-RunAsAdministrator') 'Installer does not require elevation.'
+    Assert-True ($installer -match 'Wait-TailDnsBackendReady') 'Installer does not wait for authenticated backend readiness.'
     Assert-True ($installer -match 'Assert-TailDnsIdentityContinuity') 'Installer does not gate activation on identity continuity.'
     Assert-True ($installer -match 'Restore-TailDnsOriginalService') 'Installer has no automatic rollback path.'
     Assert-True ($installer -notmatch 'Remove-Item[^\r\n]+ProgramData[^\r\n]+Tailscale') 'Installer may delete live Tailscale state.'

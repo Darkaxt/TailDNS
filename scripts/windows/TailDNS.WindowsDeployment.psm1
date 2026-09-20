@@ -135,6 +135,16 @@ function Get-TailDnsIdentity {
     }
 }
 
+function Wait-TailDnsBackendReady {
+    [CmdletBinding()]
+    param([Parameter(Mandatory)][string]$TailscaleCli)
+
+    & $TailscaleCli wait --timeout=0s
+    if ($LASTEXITCODE -ne 0) {
+        throw "The TailDNS backend readiness wait failed through $TailscaleCli."
+    }
+}
+
 function Set-TailDnsServiceImagePath {
     [CmdletBinding()]
     param(
@@ -189,6 +199,7 @@ function Restore-TailDnsOriginalService {
     }
     $originalCli = Join-Path (Split-Path -Parent $originalExe) 'tailscale.exe'
     if (Test-Path -LiteralPath $originalCli -PathType Leaf) {
+        Wait-TailDnsBackendReady -TailscaleCli $originalCli
         $apply = if ([bool]$Record.OriginalAutoUpdateApply) { 'true' } else { 'false' }
         $check = if ([bool]$Record.OriginalAutoUpdateCheck) { 'true' } else { 'false' }
         & $originalCli set "--update-check=$check" "--auto-update=$apply"
@@ -198,4 +209,4 @@ function Restore-TailDnsOriginalService {
     }
 }
 
-Export-ModuleMember -Function Test-TailDnsPayload, Assert-TailDnsIdentityContinuity, New-TailDnsDeploymentRecord, Get-TailDnsIdentity, Set-TailDnsServiceImagePath, Wait-TailDnsServiceState, Restore-TailDnsOriginalService
+Export-ModuleMember -Function Test-TailDnsPayload, Assert-TailDnsIdentityContinuity, New-TailDnsDeploymentRecord, Get-TailDnsIdentity, Wait-TailDnsBackendReady, Set-TailDnsServiceImagePath, Wait-TailDnsServiceState, Restore-TailDnsOriginalService

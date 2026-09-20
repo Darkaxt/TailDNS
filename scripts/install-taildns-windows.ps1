@@ -122,6 +122,7 @@ try {
     Wait-TailDnsServiceState -ServiceName $ServiceName -State Running
 
     $tailDnsCli = Join-Path $versionDirectory 'tailscale.exe'
+    Wait-TailDnsBackendReady -TailscaleCli $tailDnsCli
     $after = Get-TailDnsIdentity -TailscaleCli $tailDnsCli
     Assert-TailDnsIdentityContinuity -Before $baseline -After $after
 
