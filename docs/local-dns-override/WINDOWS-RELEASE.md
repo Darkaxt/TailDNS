@@ -1,38 +1,59 @@
-# TailDNS Windows companion
+# TailDNS Windows client upgrade
 
-This archive contains the independently branded TailDNS resolver frontend and
-the exact compatible shared-core daemon for Windows AMD64. It does not replace
-or modify the official Tailscale GUI or service. The binaries are not
-Authenticode-signed; verify the archive against the release `SHA256SUMS` before
-using it.
+This archive contains the independently branded TailDNS resolver frontend, the
+exact compatible shared-core daemon and control CLI, and a transactional
+Windows AMD64 upgrade script. The executables are not Authenticode-signed;
+verify the archive against the release `SHA256SUMS` before using it.
 
-The supported isolated workflow uses a dedicated named pipe and state
-directory. In PowerShell, choose paths that do not contain existing Tailscale
-state:
+## In-place upgrade
+
+TailDNS upgrades the existing Windows `Tailscale` service rather than creating
+a second profile or machine. It preserves the default service pipe and
+`%ProgramData%\Tailscale` state, so the current login, node identity, tailnet
+addresses and Tailnet Lock signing key remain in place. The script does not
+read, copy or export that private state.
+
+An existing official Windows installation is required because its GUI and
+Wintun driver remain compatibility plumbing. Do **not** uninstall the official
+MSI first. TailDNS installs versioned binaries under `Program Files\TailDNS`,
+copies the already-installed `wintun.dll` beside its daemon, records the
+original service path and updater preference under `ProgramData\TailDNS`, then
+repoints the existing service. Official automatic update application is
+disabled so it cannot overwrite the fork.
+
+Open an elevated PowerShell in the extracted `windows` directory and run:
 
 ```powershell
-.\taildnsd.exe --tun=userspace-networking --socket=\\.\pipe\taildns --statedir=.\state --no-logs-no-support --port=0
-.\tailscale.exe --socket=\\.\pipe\taildns up
-.\taildns.exe --socket=\\.\pipe\taildns status
-.\taildns.exe --socket=\\.\pipe\taildns set https://resolver.example/dns-query
+.\install-taildns-windows.ps1 -Action Install -DnsEndpoint 'https://resolver.example/dns-query'
 ```
 
-The first `up` prints a browser authentication URL. Tailnet Lock, when enabled,
-still requires the normal node authorization; do not disable it for TailDNS.
-Only one system VPN should own host networking, so the example deliberately
-uses userspace networking and a separate pipe.
+The installer verifies every executable against the internal `SHA256SUMS`,
+requires an authenticated running service with Tailnet Lock enabled, and
+compares the node ID, addresses and local signing-key identity after activation.
+If activation or verification fails, it restores and starts the original
+daemon automatically. A successful in-place upgrade does not produce a browser
+login URL or a new machine record.
 
-To restore the isolated daemon to Tailscale DNS selection, run:
+Inspect the installed service boundary with:
 
 ```powershell
-.\taildns.exe --socket=\\.\pipe\taildns clear
-.\tailscale.exe --socket=\\.\pipe\taildns down
+.\install-taildns-windows.ps1 -Action Status
+.\taildns.exe status
 ```
 
-Then stop that TailDNS daemon process. Deleting the isolated state directory
-removes only that profile, but also removes its login; do so only when that is
-intended. These commands do not stop, reinstall, or overwrite the official
-Tailscale Windows service.
+## Rollback
+
+From the same extracted release directory, run in elevated PowerShell:
+
+```powershell
+.\install-taildns-windows.ps1 -Action Rollback
+```
+
+Rollback restores the exact recorded service executable path and the prior
+official update-check/application preference, starts the original daemon, and
+verifies that the node identity, addresses and Tailnet Lock signing-key identity
+still match. It deliberately leaves the versioned TailDNS files and deployment
+record in place as recovery evidence. It never deletes the live Tailscale state.
 
 The archive's internal `SHA256SUMS` covers each executable. Upstream BSD
 licenses are included. Release provenance records the exact Android and shared

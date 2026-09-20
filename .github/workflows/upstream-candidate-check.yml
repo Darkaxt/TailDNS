@@ -37,6 +37,7 @@ jobs:
           bash scripts/test-taildns-branding.sh
           bash scripts/test-thor-recents-resilience.sh
           bash scripts/test-sync-core-toolchain-rev.sh
+          pwsh -NoProfile -File scripts/test-windows-inplace-upgrade.ps1
           GOTOOLCHAIN=local go mod download tailscale.com
           core_dir="$(GOTOOLCHAIN=local go list -m -f '{{.Dir}}' tailscale.com)"
           test -n "$core_dir"

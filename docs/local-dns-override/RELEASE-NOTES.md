@@ -1,8 +1,21 @@
-# TailDNS 1.103.312+7
+# TailDNS 1.103.312+8
 
-This release corrects TailDNS versioning for ObtainX, Obtainium and other
+This release adds a transactional Windows AMD64 in-place upgrade. It reuses the
+existing Windows service pipe and state, preserving the authenticated machine,
+tailnet addresses and Tailnet Lock signing key instead of registering a second
+node. The official GUI and installed Wintun driver remain compatibility
+plumbing; the service executable moves to a versioned TailDNS directory and
+official automatic update application is disabled so it cannot overwrite the
+fork. Checksum validation, activation verification and automatic rollback are
+built into the installer. The included rollback restores the recorded official
+service path and prior updater preference without deleting machine state.
+
+The official upstream Tailscale version remains exactly `1.103.312`; TailDNS
+appends only its numeric fork build as `+8`.
+
+The preceding release corrected TailDNS versioning for ObtainX, Obtainium and other
 updaters. The official upstream Tailscale version remains exactly
-`1.103.312`; TailDNS now appends only its numeric fork build as `+7`. Future
+`1.103.312`; TailDNS appends only its numeric fork build. Future
 releases use the same standard `+N` form, so their ordering is automatic.
 
 Existing TailDNS installations whose legacy `-taildns.N` version was already
@@ -45,9 +58,10 @@ be installed beside official Tailscale. Android permits only one active VPN per
 user. The fork does not import the official app's login. Updates to TailDNS use
 the persistent certificate fingerprint documented in `SIGNING.md`.
 
-The Windows AMD64 archive supplies the compatible `taildns` CLI, isolated
-daemon, and control CLI. It does not replace the official Tailscale GUI or
-service and is not Authenticode-signed. Verify release checksums before use.
+The Windows AMD64 archive supplies the compatible `taildns` CLI, daemon,
+control CLI, in-place installer and rollback path. It does not copy or replace
+the proprietary official GUI and is not Authenticode-signed. Verify release
+checksums before use.
 
 Known validation limits: the tested Thor network did not provide controlled
 IPv6-only, captive-portal, or cellular-handover variants; a second Android

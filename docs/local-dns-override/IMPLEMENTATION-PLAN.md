@@ -1,9 +1,9 @@
 # Staged implementation plan
 
-Authority: [SPECIFICATION.md](SPECIFICATION.md), version 2.0.
+Authority: [SPECIFICATION.md](SPECIFICATION.md), version 2.1.
 Assessment: [EVALUATION.md](EVALUATION.md).
 
-Authorization: implementation, GitHub signing, release, upstream auto-update and current-task monitoring are already authorized. The user explicitly authorized the Stage 9 APK update after live Fold validation and the Stage 10 corrective release plus Thor deployment. Stage 1 is BLOCKED on B3's unavailable controlled-network variants; Stage 2 is BLOCKED on B4's prohibited device-input action; Stages 3–8 and 10 are COMPLETE; and Stage 9 is BLOCKED only on the target Fold's current ADB disconnection. Under specification 2.0, B3 and B4 remain honest validation gaps but do not block completion of the accessible workflow.
+Authorization: implementation, GitHub signing, release, upstream auto-update and current-task monitoring are already authorized. The user explicitly authorized the Stage 9 APK update after live Fold validation, the Stage 10 corrective release plus Thor deployment, and Stage 11's Windows in-place upgrade and deployment on Beacon. Stage 1 is BLOCKED on B3's unavailable controlled-network variants; Stage 2 is BLOCKED on B4's prohibited device-input action; Stages 3–8 and 10 are COMPLETE; Stage 9 is BLOCKED only on the target Fold's current ADB disconnection; and Stage 11 is ACTIVE. Under specification 2.1, B3 and B4 remain honest validation gaps but do not block completion of the accessible workflow.
 
 There may be only one **ACTIVE** stage. Other allowed statuses are **NOT STARTED**, **BLOCKED**, and **COMPLETE**. Park an actual blocked stage with the exact requirement, cause, ownership, resolving condition and dependent work before activating another. Close a stage only with fresh evidence for every assigned criterion.
 
@@ -189,6 +189,46 @@ Acceptance criteria:
 
 Satisfied: root-cause inspection of ObtainX 2.10.00 and current Obtainium shows that `taildns` is outside their standard version qualifier grammar. ObtainX's arbitrary-shape fallback also sees legacy installed `1.103.312-taildns.5` and GitHub tag `v1.103.312-taildns.6` as different shapes because of the tag's leading `v`, causing automatic pseudo-version classification. The test-first contract reproduced that failure and verified corrected `+7` to `+8` comparison. Validation run [35524334561](https://github.com/Darkaxt/TailDNS/actions/runs/35524334561) passed the exact clean build and isolated signing after the literal-plus tag trigger received its own failing regression and repair. Tag-bound run [35524781376](https://github.com/Darkaxt/TailDNS/actions/runs/35524781376) published the independently verified [v1.103.312+7 release](https://github.com/Darkaxt/TailDNS/releases/tag/v1.103.312%2B7) from Android `f408df7925fb6f140581bee0dbc6d41a5586a9c3`, keeping `VERSION_SHORT=1.103.312`. Every public checksum, APK identity/signature/signer and Windows internal hash matched. The public APK updated only Thor serial `bfa98654` in place: version code advanced to `298320570`, first-install time and data inode `577091` were retained, package stopped remained false, Always-on stayed assigned with lockdown off, Automatic Private DNS retained the saved provider, IPNService returned foreground, public DNS resolved and MagicDNS resolved `beacon.tail94fa2c.ts.net` to `100.97.195.70`. No Thor UI was opened. The task-attached monitor was updated to preserve the `+N` contract. Remaining: none. Blockers: none. Tracked deferrals: none.
 
+## Stage 11 — Windows in-place TailDNS upgrade and Beacon deployment
+
+Status: **ACTIVE**.
+
+Objective: close R21 by turning the Windows companion ZIP into a transactional
+upgrade for the existing `Tailscale` Windows service, publishing the next
+upstream-preserving TailDNS subversion, and deploying it on Beacon without a
+new login or machine entry.
+
+Acceptance criteria:
+
+- A test-first deployment contract covers administrator and service/state
+  preconditions, release checksum enforcement, a versioned TailDNS install
+  directory, Wintun reuse, original-service and auto-update rollback metadata,
+  automatic rollback on activation failure, explicit restoration, and exact
+  release-archive contents.
+- The installer reuses the default service pipe and existing
+  `%ProgramData%\Tailscale` state; it never reads, copies or logs private state.
+  The official GUI and driver remain available while the existing service path
+  points to the verified TailDNS daemon. Official automatic update application
+  is disabled so it cannot overwrite the fork.
+- Trusted validation and tag-bound release workflows pass and publish the next
+  `v1.103.312+N` release. Independent downloads verify checksums, Windows
+  archive contents/provenance and the existing Android package/signer contract.
+- Beacon upgrades in place. Pre/post node ID, addresses, running profile and
+  trusted Tailnet Lock signing key match; no authentication URL or new machine
+  appears. The supplied Control D endpoint is configured/applied through
+  `taildns`, and public plus MagicDNS queries pass.
+- The deployment and rollback evidence is documented, committed and pushed.
+
+Satisfied: the baseline identifies one running automatic `Tailscale` service
+at `C:\Program Files\Tailscale\tailscaled.exe`, official client 1.102.4, default
+state with a node key, Beacon node ID and addresses, Tailnet Lock enabled with a
+local trusted signing key, and official auto-update check/apply enabled. The
+current public ZIP remains an isolated companion and therefore cannot yet be
+used as an in-place product update. Remaining: implement the contract and
+installer, verify/release it, elevate the reviewed transaction on Beacon, apply
+the supplied endpoint and record post-state. Blockers: none. Tracked deferrals:
+none.
+
 ## Requirement ownership
 
 | Requirement | Initial delivery owner | Additional required verification |
@@ -213,5 +253,6 @@ Satisfied: root-cause inspection of ObtainX 2.10.00 and current Obtainium shows 
 | R18 AYN Clear-all resilience | Stage 8 | Thor real Clear all, DNS/MagicDNS and public-release verification |
 | R19 source-first interaction | Stage 9 | Fold invalid-path UI contract, signed update and restored DNS/MagicDNS validation |
 | R20 updater-compatible subversion | Stage 10 | Public release verification, one-time Thor migration and next-release comparison contract |
+| R21 Windows in-place upgrade | Stage 11 | Beacon state/Tailnet Lock preservation, resolver application and rollback proof |
 
 Before each stage closure, update its evidence, satisfied/remaining criteria, blockers and tracked deferrals. Do not substitute commit volume, component count or passing-test totals for a demonstrated workflow. Unknown implementation details must be resolved inside the owning stage without introducing speculative infrastructure.

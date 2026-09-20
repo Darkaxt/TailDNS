@@ -39,6 +39,7 @@ jobs:
           bash scripts/test-taildns-branding.sh
           bash scripts/test-thor-recents-resilience.sh
           bash scripts/test-sync-core-toolchain-rev.sh
+          pwsh -NoProfile -File scripts/test-windows-inplace-upgrade.ps1
           GOTOOLCHAIN=local go mod download tailscale.com
           core_dir="$(GOTOOLCHAIN=local go list -m -f '{{.Dir}}' tailscale.com)"
           test -n "$core_dir"
@@ -69,7 +70,7 @@ jobs:
           ./gradlew ktfmtCheck test assembleRelease -PVERSION_CODE_BASE="$VERSION_CODE_BASE"
           "$ANDROID_HOME/cmdline-tools/latest/bin/apkanalyzer" manifest print build/outputs/apk/release/android-release-unsigned.apk > "$RUNNER_TEMP/taildns-merged-manifest.xml"
           bash ../scripts/test-thor-recents-resilience.sh "$RUNNER_TEMP/taildns-merged-manifest.xml"
-      - name: Package exact Windows companion
+      - name: Package exact Windows client upgrade
         shell: bash
         run: |
           set -euo pipefail
@@ -79,12 +80,15 @@ jobs:
           (cd "$core_dir" && env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 "$go_bin" build -trimpath -o "$GITHUB_WORKSPACE/release-input/windows/taildns.exe" ./cmd/taildns)
           (cd "$core_dir" && env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 "$go_bin" build -trimpath -o "$GITHUB_WORKSPACE/release-input/windows/taildnsd.exe" ./cmd/tailscaled)
           (cd "$core_dir" && env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 "$go_bin" build -trimpath -o "$GITHUB_WORKSPACE/release-input/windows/tailscale.exe" ./cmd/tailscale)
+          cp scripts/install-taildns-windows.ps1 release-input/windows/install-taildns-windows.ps1
+          cp scripts/windows/TailDNS.WindowsDeployment.psm1 release-input/windows/TailDNS.WindowsDeployment.psm1
           cp docs/local-dns-override/WINDOWS-RELEASE.md release-input/windows/README.md
           cp LICENSE release-input/windows/ANDROID-LICENSE.txt
           cp "$core_dir/LICENSE" release-input/windows/TAILSCALE-CORE-LICENSE.txt
           cp android/build/outputs/apk/release/android-release-unsigned.apk release-input/taildns-unsigned.apk
           cp docs/local-dns-override/RELEASE-NOTES.md release-input/release-notes.md
           source tailscale.version
+          printf 'VERSION_SHORT=%s\nTAILDNS_VERSION=%s\n' "$VERSION_SHORT" "$TAILDNS_VERSION_NAME" > release-input/windows/TAILDNS-VERSION.txt
           android_version="$(sed -n "s/.*versionName='\([^']*\)'.*/\1/p" < <("$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging release-input/taildns-unsigned.apk) | head -n 1)"
           android_code="$(sed -n "s/.*versionCode='\([^']*\)'.*/\1/p" < <("$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging release-input/taildns-unsigned.apk) | head -n 1)"
           test "$android_code" = "$VERSION_CODE_BASE"
@@ -152,7 +156,7 @@ jobs:
             test "$expected_code" -gt "$previous_code"
           fi
           unzip -t candidate/taildns-windows-amd64.zip
-          for required in taildns.exe taildnsd.exe tailscale.exe README.md ANDROID-LICENSE.txt TAILSCALE-CORE-LICENSE.txt SHA256SUMS; do
+          for required in taildns.exe taildnsd.exe tailscale.exe install-taildns-windows.ps1 TailDNS.WindowsDeployment.psm1 TAILDNS-VERSION.txt README.md ANDROID-LICENSE.txt TAILSCALE-CORE-LICENSE.txt SHA256SUMS; do
             unzip -Z1 candidate/taildns-windows-amd64.zip | grep -Fx "windows/$required"
           done
           key="$RUNNER_TEMP/taildns.jks"

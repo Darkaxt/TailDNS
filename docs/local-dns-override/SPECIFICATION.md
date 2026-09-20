@@ -1,6 +1,6 @@
 # Local DNS override — authoritative specification
 
-Version: 2.0. Date: 2026-09-20. Status: **Stage 10 COMPLETE** while Stage 9 remains BLOCKED only on the target Fold's current ADB disconnection. Stages 3–8 and 10 are complete; Stages 1 and 2 remain parked only on the explicitly disclosed validation gaps. Stage 10 corrected the published fork-version syntax, released the next signed TailDNS build without changing the official Tailscale version component, and deployed that public artifact to Thor through explicitly targeted, UI-free ADB. An unavailable edge-case environment or prohibited automation action must be recorded honestly, but must not stop implementation, deployment or release when the implemented behavior and accessible primary workflows pass.
+Version: 2.1. Date: 2026-09-20. Status: **Stage 11 ACTIVE** while Stage 9 remains BLOCKED only on the target Fold's current ADB disconnection. Stages 3–8 and 10 are complete; Stages 1 and 2 remain parked only on the explicitly disclosed validation gaps. Stage 11 converts the Windows companion artifact into a transactional in-place upgrade for the existing Windows service, preserving its authenticated machine identity and Tailnet Lock signer while adding the TailDNS resolver frontend. An unavailable edge-case environment or prohibited automation action must be recorded honestly, but must not stop implementation, deployment or release when the implemented behavior and accessible primary workflows pass.
 
 Revision 2.0 records the ObtainX/Obtainium update failure caused by the non-standard Android version name `VERSION_SHORT-taildns.N`. TailDNS releases now append the fork sequence as the standard numeric build component `VERSION_SHORT+N`; the corresponding GitHub tag is `vVERSION_SHORT+N`. Product identity remains TailDNS in the package, application, repository, release title and artifacts. Existing installations already classified as pseudo versions require one direct in-place installation of the corrected public APK; subsequent `+N` releases must compare automatically. This migration fact must be documented rather than hidden by increasing the upstream Tailscale version.
 
@@ -239,6 +239,50 @@ The release contract must reject zero, non-numeric and malformed sequences, pres
 An updater that has already stored a legacy TailDNS release as a pseudo version cannot be repaired by code it refuses to install. Seed the corrected scheme with one direct, signed, in-place public-APK installation on the authorized Thor. Preserve the package data, signer, login/profile, Android Private DNS state, TailDNS follow configuration and Always-on assignment. Do not open or drive Thor's UI; target only its explicit ADB serial. After installation, verify the corrected package/version, retained install identity and runtime DNS behavior. Document that other legacy installations may need the same one-time direct update, after which future `+N` releases are automatically comparable.
 
 Acceptance: the focused version contract reproduces the legacy incompatibility and passes the corrected current-to-next comparison; trusted validation and tag-bound signing succeed; the public release is independently verified against checksum, package, version, signer and provenance; and Thor receives only that public APK in place with its state retained and public plus MagicDNS resolution working. The release and evidence documents identify the one-time migration boundary and the automatic behavior of later corrected releases.
+
+### R21 — Transactional Windows in-place upgrade
+
+Provide a supported Windows AMD64 upgrade that attaches the TailDNS daemon and
+resolver CLI to the already-installed `Tailscale` Windows service rather than
+creating a second daemon, profile or machine. Reuse the existing default named
+pipe and `%ProgramData%\Tailscale` state so the machine login, node identity,
+tailnet IPs and Tailnet Lock signing key remain unchanged. Do not copy, export,
+log or recreate private state. The official GUI and required driver may remain
+as compatibility plumbing; do not uninstall the official MSI before TailDNS is
+running and verified.
+
+Install TailDNS binaries in their own versioned directory and repoint only the
+existing service executable after verifying the release checksums, service
+identity, state presence and administrator context. Copy the installed Wintun
+runtime into that versioned directory rather than downloading an unverified
+driver. Record the original service executable path and official auto-update
+preference in a non-secret deployment manifest. Disable official automatic
+application of updates before activation so it cannot silently replace the
+fork. A failed activation or verification must restore the exact original
+service path and start the original daemon. A deliberate rollback must restore
+the recorded service path and prior auto-update preference without deleting
+the machine state.
+
+After activation, verify the same node ID, tailnet addresses, running backend,
+Tailnet Lock enabled state and local trusted signing key. Apply the explicitly
+supplied Windows Control D HTTPS endpoint through the authenticated TailDNS
+LocalAPI, then verify configured/applied status, a public lookup and MagicDNS.
+The release archive must include the installer, rollback/status path and an
+automated contract covering fail-closed preconditions, state preservation,
+rollback metadata, checksum enforcement and release packaging. Windows
+executables remain truthfully documented as unsigned unless Authenticode
+signing is added.
+
+Acceptance: a test-first deployment contract fails before and passes after the
+installer implementation; trusted validation and tag-bound release workflows
+package the exact reviewed installer and binaries; independently downloaded
+assets match their checksums and provenance; and Beacon performs an in-place
+upgrade from the existing official service with no login or new machine entry.
+The pre/post node ID, addresses and trusted Tailnet Lock signing key match,
+official auto-update no longer applies updates, the supplied resolver is
+configured and applied, public plus MagicDNS lookups pass, and the documented
+rollback remains available. Publish the next `v1.103.312+N` release without
+increasing the official Tailscale version component.
 
 ## 4. Evidence record and completion rule
 
