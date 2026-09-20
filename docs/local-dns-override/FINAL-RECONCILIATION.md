@@ -1,7 +1,8 @@
-# Final R01–R18 reconciliation
+# Final R01–R20 reconciliation
 
-Specification: 1.8. Stages 3–8 COMPLETE. Stages 1 and 2
-retain only the explicitly disclosed validation gaps.
+Specification: 2.0. Stages 3–8 and 10 COMPLETE. Stage 9 is BLOCKED only on
+the disconnected Fold; Stages 1 and 2 retain only the explicitly disclosed
+validation gaps.
 
 Primary Stage 5 integrated revisions:
 
@@ -90,3 +91,23 @@ without increasing upstream `1.103.312`. On Thor, the public APK had no visible
 recent-task card and the real AYN **Clear all** action retained the same TailDNS
 PID, foreground VPN owner, stopped=false state, Always-on assignment, Automatic
 Android provider, Control D follow endpoint, public resolution and MagicDNS.
+
+R19 implementation and publication are satisfied by the focused source-state
+matrix and independently verified legacy `.6` release. Its required in-place
+Fold update and real-screen/DNS proof remain blocked only because that target
+disconnected from ADB after the successful pre-fix baseline. This blocker is
+not hidden by the later Thor release.
+
+R20 is satisfied. ObtainX/Obtainium source inspection and the focused contract
+reproduce the legacy pseudo-version classification and verify the standard
+numeric-build replacement. Exact-source validation and tag-bound release runs
+[35524334561](https://github.com/Darkaxt/TailDNS/actions/runs/35524334561)
+and [35524781376](https://github.com/Darkaxt/TailDNS/actions/runs/35524781376)
+published and independently verified
+[v1.103.312+7](https://github.com/Darkaxt/TailDNS/releases/tag/v1.103.312%2B7)
+without changing upstream `VERSION_SHORT=1.103.312`. The public APK updated
+Thor in place with its first-install identity, package data, profile, Always-on
+assignment, Automatic Private DNS provider, foreground VPN, public resolution
+and MagicDNS retained. Subsequent `+N` releases are comparable by contract;
+legacy installations already stored as pseudo versions may require this
+one-time direct update.

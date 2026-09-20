@@ -204,3 +204,53 @@ disconnected from ADB after the pre-fix baseline. Only the Thor remained
 visible and it was intentionally left untouched. Reconnecting the Fold resolves
 this external blocker; the in-place update and post-update UI/DNS evidence are
 still required before Stage 9 can close.
+
+## Updater-compatible version release and Thor deployment
+
+ObtainX 2.10.00 source inspection established that the legacy installed
+`1.103.312-taildns.5` and remote `v1.103.312-taildns.6` do not match its
+standard-version grammar, while its non-standard shape fallback also differs
+because the remote tag retains the leading `v`. Current Obtainium likewise
+does not accept the arbitrary `taildns` qualifier as a standard version. The
+focused contract reproduced the legacy mismatch and verifies successive
+`1.103.312+7` and `1.103.312+8` versions under the corrected numeric-build
+scheme. Upstream `VERSION_SHORT` remains exactly `1.103.312`.
+
+The first tag attempt exposed that GitHub's ref-filter grammar also treats `+`
+as a pattern operator. Runs [35523767260](https://github.com/Darkaxt/TailDNS/actions/runs/35523767260)
+and [35524253281](https://github.com/Darkaxt/TailDNS/actions/runs/35524253281)
+failed before creating jobs or a release. A regression then failed on the
+unescaped trigger and passed after it became `v*\+*`. The failed, task-owned
+tag was removed only after confirming no release existed. Exact-commit
+validation run [35524334561](https://github.com/Darkaxt/TailDNS/actions/runs/35524334561)
+then passed the clean native/Android build and isolated signing for Android
+`f408df7925fb6f140581bee0dbc6d41a5586a9c3`.
+
+Tag-bound run [35524781376](https://github.com/Darkaxt/TailDNS/actions/runs/35524781376)
+published the normal public
+[v1.103.312+7 release](https://github.com/Darkaxt/TailDNS/releases/tag/v1.103.312%2B7).
+All seven independently downloaded public assets matched `SHA256SUMS`. The APK
+SHA-256 is
+`05c3a7b1a63e89ded3adb27c7de199ec754447fe934ec40b00e10d8f13d388cc`;
+Android SDK 36 reported package `io.github.darkaxt.taildns`, version code
+`298320570`, version `1.103.312+7`, target SDK 36, one pinned RSA-4096 signer
+and valid v2/v3 signatures. Provenance names the exact Android commit above and
+core `f5de5ace94bb3fb21794d1e10184029709242aa0`. The Windows archive SHA-256 is
+`4ee3a9c3213b8cbac17d07f2d385e51964d9e4f782f19ab5c84f63f3d4174113`;
+it expanded successfully and all three internal executable hashes matched.
+
+Only Thor serial `bfa98654` was targeted, and no UI was opened. Immediately
+before installation it ran legacy version `1.103.312-taildns.5`, code
+`298310800`, PID `23301`, Always-on TailDNS with lockdown off, Android Private
+DNS Automatic (`opportunistic`) with the supplied provider present, and both
+public and MagicDNS name resolution. `adb install -r` of the independently
+verified public APK succeeded. Afterward, Android reported version
+`1.103.312+7`, code `298320570`, original first-install time
+`2026-09-18 15:52:38`, unchanged package-data inode `577091`, stopped=false,
+new live PID `7357`, and foreground `IPNService`. Always-on, lockdown-off,
+Automatic Private DNS and the saved provider remained unchanged. `example.com`
+resolved and answered; the fresh closure check also resolved
+`beacon.tail94fa2c.ts.net` through MagicDNS to `100.97.195.70` and received the
+peer's reply. No Samsung device was touched. The task-attached upstream monitor now emits only
+`v<VERSION_SHORT>+N` / `VERSION_SHORT+N` releases and retains its no-device
+boundary.
