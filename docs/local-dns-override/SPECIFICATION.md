@@ -1,6 +1,8 @@
 # Local DNS override — authoritative specification
 
-Version: 1.8. Date: 2026-09-20. Status: **Stage 8 COMPLETE**. Stages 3–8 are complete; Stages 1 and 2 remain parked only on the explicitly disclosed validation gaps. The signed public `.5` release closes the reproduced AYN Android 13 launcher behavior that force-stops unlocked recent-task packages during Clear all. An unavailable edge-case environment or prohibited automation action must be recorded honestly, but must not stop implementation, deployment or release when the implemented behavior and accessible primary workflows pass.
+Version: 1.9. Date: 2026-09-20. Status: **Stage 9 ACTIVE**. Stages 3–8 are complete; Stages 1 and 2 remain parked only on the explicitly disclosed validation gaps. Stage 9 closes the Android source-selection interaction defect reproduced on the Galaxy Z Fold 7 and delivers the next signed TailDNS subversion without changing the official Tailscale version component. An unavailable edge-case environment or prohibited automation action must be recorded honestly, but must not stop implementation, deployment or release when the implemented behavior and accessible primary workflows pass.
+
+Revision 1.9 records the Fold validation showing that Android Automatic Private DNS and the saved Control D provider were readable and worked once Follow Android was selected, but the enabled empty-manual presentation allowed **Use local default resolver** to submit first and receive a backend HTTP 400. R19 requires the UI to prevent that invalid submission while keeping source selection explicit, autosaved and reversible.
 
 Revision 1.8 records the user's correction that the final Thor replacement must survive AYN Launcher's Clear all behavior without the rooted Guard. R18 requires TailDNS activities to stay out of Recents on Android so the vendor launcher has no TailDNS task to force-stop, while preserving normal launcher/settings access, Always-on VPN operation and the selected Control D follow configuration. This must be solved at the task-visibility boundary, not with a restart watchdog or privileged whitelist mutation.
 
@@ -217,6 +219,14 @@ On the AYN Thor Android 13 build, the vendor Launcher3 Clear all implementation 
 Do not modify the device-wide vendor whitelist, require task locking, add a root helper, restart loop, broadcast loop, periodic poll or watchdog. An explicit user or administrator force-stop remains authoritative and is not bypassed.
 
 Acceptance: a regression contract fails when either task-owning activity is not excluded from Recents; the built manifest confirms the exclusion; and a real Thor run proves that after opening TailDNS and using AYN Launcher's Clear all, the TailDNS foreground process and VPN owner remain present, the package is not marked stopped, Always-on still names TailDNS, Android Private DNS remains Automatic with the saved provider, and public Control D resolution plus MagicDNS both pass. The exact launcher/package/OS evidence and release artifact identity are recorded. Publish and install the next `-taildns.N` release without increasing the official Tailscale version component.
+
+### R19 — Source-first local DNS interaction
+
+When the local override is off, manual mode has no committed HTTPS endpoint and Follow Android is not selected, **Use local default resolver** must be disabled. The screen must not submit an empty manual endpoint or surface a generic backend error for that invalid first-click path. Follow Android remains independently selectable and autosaves without enabling the override; once a valid source is selected or committed, the local enable switch becomes available. An already configured override must always remain disableable even when its current source later becomes unavailable.
+
+Do not silently select Android follow mode, write Android Private DNS settings or merge source selection with override enablement. The backend continues to reject invalid mutations as a defense boundary; the Android UI prevents the known invalid interaction before it reaches that boundary.
+
+Acceptance: a focused state-matrix regression fails before and passes after the UI policy change, covering empty manual, saved manual, Follow Android and already-configured states. A signed update installed in place on the authorized Fold preserves its profile and selected provider. The real screen proves the empty-manual local-enable control is unavailable, Follow Android remains selectable, and restoring Follow Android plus local enablement again reports the derived endpoint as applied; public DNS and MagicDNS resolve. Publish and independently verify the next monotonic `v1.103.312-taildns.N` release without increasing `VERSION_SHORT`.
 
 ## 4. Evidence record and completion rule
 

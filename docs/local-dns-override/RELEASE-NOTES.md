@@ -1,10 +1,15 @@
-# TailDNS 1.103.312-taildns.5
+# TailDNS 1.103.312-taildns.6
 
-This release prevents AYN Thor's Android 13 launcher from force-stopping
-TailDNS when **Clear all** removes recent tasks. Both TailDNS task-owning
-activities are excluded from Recents, so the vendor launcher has no TailDNS
-task to select for its package force-stop path. TailDNS remains launchable from
-its icon, Android VPN settings, deep links and shares. The fix does not add a
+This release fixes the Android DNS source-selection flow. **Use local default
+resolver** is now unavailable until either Follow Android is selected or a
+manual HTTPS endpoint has been saved. Follow Android remains an independent,
+autosaved choice, and an already configured override can always be switched
+off. The backend still rejects invalid updates as a defense boundary.
+
+It retains the AYN Thor Android 13 Clear-all fix from the previous release.
+TailDNS task-owning activities remain excluded from Recents so the vendor
+launcher cannot select the package for its force-stop path. TailDNS remains
+launchable from its icon, Android VPN settings, deep links and shares without a
 watchdog, root component, task-lock dependency or device-wide whitelist entry.
 
 The release refreshes the reviewed upstream Android/shared-core revisions

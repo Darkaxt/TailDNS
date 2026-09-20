@@ -345,3 +345,29 @@ Trusted candidate run [35479401193](https://github.com/Darkaxt/TailDNS/actions/r
 The candidate updated Thor in place and preserved the authenticated profile. Android remained `opportunistic` with saved provider `8b42rmrayt.dns.controld.com`; both local-default and Follow Android switches were on, the derived endpoint was `https://dns.controld.com/8b42rmrayt`, and the backend reported `Applied; provider reachability not verified`. The service was foreground, the VPN network was validated and TailDNS registered exactly one observer for each of `private_dns_default_mode`, `private_dns_mode` and `private_dns_specifier`. Public `example.com` and MagicDNS `beacon.tail94fa2c.ts.net` lookups passed.
 
 The public `.5` APK was then installed and the same checks were repeated. After TailDNS had been opened, AYN Recents displayed Settings, Clock and Files but no TailDNS card; the TailDNS task intent carried `0x00800000` (`FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS`). At `2026-09-20 03:26:11 +02:00`, the real AYN **Clear all** button removed the visible test tasks. TailDNS PID `23301` was unchanged before and after, its package remained stopped=false, VPN network `138` remained connected on `tun1` with owner UID 10162, IPNService remained foreground, Always-on still named TailDNS with lockdown off, and Android retained Automatic mode and the supplied provider. All three settings observers remained registered, and fresh public plus MagicDNS queries passed. The official package was absent. The Guard package remained installed but had no process. This closes the accessible Stage 8 Thor gate without another watchdog or vendor whitelist change.
+
+## 2026-09-20 Galaxy Z Fold 7 source-selection baseline
+
+The authorized Samsung Galaxy Z Fold 7 runs Android 16/API 36 with the
+2026-08-05 security patch. Public TailDNS `.5` was installed under
+`io.github.darkaxt.taildns`, authenticated and running its foreground VPN.
+Android Private DNS was Automatic (`opportunistic`) and exposed the user's
+saved provider hostname to the ordinary application; the private Control D
+profile identifier is intentionally omitted from this public record.
+
+With both **Follow Android Private DNS provider** and **Use local default
+resolver** selected, the screen displayed the correctly derived HTTPS endpoint
+and `Applied; provider reachability not verified`. Backend logs showed
+`<local-dns>` as the default route while retaining the tailnet-specific routes.
+Fresh public resolution of `example.com` and MagicDNS resolution of
+`beacon.tail94fa2c.ts.net` both passed.
+
+The pre-fix defect occurred when local-default was selected first while Follow
+Android was off and the manual endpoint was empty. The UI submitted the empty
+source, the backend correctly rejected it with HTTP 400, and the screen exposed
+the generic local-DNS error. This is a UI ordering defect, not a failure to read
+Android settings or derive the selected provider. A focused empty/manual/follow/
+configured state matrix failed before the source policy existed and passed after
+the local-enable control was gated on an available source while preserving the
+ability to disable an already configured override. Full signed-build and real
+Fold update evidence belongs to Stage 9 release validation.

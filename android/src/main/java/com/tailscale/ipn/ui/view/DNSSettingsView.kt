@@ -147,7 +147,13 @@ fun DNSSettingsView(
                           saved.FollowAndroid,
                       )
                     },
-                    enabled = editable,
+                    enabled =
+                        isLocalDNSToggleEnabled(
+                            editable,
+                            saved.Configured,
+                            saved.FollowAndroid,
+                            saved.ManualEndpoint,
+                        ),
                 )
               }
               Row {

@@ -1,9 +1,9 @@
 # Staged implementation plan
 
-Authority: [SPECIFICATION.md](SPECIFICATION.md), version 1.8.
+Authority: [SPECIFICATION.md](SPECIFICATION.md), version 1.9.
 Assessment: [EVALUATION.md](EVALUATION.md).
 
-Authorization: implementation, GitHub signing, release, upstream auto-update and current-task monitoring are already authorized. The user explicitly authorized the Stage 8 hotfix, next signed release and Thor deployment with the supplied Control D follow setting. Stage 1 is BLOCKED on B3's unavailable controlled-network variants; Stage 2 is BLOCKED on B4's prohibited device-input action; Stages 3–8 are COMPLETE. Under specification 1.8, B3 and B4 remain honest validation gaps but do not block completion of the accessible workflow.
+Authorization: implementation, GitHub signing, release, upstream auto-update and current-task monitoring are already authorized. The user explicitly authorized the Stage 9 APK update after live Fold validation. Stage 1 is BLOCKED on B3's unavailable controlled-network variants; Stage 2 is BLOCKED on B4's prohibited device-input action; Stages 3–8 are COMPLETE and Stage 9 is ACTIVE. Under specification 1.9, B3 and B4 remain honest validation gaps but do not block completion of the accessible workflow.
 
 There may be only one **ACTIVE** stage. Other allowed statuses are **NOT STARTED**, **BLOCKED**, and **COMPLETE**. Park an actual blocked stage with the exact requirement, cause, ownership, resolving condition and dependent work before activating another. Close a stage only with fresh evidence for every assigned criterion.
 
@@ -139,6 +139,20 @@ Acceptance criteria:
 
 Satisfied: the caller and force-stop behavior were traced to AYN Launcher3 rather than TailDNS. The manifest regression failed before and passed after both task-owning activities received `android:excludeFromRecents="true"`; trusted candidate run [35479401193](https://github.com/Darkaxt/TailDNS/actions/runs/35479401193) and isolated signing run [35479774581](https://github.com/Darkaxt/TailDNS/actions/runs/35479774581) passed. Tag-bound release run [35480878938](https://github.com/Darkaxt/TailDNS/actions/runs/35480878938) published [v1.103.312-taildns.5](https://github.com/Darkaxt/TailDNS/releases/tag/v1.103.312-taildns.5) from Android `5284a1b2211ee3258b1b9d94db5263673214f53c` with pinned core `f5de5ace94bb3fb21794d1e10184029709242aa0`, preserving upstream `1.103.312` and appending only `-taildns.5`. Independent downloads matched all release checksums; the APK's package, version code `298310800`, version, v2/v3 signatures, pinned signer and built-manifest exclusion verified. The public APK updated Thor in place. Its Follow Android and local-default switches remained enabled and derived `https://dns.controld.com/8b42rmrayt` from Android Automatic mode. AYN's real **Clear all** removed the visible test tasks while TailDNS had no card and retained PID `23301`, foreground VPN network `138`/`tun1`, package stopped=false, Always-on with lockdown off, all three settings observers, public resolution and MagicDNS. The official package stayed absent and the Guard stayed installed but stopped. Remaining: none. Blockers: none. Tracked deferrals: none.
 
+## Stage 9 — Fold source-first interaction hotfix and signed update
+
+Status: **ACTIVE**.
+
+Objective: close R19 with the narrowest Android UI policy change, publish the next signed TailDNS subversion, update the authorized Galaxy Z Fold 7 in place and prove the selected Android provider remains effective.
+
+Acceptance criteria:
+
+- Preserve the live pre-fix evidence: Android Automatic mode and the saved Control D source are readable, both switches enabled produce an applied `<local-dns>` default, and public plus MagicDNS resolve.
+- A test-first state matrix reproduces the defect by allowing local enablement with no selected source, then passes after the minimal UI policy change. The backend validation remains unchanged.
+- Focused Android tests, formatting/lint, release validation and the tag-bound signing workflow pass; the public APK preserves `VERSION_SHORT=1.103.312`, appends only the next `-taildns.N`, and independently verifies against checksums, package, signer and source provenance.
+- The public APK updates the Fold in place without losing login, profile, Automatic Private DNS or saved provider. On the real screen, empty manual mode cannot submit local enablement; Follow Android remains selectable; the restored enabled follow state is applied and public plus MagicDNS resolve.
+- Update the evidence documents, commit and push. Blockers: none currently. Tracked deferrals: none.
+
 ## Requirement ownership
 
 | Requirement | Initial delivery owner | Additional required verification |
@@ -161,5 +175,6 @@ Satisfied: the caller and force-stop behavior were traced to AYN Launcher3 rathe
 | R16 auto-update/monitor | Stage 7 | Stage 7 rehearsal and task automation verification |
 | R17 TailDNS identity | Stage 7 | Stage 7 candidate, public repository and release verification |
 | R18 AYN Clear-all resilience | Stage 8 | Thor real Clear all, DNS/MagicDNS and public-release verification |
+| R19 source-first interaction | Stage 9 | Fold invalid-path UI contract, signed update and restored DNS/MagicDNS validation |
 
 Before each stage closure, update its evidence, satisfied/remaining criteria, blockers and tracked deferrals. Do not substitute commit volume, component count or passing-test totals for a demonstrated workflow. Unknown implementation details must be resolved inside the owning stage without introducing speculative infrastructure.
