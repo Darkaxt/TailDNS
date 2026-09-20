@@ -140,7 +140,9 @@ function Wait-TailDnsBackendReady {
     param([Parameter(Mandatory)][string]$TailscaleCli)
 
     & $TailscaleCli wait --timeout=0s
-    if ($LASTEXITCODE -ne 0) {
+    $invocationSucceeded = $?
+    $nativeExitCode = Get-Variable -Name LASTEXITCODE -ValueOnly -ErrorAction SilentlyContinue
+    if (-not $invocationSucceeded -or ($null -ne $nativeExitCode -and $nativeExitCode -ne 0)) {
         throw "The TailDNS backend readiness wait failed through $TailscaleCli."
     }
 }

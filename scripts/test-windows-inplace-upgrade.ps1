@@ -70,16 +70,17 @@ try {
     Assert-Throws { Assert-TailDnsIdentityContinuity -Before $before -After $after } 'Changed node identity was accepted.'
 
     $waitRecord = Join-Path $tempRoot 'wait-arguments.txt'
-    $waitCli = Join-Path $tempRoot 'wait-cli.cmd'
+    $waitCli = Join-Path $tempRoot 'wait-cli.ps1'
     [System.IO.File]::WriteAllText(
         $waitCli,
-        "@echo off`r`necho %* > `"$waitRecord`"`r`nexit /b 0`r`n"
+        "param([Parameter(ValueFromRemainingArguments=`$true)][string[]]`$CliArguments)`n[System.IO.File]::WriteAllText('$waitRecord', (`$CliArguments -join ' '))`n"
     )
+    Remove-Variable -Name LASTEXITCODE -Scope Global -ErrorAction SilentlyContinue
     Wait-TailDnsBackendReady -TailscaleCli $waitCli
     $waitArguments = (Get-Content -Raw -LiteralPath $waitRecord).Trim()
     Assert-True ($waitArguments -eq 'wait --timeout=0s') 'Backend readiness did not use the CLI state wait without a deadline.'
 
-    [System.IO.File]::WriteAllText($waitCli, "@echo off`r`nexit /b 7`r`n")
+    [System.IO.File]::WriteAllText($waitCli, "`$global:LASTEXITCODE = 7`n")
     Assert-Throws {
         Wait-TailDnsBackendReady -TailscaleCli $waitCli
     } 'A failed backend readiness wait was accepted.'
