@@ -1,10 +1,11 @@
-# TailDNS 1.103.312-taildns.4
+# TailDNS 1.103.312-taildns.5
 
-This is a release-packaging hotfix for `1.103.312-taildns.3`. That release put
-the TailDNS suffix into the shared core's `VERSION_LONG` value, which the Go
-runtime rejects during startup. This release keeps the upstream-compatible
-`VERSION_LONG` form and applies `-taildns.4` only to the Android-visible
-version name. It contains the same upstream feature revision as `.3`.
+This release prevents AYN Thor's Android 13 launcher from force-stopping
+TailDNS when **Clear all** removes recent tasks. Both TailDNS task-owning
+activities are excluded from Recents, so the vendor launcher has no TailDNS
+task to select for its package force-stop path. TailDNS remains launchable from
+its icon, Android VPN settings, deep links and shares. The fix does not add a
+watchdog, root component, task-lock dependency or device-wide whitelist entry.
 
 The release refreshes the reviewed upstream Android/shared-core revisions
 while retaining the independently branded TailDNS behavior. The upstream
