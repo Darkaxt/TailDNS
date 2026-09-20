@@ -1,6 +1,6 @@
-# Final R01–R17 reconciliation
+# Final R01–R18 reconciliation
 
-Specification: 1.7. Stages 3–7 COMPLETE. Stages 1 and 2
+Specification: 1.8. Stages 3–8 COMPLETE. Stages 1 and 2
 retain only the explicitly disclosed validation gaps.
 
 Primary Stage 5 integrated revisions:
@@ -78,3 +78,15 @@ release workflows run the repeatable branding contract, and the downloaded APK
 reports `application-label:'TailDNS'`. Technically required upstream Tailscale
 service/module/namespace, license, copyright and attribution references
 intentionally remain.
+
+R18 is satisfied. AYN Launcher3 was the recorded force-stop caller, and static
+inspection established that its unlocked recent-task removal path calls
+`ActivityManager.forceStopPackage()`. Both TailDNS task-owning activities are
+excluded in source and in the built public manifest. Trusted release run
+[35480878938](https://github.com/Darkaxt/TailDNS/actions/runs/35480878938)
+published independently verified
+[v1.103.312-taildns.5](https://github.com/Darkaxt/TailDNS/releases/tag/v1.103.312-taildns.5)
+without increasing upstream `1.103.312`. On Thor, the public APK had no visible
+recent-task card and the real AYN **Clear all** action retained the same TailDNS
+PID, foreground VPN owner, stopped=false state, Always-on assignment, Automatic
+Android provider, Control D follow endpoint, public resolution and MagicDNS.

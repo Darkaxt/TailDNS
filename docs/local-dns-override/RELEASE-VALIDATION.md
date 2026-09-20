@@ -129,3 +129,45 @@ then uninstalled at the user's request. It is absent, while TailDNS remains
 installed, selected as Always-on with lockdown off, connected, and resolving
 after removal. Thor Tailscale DNS Guard was not running and was not removed;
 that package remains a separate user decision. No Samsung device was touched.
+
+## AYN Clear-all hotfix release and Thor deployment
+
+Tag-bound run [35480878938](https://github.com/Darkaxt/TailDNS/actions/runs/35480878938)
+published the non-draft, non-prerelease
+[v1.103.312-taildns.5 release](https://github.com/Darkaxt/TailDNS/releases/tag/v1.103.312-taildns.5).
+The tag resolves to Android `5284a1b2211ee3258b1b9d94db5263673214f53c`
+and pins core `f5de5ace94bb3fb21794d1e10184029709242aa0`.
+The upstream version component remains exactly `1.103.312`; only the monotonic
+TailDNS suffix advanced to `.5`.
+
+All seven public assets were independently downloaded and every entry matched
+`SHA256SUMS`. The APK SHA-256 is
+`7f772db2b728fb1f75fde99e7e15b180cfa57d298940ae5cb37e92028d2f2d58`;
+it reports package `io.github.darkaxt.taildns`, version code `298310800`,
+version `1.103.312-taildns.5` and the pinned signer SHA-256
+`dcd0ede91eb7e0ed88a72b5289f84f8d4a61ccc22707f36378e15540b99d32e1`.
+Android SDK 37 verified v2/v3 signatures, and the independently extracted
+manifest passed the `MainActivity` and `ShareActivity` Recents-exclusion
+contract. The Windows archive hash is
+`ac348a5f976ce7b147149438a91056dd0804b2d404e06e5dc2ac61b7b7d060c7`;
+its three internal executable hashes matched, all three parsed as AMD64 PE, and
+all remained truthfully `NotSigned` by Authenticode.
+
+The public APK updated the validation build on Thor without changing the first
+install identity, profile or preferences. Android cleared the Always-on fields
+during same-version reinstall, so the exact prior TailDNS/lockdown-off
+assignment was restored and verified rather than treating installation as a
+successful deployment by itself. TailDNS then owned validated VPN network 138
+on `tun1`; IPNService was foreground and the package was not stopped. Android
+Private DNS was Automatic (`opportunistic`) with saved provider
+`8b42rmrayt.dns.controld.com`. The UI confirmed both local-default and Follow
+Android were enabled, derived `https://dns.controld.com/8b42rmrayt`, and
+reported `Applied; provider reachability not verified`.
+
+AYN's real **Clear all** action removed the visible disposable tasks while
+TailDNS had no visible task card. PID `23301`, the foreground VPN owner,
+Always-on assignment, three Android-settings observers and the saved provider
+all survived unchanged. Fresh `example.com` and
+`beacon.tail94fa2c.ts.net` queries passed afterward. Official Tailscale was
+absent; the Thor Guard remained installed but stopped. No Samsung device was
+touched.
