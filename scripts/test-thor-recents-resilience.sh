@@ -11,10 +11,10 @@ import xml.etree.ElementTree as ET
 manifest_path = sys.argv[1]
 android = "{http://schemas.android.com/apk/res/android}"
 root = ET.parse(manifest_path).getroot()
-activities = {
-    activity.get(android + "name"): activity
-    for activity in root.findall("./application/activity")
-}
+activities = {}
+for activity in root.findall("./application/activity"):
+    declared_name = activity.get(android + "name", "")
+    activities[declared_name.rsplit(".", 1)[-1]] = activity
 
 required = ("MainActivity", "ShareActivity")
 errors = []
