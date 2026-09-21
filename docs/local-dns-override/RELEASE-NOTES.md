@@ -1,4 +1,4 @@
-# TailDNS 1.103.312+12
+# TailDNS 1.103.312+13
 
 This release fixes a Windows startup failure when the existing hosts file is
 explicitly read-only. TailDNS now treats that hosts projection as the optional
@@ -30,7 +30,7 @@ resolver that reaches any non-transient unapplied state still causes automatic
 rollback.
 
 The official upstream Tailscale version remains exactly `1.103.312`; TailDNS
-appends only its numeric fork build as `+12`.
+appends only its numeric fork build as `+13`.
 
 The preceding release corrected TailDNS versioning for ObtainX, Obtainium and other
 updaters. The official upstream Tailscale version remains exactly

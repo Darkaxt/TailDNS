@@ -5,22 +5,26 @@ set -euo pipefail
 
 sample='VERSION_MAJOR=1
 VERSION_MINOR=103
-VERSION_PATCH=262
-VERSION_SHORT="1.103.262"
-VERSION_LONG="1.103.262-tabcdef-g123456789"
+VERSION_PATCH=318
+VERSION_SHORT="1.103.318"
+VERSION_LONG="1.103.318-tabcdef-g123456789"
 VERSION_GIT_HASH="abcdef"
-VERSION_TRACK="unstable"'
+VERSION_TRACK="unstable"
+VERSION_XCODE="101.103.318"
+VERSION_WINRES="1,103,318,0"'
 
 expected='VERSION_MAJOR=1
 VERSION_MINOR=103
-VERSION_PATCH=262
-VERSION_SHORT="1.103.262"
-VERSION_LONG="1.103.262-tabcdef-g123456789"
+VERSION_PATCH=312
+VERSION_SHORT="1.103.312"
+VERSION_LONG="1.103.312-tabcdef-g123456789"
 VERSION_GIT_HASH="abcdef"
 VERSION_TRACK="unstable"
-TAILDNS_VERSION_NAME="1.103.262+3"'
+VERSION_XCODE="101.103.312"
+VERSION_WINRES="1,103,312,0"
+TAILDNS_VERSION_NAME="1.103.312+3"'
 
-actual="$(printf '%s\n' "$sample" | bash scripts/append-taildns-version.sh 3)"
+actual="$(printf '%s\n' "$sample" | bash scripts/append-taildns-version.sh 3 1.103.312)"
 if [[ "$actual" != "$expected" ]]; then
   diff -u <(printf '%s\n' "$expected") <(printf '%s\n' "$actual")
   exit 1
@@ -59,7 +63,7 @@ fi
 
 current_sequence="${TAILDNS_VERSION_NAME##*+}"
 next_version="${VERSION_SHORT}+$((current_sequence + 1))"
-if [[ "$next_version" != "1.103.262+4" || ! "$next_version" =~ $standard_numeric_build ]]; then
+if [[ "$next_version" != "1.103.312+4" || ! "$next_version" =~ $standard_numeric_build ]]; then
   echo 'successive corrected TailDNS releases are not automatically comparable' >&2
   exit 1
 fi
@@ -90,13 +94,18 @@ if ! grep -Fq 'release_sequence:' .github/workflows/fork-build.yml ||
   exit 1
 fi
 
-if printf '%s\n' "$sample" | bash scripts/append-taildns-version.sh 0 >/dev/null 2>&1; then
+if printf '%s\n' "$sample" | bash scripts/append-taildns-version.sh 0 1.103.312 >/dev/null 2>&1; then
   echo 'zero release sequence was accepted' >&2
   exit 1
 fi
 
-if printf '%s\n' "$sample" | bash scripts/append-taildns-version.sh invalid >/dev/null 2>&1; then
+if printf '%s\n' "$sample" | bash scripts/append-taildns-version.sh invalid 1.103.312 >/dev/null 2>&1; then
   echo 'non-numeric release sequence was accepted' >&2
+  exit 1
+fi
+
+if printf '%s\n' "$sample" | bash scripts/append-taildns-version.sh 3 invalid >/dev/null 2>&1; then
+  echo 'non-numeric frozen upstream version was accepted' >&2
   exit 1
 fi
 

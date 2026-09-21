@@ -114,7 +114,7 @@ Satisfied: tag-bound run [35399346673](https://github.com/Darkaxt/TailDNS/action
 
 ## Stage 7 — Post-validation auto-update and current-task monitoring
 
-Status: **COMPLETE**.
+Status: **ACTIVE**.
 
 Acceptance: complete R16's dependency-ordered promotion and release workflow and R17's TailDNS product identity, then verify the recurring task monitor performs promotion/release and repairs failures without weakening gates.
 
@@ -249,12 +249,21 @@ official GUI subsequently reproduced a daemon connection failure. Root-cause
 evidence shows Beacon's hosts file is explicitly read-only and contains a stale
 Tailscale section; the current peer map causes the Windows DNS manager to try an
 atomic replacement, which returns sharing/access errors and forces the backend
-to `NoState`. Blocker: R21's stable running-backend and GUI acceptance criterion
-cannot pass until the optional hosts projection respects that file policy. The
-ACTIVE-stage fix is test-first read-only coexistence in the shared core,
-followed by a new upstream-version-preserving release, in-place deployment and
-fresh repeated host verification. Remaining: regression, implementation,
-release, deployment, verification and evidence update. Tracked deferrals: none.
+to `NoState`. R21's stable running-backend and GUI acceptance criterion remains
+unsatisfied until the optional hosts projection repair is deployed on Beacon. The
+read-only-hosts regression now fails before and passes after the bounded
+shared-core repair at `bfc88fd8689548a7e0287178584a94c8307d6fe3`; focused
+and broader shared-core tests pass, and exact-source validation run
+[35585439505](https://github.com/Darkaxt/TailDNS/actions/runs/35585439505)
+passed for Android `d7cddc428d35d2829054bee7d2077f722fef3f60`. The
+immutable `v1.103.312+12` tag correctly produced no release because the updated
+core's natural development patch had advanced to `1.103.318`, violating the
+frozen official-version contract. The ACTIVE-stage release repair makes
+`1.103.312` an explicit tested source of truth and will publish `+13` from a new
+commit rather than moving or deleting the failed tag. Remaining: trusted
+validation, `+13` release, independent public-artifact verification, in-place
+deployment, repeated Beacon verification and evidence update. Blockers: none.
+Tracked deferrals: none.
 
 ## Requirement ownership
 

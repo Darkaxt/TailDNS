@@ -21,7 +21,8 @@ if [[ "$origin" != "https://github.com/Darkaxt/tailscale.git" ]]; then
     exit 1
 fi
 if [[ -n "${TAILDNS_RELEASE_SEQUENCE:-}" ]]; then
-    ./tool/go run tailscale.com/cmd/mkversion | bash scripts/append-taildns-version.sh "$TAILDNS_RELEASE_SEQUENCE"
+    frozen_version="$(tr -d '\r\n' < TAILSCALE_BASE_VERSION.txt)"
+    ./tool/go run tailscale.com/cmd/mkversion | bash scripts/append-taildns-version.sh "$TAILDNS_RELEASE_SEQUENCE" "$frozen_version"
 else
     exec ./tool/go run tailscale.com/cmd/mkversion
 fi
