@@ -68,3 +68,44 @@ The handler-level authorization regression already proves that read-only actors 
 ## Recovery
 
 Clear the temporary override, bring down only the forked node, stop only the recorded fork daemon PID, remove the isolated test node from the intended tailnet, and delete only `D:\Temp\taildns-windows-stage4`. Confirm the official service remains running and its status is unchanged. The test must never stop, overwrite or reinstall the official service.
+
+## Beacon in-place upgrade
+
+Date: 2026-09-21. Host: Windows 11 Pro 10.0.26200. Public release:
+[v1.103.312+11](https://github.com/Darkaxt/TailDNS/releases/tag/v1.103.312%2B11).
+
+The independently downloaded Windows archive and its internal executable
+manifest matched the published checksums before elevation. The reviewed
+installer then upgraded the one existing automatic `Tailscale` service in
+place. Its image path changed from the official daemon to
+`C:\Program Files\TailDNS\versions\1.103.312+11\taildnsd.exe`; no second
+service, profile, authentication flow or machine was created. The official GUI
+remained running and the version directory contains the hash-identical Wintun
+binary copied from the official installation.
+
+Pre/post comparison verified exact equality of the node ID, both tailnet
+addresses and the complete trusted Tailnet Lock public key. The backend was
+`Running`, retained its node key and had no authentication URL. The official
+update check remains enabled while automatic application is disabled, so the
+official updater cannot overwrite the forked daemon. The deployment record
+retains the exact original service path and both prior update preferences; the
+release installer exposes explicit status and rollback actions.
+
+The supplied private Control D HTTPS endpoint was configured through the
+authenticated TailDNS LocalAPI and reported `Configured=true` and
+`Applied=true`. Windows resolved Control D's documented verification name to
+`147.185.34.1`, an ordinary public lookup passed, and a recorded MagicDNS peer
+resolved to its expected tailnet address. This verifies the OS resolver path to
+Control D and the retained MagicDNS route without publishing the resolver ID,
+tailnet name, account or node key.
+
+The host also reported an OS DNS file-sharing warning and an unsupported
+network-category update. Their first recorded timestamps were during service
+activation. The required Control D verification, public lookup and MagicDNS
+lookup all passed while those warnings were present, so they are disclosed as
+host-local warnings rather than misreported as TailDNS acceptance failures or
+silently changed through unrelated Windows configuration.
+
+Stage 11 is complete: the public release, in-place transaction, state and
+Tailnet Lock continuity, resolver application, real DNS paths, disabled
+official update application and rollback record are all verified.

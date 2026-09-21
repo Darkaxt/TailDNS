@@ -3,7 +3,7 @@
 Authority: [SPECIFICATION.md](SPECIFICATION.md), version 2.1.
 Assessment: [EVALUATION.md](EVALUATION.md).
 
-Authorization: implementation, GitHub signing, release, upstream auto-update and current-task monitoring are already authorized. The user explicitly authorized the Stage 9 APK update after live Fold validation, the Stage 10 corrective release plus Thor deployment, and Stage 11's Windows in-place upgrade and deployment on Beacon. Stage 1 is BLOCKED on B3's unavailable controlled-network variants; Stage 2 is BLOCKED on B4's prohibited device-input action; Stages 3–8 and 10 are COMPLETE; Stage 9 is BLOCKED only on the target Fold's current ADB disconnection; and Stage 11 is ACTIVE. Under specification 2.1, B3 and B4 remain honest validation gaps but do not block completion of the accessible workflow.
+Authorization: implementation, GitHub signing, release, upstream auto-update and current-task monitoring are already authorized. The user explicitly authorized the Stage 9 APK update after live Fold validation, the Stage 10 corrective release plus Thor deployment, and Stage 11's Windows in-place upgrade and deployment on Beacon. Stage 1 is BLOCKED on B3's unavailable controlled-network variants; Stage 2 is BLOCKED on B4's prohibited device-input action; Stages 3–8 and 10–11 are COMPLETE; and Stage 9 is BLOCKED only on the target Fold's current ADB disconnection. Under specification 2.1, B3 and B4 remain honest validation gaps but do not block completion of the accessible workflow.
 
 There may be only one **ACTIVE** stage. Other allowed statuses are **NOT STARTED**, **BLOCKED**, and **COMPLETE**. Park an actual blocked stage with the exact requirement, cause, ownership, resolving condition and dependent work before activating another. Close a stage only with fresh evidence for every assigned criterion.
 
@@ -191,7 +191,7 @@ Satisfied: root-cause inspection of ObtainX 2.10.00 and current Obtainium shows 
 
 ## Stage 11 — Windows in-place TailDNS upgrade and Beacon deployment
 
-Status: **ACTIVE**.
+Status: **COMPLETE**.
 
 Objective: close R21 by turning the Windows companion ZIP into a transactional
 upgrade for the existing `Tailscale` Windows service, publishing the next
@@ -219,15 +219,34 @@ Acceptance criteria:
   `taildns`, and public plus MagicDNS queries pass.
 - The deployment and rollback evidence is documented, committed and pushed.
 
-Satisfied: the baseline identifies one running automatic `Tailscale` service
-at `C:\Program Files\Tailscale\tailscaled.exe`, official client 1.102.4, default
-state with a node key, Beacon node ID and addresses, Tailnet Lock enabled with a
-local trusted signing key, and official auto-update check/apply enabled. The
-current public ZIP remains an isolated companion and therefore cannot yet be
-used as an in-place product update. Remaining: implement the contract and
-installer, verify/release it, elevate the reviewed transaction on Beacon, apply
-the supplied endpoint and record post-state. Blockers: none. Tracked deferrals:
-none.
+Satisfied: focused deployment regressions cover the administrator/service/state
+preconditions, version/checksum contract, Wintun reuse, versioned installation,
+activation rollback, explicit restoration, update-preference restoration and
+release archive. Validation run
+[35556275052](https://github.com/Darkaxt/TailDNS/actions/runs/35556275052)
+passed for Android `5ffbd14a63e01056286cc7e4d904d3d81713b21f` with core
+`f5de5ace94bb3fb21794d1e10184029709242aa0`; tag-bound run
+[35556765875](https://github.com/Darkaxt/TailDNS/actions/runs/35556765875)
+published the independently verified
+[v1.103.312+11 release](https://github.com/Darkaxt/TailDNS/releases/tag/v1.103.312%2B11).
+
+Beacon upgraded the single existing automatic `Tailscale` service in place from
+`C:\Program Files\Tailscale\tailscaled.exe` to the versioned
+`C:\Program Files\TailDNS\versions\1.103.312+11\taildnsd.exe`. The official
+GUI remained running and the existing Wintun binary was reused. The deployment
+record's exact baseline and post-activation checks matched the node ID,
+Tailnet addresses and full trusted Tailnet Lock public key; the backend returned
+to `Running` with its node key and no authentication URL. Official update checks
+remain enabled while automatic update application is disabled. The supplied
+Control D HTTPS endpoint is retained and reports configured/applied. Windows
+resolved Control D's documented verification name to `147.185.34.1`, an
+ordinary public name resolved, and the recorded MagicDNS peer resolved to its
+expected tailnet address. The release installer completed successfully and its
+deployment record retains the original service path and update preferences for
+explicit rollback. Windows also reports host-local DNS file-sharing and network
+category warnings; they are recorded without claiming a cause, and neither the
+Control D verification query nor MagicDNS failed. Remaining: none. Blockers:
+none. Tracked deferrals: none.
 
 ## Requirement ownership
 

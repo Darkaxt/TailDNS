@@ -1,6 +1,6 @@
-# Final R01–R20 reconciliation
+# Final R01–R21 reconciliation
 
-Specification: 2.0. Stages 3–8 and 10 COMPLETE. Stage 9 is BLOCKED only on
+Specification: 2.1. Stages 3–8 and 10–11 COMPLETE. Stage 9 is BLOCKED only on
 the disconnected Fold; Stages 1 and 2 retain only the explicitly disclosed
 validation gaps.
 
@@ -111,3 +111,18 @@ assignment, Automatic Private DNS provider, foreground VPN, public resolution
 and MagicDNS retained. Subsequent `+N` releases are comparable by contract;
 legacy installations already stored as pseudo versions may require this
 one-time direct update.
+
+R21 is satisfied. Exact-source validation run
+[35556275052](https://github.com/Darkaxt/TailDNS/actions/runs/35556275052)
+and tag-bound release run
+[35556765875](https://github.com/Darkaxt/TailDNS/actions/runs/35556765875)
+published and independently verified
+[v1.103.312+11](https://github.com/Darkaxt/TailDNS/releases/tag/v1.103.312%2B11)
+without increasing `VERSION_SHORT=1.103.312`. Beacon's one existing automatic
+service now runs the versioned TailDNS daemon while retaining the official GUI
+and Wintun. Exact pre/post checks preserved the authenticated node ID, both
+tailnet addresses and full trusted Tailnet Lock public key; no authentication
+URL, profile or new machine appeared. Official automatic update application is
+disabled. The supplied private Control D endpoint reports configured/applied,
+Control D verification, public DNS and MagicDNS pass, and the deployment record
+retains the original service path and update preferences for rollback.

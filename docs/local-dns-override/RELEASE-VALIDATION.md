@@ -254,3 +254,41 @@ resolved and answered; the fresh closure check also resolved
 peer's reply. No Samsung device was touched. The task-attached upstream monitor now emits only
 `v<VERSION_SHORT>+N` / `VERSION_SHORT+N` releases and retains its no-device
 boundary.
+
+## Windows in-place release and Beacon deployment
+
+Exact-commit validation run
+[35556275052](https://github.com/Darkaxt/TailDNS/actions/runs/35556275052)
+passed the deployment contract, release assembly and isolated Android signing
+for Android `5ffbd14a63e01056286cc7e4d904d3d81713b21f` with core
+`f5de5ace94bb3fb21794d1e10184029709242aa0`. Tag-bound run
+[35556765875](https://github.com/Darkaxt/TailDNS/actions/runs/35556765875)
+published the non-draft, non-prerelease
+[v1.103.312+11 release](https://github.com/Darkaxt/TailDNS/releases/tag/v1.103.312%2B11).
+The tag and public `main` both resolved to the exact reviewed Android commit.
+
+Every independently downloaded public asset matched `SHA256SUMS`. The APK
+SHA-256 is
+`007ee28c7feb17ed9f0c8741117a005f3f79e47d337b99f5c32186a4dcf89f43`;
+Android SDK 37 verified package `io.github.darkaxt.taildns`, version code
+`298326640`, version `1.103.312+11`, valid v2/v3 signatures and the pinned
+signer SHA-256
+`dcd0ede91eb7e0ed88a72b5289f84f8d4a61ccc22707f36378e15540b99d32e1`.
+The Windows archive SHA-256 is
+`ee99654be55e16d2dbf5147ed8a28b255397fc41233ab1502e812919996c35b9`;
+it expanded successfully, every executable matched the internal manifest, all
+three parsed as AMD64 PE, and all remained truthfully `NotSigned` by
+Authenticode. Its version marker is exactly `VERSION_SHORT=1.103.312` and
+`TAILDNS_VERSION=1.103.312+11`.
+
+On Beacon, the public installer repointed the one existing automatic
+`Tailscale` service to the versioned TailDNS daemon without a new login,
+profile, service or machine. Exact pre/post comparison preserved the node ID,
+both tailnet addresses and the full trusted Tailnet Lock public key. The
+official GUI and Wintun remained available, official automatic update
+application became false, and the deployment record retained the original
+service path and update preferences for rollback. The supplied private Control
+D endpoint reported configured/applied; Control D's verification record, an
+ordinary public lookup and MagicDNS all passed. Resolver identifiers, tailnet
+names, account data and key material are intentionally omitted from this public
+record.
