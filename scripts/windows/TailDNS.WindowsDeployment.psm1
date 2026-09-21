@@ -135,6 +135,40 @@ function Get-TailDnsIdentity {
     }
 }
 
+function Get-TailDnsRepairBaseline {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][string]$CurrentServicePath,
+        [Parameter(Mandatory)][psobject]$ExistingRecord
+    )
+
+    $currentExecutable = $CurrentServicePath.Trim()
+    if ($currentExecutable -match '^"([^"]+)"') {
+        $currentExecutable = $Matches[1]
+    } else {
+        $currentExecutable = ($currentExecutable -split '\s+', 2)[0]
+    }
+    $recordedExecutable = [string]$ExistingRecord.TailDnsServicePath
+    if ([string]::IsNullOrWhiteSpace($recordedExecutable) -or
+        -not $currentExecutable.Equals($recordedExecutable, [StringComparison]::OrdinalIgnoreCase)) {
+        throw 'The active service is not the exact TailDNS deployment recorded for repair.'
+    }
+
+    $identity = $ExistingRecord.BaselineIdentity
+    if ($null -eq $identity -or
+        [string]::IsNullOrWhiteSpace([string]$identity.NodeID) -or
+        @($identity.TailscaleIPs).Count -eq 0 -or
+        [string]$identity.TailnetLockKey -notmatch '^tlpub:[0-9a-f]+$') {
+        throw 'The existing TailDNS deployment record has no complete trusted identity baseline.'
+    }
+
+    [pscustomobject]@{
+        NodeID = [string]$identity.NodeID
+        TailscaleIPs = @($identity.TailscaleIPs | ForEach-Object { [string]$_ })
+        TailnetLockKey = [string]$identity.TailnetLockKey
+    }
+}
+
 function Wait-TailDnsBackendReady {
     [CmdletBinding()]
     param([Parameter(Mandatory)][string]$TailscaleCli)
@@ -252,4 +286,4 @@ function Restore-TailDnsOriginalService {
     }
 }
 
-Export-ModuleMember -Function Test-TailDnsPayload, Assert-TailDnsIdentityContinuity, New-TailDnsDeploymentRecord, Get-TailDnsIdentity, Wait-TailDnsBackendReady, Set-TailDnsResolverAndWait, Set-TailDnsServiceImagePath, Wait-TailDnsServiceState, Restore-TailDnsOriginalService
+Export-ModuleMember -Function Test-TailDnsPayload, Assert-TailDnsIdentityContinuity, New-TailDnsDeploymentRecord, Get-TailDnsIdentity, Get-TailDnsRepairBaseline, Wait-TailDnsBackendReady, Set-TailDnsResolverAndWait, Set-TailDnsServiceImagePath, Wait-TailDnsServiceState, Restore-TailDnsOriginalService

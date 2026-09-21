@@ -58,12 +58,12 @@ try {
     $before = [pscustomobject]@{
         NodeID = 'node-1'
         TailscaleIPs = @('100.64.0.1', 'fd7a:115c:a1e0::1')
-        TailnetLockKey = 'tlpub:test'
+        TailnetLockKey = 'tlpub:abcdef'
     }
     $after = [pscustomobject]@{
         NodeID = 'node-1'
         TailscaleIPs = @('fd7a:115c:a1e0::1', '100.64.0.1')
-        TailnetLockKey = 'tlpub:test'
+        TailnetLockKey = 'tlpub:abcdef'
     }
     Assert-TailDnsIdentityContinuity -Before $before -After $after
     $after.NodeID = 'node-2'
@@ -139,11 +139,33 @@ if (`$CliArguments[0] -eq '--json' -and `$CliArguments[1] -eq 'status') {
     Assert-True ($record.OriginalAutoUpdateApply -eq $true) 'Original updater preference was not recorded.'
     Assert-True ($json -notmatch 'PrivateNodeKey|NetworkLockKey|server-state') 'Deployment record exposes private state.'
 
+    $repairBaseline = Get-TailDnsRepairBaseline `
+        -CurrentServicePath '"C:\Program Files\TailDNS\versions\1.103.312+10\taildnsd.exe"' `
+        -ExistingRecord $record
+    Assert-TailDnsIdentityContinuity -Before $before -After $repairBaseline
+    Assert-Throws {
+        Get-TailDnsRepairBaseline `
+            -CurrentServicePath '"C:\Program Files\Tailscale\tailscaled.exe"' `
+            -ExistingRecord $record
+    } 'A repair baseline was accepted for a service path outside the recorded TailDNS deployment.'
+    $incompleteRecord = $record.PSObject.Copy()
+    $incompleteRecord.BaselineIdentity = [pscustomobject]@{
+        NodeID = ''
+        TailscaleIPs = @()
+        TailnetLockKey = ''
+    }
+    Assert-Throws {
+        Get-TailDnsRepairBaseline `
+            -CurrentServicePath '"C:\Program Files\TailDNS\versions\1.103.312+10\taildnsd.exe"' `
+            -ExistingRecord $incompleteRecord
+    } 'An incomplete recorded repair identity was accepted.'
+
     $installer = Get-Content -Raw -LiteralPath $installerPath
     Assert-True ($installer -match '#Requires\s+-RunAsAdministrator') 'Installer does not require elevation.'
     Assert-True ($installer -match 'Wait-TailDnsBackendReady') 'Installer does not wait for authenticated backend readiness.'
     Assert-True ($installer -match 'Set-TailDnsResolverAndWait') 'Installer does not verify a saved resolver after transient backend state.'
     Assert-True ($installer -match 'Assert-TailDnsIdentityContinuity') 'Installer does not gate activation on identity continuity.'
+    Assert-True ($installer -match 'Get-TailDnsRepairBaseline') 'Installer cannot recover a trusted baseline from an existing broken TailDNS deployment.'
     Assert-True ($installer -match 'Restore-TailDnsOriginalService') 'Installer has no automatic rollback path.'
     Assert-True ($installer -notmatch 'Remove-Item[^\r\n]+ProgramData[^\r\n]+Tailscale') 'Installer may delete live Tailscale state.'
 

@@ -80,7 +80,15 @@ foreach ($requiredPath in $originalExe, $originalCli, $originalWintun, $statePat
     }
 }
 
-$baseline = Get-TailDnsIdentity -TailscaleCli $originalCli
+$baseline = try {
+    Get-TailDnsIdentity -TailscaleCli $originalCli
+} catch {
+    if ($null -eq $existingRecord) {
+        throw
+    }
+    Write-Warning 'The active TailDNS daemon is not running; using its recorded verified identity for this repair upgrade.'
+    Get-TailDnsRepairBaseline -CurrentServicePath ([string]$service.PathName) -ExistingRecord $existingRecord
+}
 $prefs = (& $originalCli debug prefs | Out-String) | ConvertFrom-Json
 $originalCheck = if ($null -ne $existingRecord) { [bool]$existingRecord.OriginalAutoUpdateCheck } else { [bool]$prefs.AutoUpdate.Check }
 $originalApply = if ($null -ne $existingRecord) { [bool]$existingRecord.OriginalAutoUpdateApply } else { [bool]$prefs.AutoUpdate.Apply }
