@@ -178,7 +178,7 @@ function Set-TailDnsResolverAndWait {
         throw 'The TailDNS daemon did not retain the requested resolver.'
     }
 
-    if (-not $status.Applied -and [string]$status.Reason -eq 'Tailscale is not running') {
+    while (-not $status.Applied -and [string]$status.Reason -eq 'Tailscale is not running') {
         Wait-TailDnsBackendReady -TailscaleCli $TailscaleCli
         $status = Get-TailDnsResolverStatus -ResolverCli $ResolverCli
     }

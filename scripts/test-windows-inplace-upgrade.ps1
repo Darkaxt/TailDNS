@@ -86,6 +86,7 @@ try {
     } 'A failed backend readiness wait was accepted.'
 
     $resolverState = Join-Path $tempRoot 'resolver-state.txt'
+    $waitCount = Join-Path $tempRoot 'wait-count.txt'
     $resolverCli = Join-Path $tempRoot 'resolver-cli.ps1'
     [System.IO.File]::WriteAllText(
         $resolverCli,
@@ -98,7 +99,8 @@ if (`$CliArguments[0] -eq 'set') {
     return
 }
 if (`$CliArguments[0] -eq '--json' -and `$CliArguments[1] -eq 'status') {
-    `$applied = (Test-Path -LiteralPath '$waitRecord') -and ((Get-Content -Raw -LiteralPath '$waitRecord').Trim() -eq 'wait --timeout=0s')
+    `$completedWaits = if (Test-Path -LiteralPath '$waitCount') { [int](Get-Content -Raw -LiteralPath '$waitCount') } else { 0 }
+    `$applied = `$completedWaits -ge 2
     [pscustomobject]@{
         ProfileID = 'profile-test'
         Configured = `$true
@@ -114,15 +116,17 @@ if (`$CliArguments[0] -eq '--json' -and `$CliArguments[1] -eq 'status') {
     )
     [System.IO.File]::WriteAllText(
         $waitCli,
-        "param([Parameter(ValueFromRemainingArguments=`$true)][string[]]`$CliArguments)`n[System.IO.File]::WriteAllText('$waitRecord', (`$CliArguments -join ' '))`n`$global:LASTEXITCODE = 0`n"
+        "param([Parameter(ValueFromRemainingArguments=`$true)][string[]]`$CliArguments)`n`$count = if (Test-Path -LiteralPath '$waitCount') { [int](Get-Content -Raw -LiteralPath '$waitCount') } else { 0 }`n[System.IO.File]::WriteAllText('$waitCount', [string](`$count + 1))`n[System.IO.File]::WriteAllText('$waitRecord', (`$CliArguments -join ' '))`n`$global:LASTEXITCODE = 0`n"
     )
     Remove-Item -LiteralPath $waitRecord -Force -ErrorAction SilentlyContinue
+    Remove-Item -LiteralPath $waitCount -Force -ErrorAction SilentlyContinue
     Set-TailDnsResolverAndWait `
         -ResolverCli $resolverCli `
         -TailscaleCli $waitCli `
         -Endpoint 'https://dns.example/query'
     Assert-True ((Get-Content -Raw -LiteralPath $resolverState).Trim() -eq 'saved') 'Resolver preference was not saved.'
     Assert-True ((Get-Content -Raw -LiteralPath $waitRecord).Trim() -eq 'wait --timeout=0s') 'Transient resolver state was not followed by a backend-ready wait.'
+    Assert-True ([int](Get-Content -Raw -LiteralPath $waitCount) -eq 2) 'Resolver verification did not survive repeated reconnect transitions.'
 
     $record = New-TailDnsDeploymentRecord `
         -OriginalServicePath 'C:\Program Files\Tailscale\tailscaled.exe' `
