@@ -1,6 +1,10 @@
 # Local DNS override — authoritative specification
 
-Version: 2.3. Date: 2026-09-21. Status: **Stage 11 BLOCKED** after the read-only-hosts repair deployed successfully but Beacon's rotated node key became locked out by Tailnet Lock. The existing local trusted signer is preserved, but self-signing is rejected before submission because the locked-out daemon has no server Noise key; the recorded rollback also requires an administrator UAC approval that was cancelled after the user left. Stage 9 remains BLOCKED only on the target Fold's current ADB disconnection. Stages 3–8 and 10 are complete; Stages 1 and 2 remain parked only on the explicitly disclosed validation gaps. Stage 11 must preserve the authenticated machine identity, addresses and trusted Tailnet Lock signer while restoring stable daemon/GUI availability, the supplied resolver, public DNS and MagicDNS without altering the user-managed hosts-file policy. An unavailable edge-case environment or prohibited automation action must be recorded honestly, but must not stop implementation, deployment or release when the implemented behavior and accessible primary workflows pass.
+Version: 2.6. Date: 2026-09-21. Status: **Stage 11 BLOCKED**. The exact-version Windows vertical slice is proven on Beacon: the official `1.102.4` GUI and driver remain installed, the existing service path and private state are unchanged, the matching `1.102.4-taildns.1` daemon and CLI plus TailDNS resolver companion are installed in place, the original machine identity and Tailnet Lock signer remain usable, the supplied Control D resolver is applied, public DNS and MagicDNS pass, and the user confirmed the official GUI works. The native transactional installer, signed manifest pipeline and independently verified public `windows-v1.102.4+3` release are complete. The remaining Stage 11 acceptance criterion is installer-based replay on Beacon; it is externally blocked because the required Windows UAC elevation was cancelled twice. Stage 12 owns fork-aware client auto-update and the GitHub/task promotion loop and remains NOT STARTED. Official automatic update application remains disabled until Stage 12 passes. Stage 9 remains BLOCKED only on the target Fold's current ADB disconnection. Stages 3–8 and 10 are complete; Stages 1 and 2 remain parked only on the explicitly disclosed validation gaps.
+
+Revision 2.6 records the Stage 11 native installer and Windows release evidence. Core commit `2f687b68643c1d96bfe1eb152d4b21beaf6c4490` produced public release `windows-v1.102.4+3` in GitHub run `35648271621`. The isolated signing job did not check out or execute repository code; it enforced the tag/schema/platform/source/file-set/size/hash contract, matched the protected Ed25519 private key to the configured public key, signed the manifest, verified the signature, and published. Independent public download reverified release checksums, signature, manifest payload hashes/sizes, exact source commit, `VERSION_SHORT=1.102.4`, `VERSION_LONG=1.102.4-taildns.3`, embedded public key and UAC resource. The executables are truthfully `NotSigned` by Authenticode. The first two immutable tags produced no release: `+1` exposed an incorrect daemon-output assertion and `+2` exposed ambient VCS dirtiness; both root causes were corrected before `+3`. The source and release workflow are integrated and pushed on core `main` through `0fb348a4c`. Real installer replay still requires one accepted UAC elevation and is not claimed complete.
+
+Revision 2.5 records the successful Windows compatibility proof and the user's requirement to retain automatic updates through the TailDNS project. The proprietary GUI `1.102.4` failed against a newer `1.103.312` daemon even when the CLI matched; an exact `v1.102.4` shared-core backport with TailDNS changes succeeded after replacing both daemon and matching CLI while preserving the official GUI, driver, service path and state. R21 is corrected to that proven boundary. R22 requires a TailDNS update provider rather than a URL-only redirect of Tailscale's built-in Windows updater, whose metadata, MSI layout, version grammar and Authenticode contract are Tailscale-specific. The TailDNS provider must consume a signed project manifest, preserve the exact upstream GUI/core compatibility line, perform transactional rollback, and integrate with the already-authorized GitHub promotion and task monitor.
 
 Revision 2.0 records the ObtainX/Obtainium update failure caused by the non-standard Android version name `VERSION_SHORT-taildns.N`. TailDNS releases now append the fork sequence as the standard numeric build component `VERSION_SHORT+N`; the corresponding GitHub tag is `vVERSION_SHORT+N`. Product identity remains TailDNS in the package, application, repository, release title and artifacts. Existing installations already classified as pseudo versions require one direct in-place installation of the corrected public APK; subsequent `+N` releases must compare automatically. This migration fact must be documented rather than hidden by increasing the upstream Tailscale version.
 
@@ -31,7 +35,7 @@ Let a user explicitly choose a device-local DNS-over-HTTPS default resolver whil
 
 On Android, an opt-in follow mode automatically propagates the saved system provider into Tailscale. Independently, fix native Android DNS/service lifecycle defects so the rooted Thor Guard is unnecessary for its demonstrated failure scenarios. The Guard is diagnostic history, not an implementation template or a component to improve.
 
-The feature covers Android and a Windows shared-core/companion path. Both implementations, their primary real-device/host workflows, final cross-platform reconciliation, signed public release and guarded post-release automation are complete.
+The feature covers Android and a Windows shared-core/companion path. Android delivery is established; the Windows manual vertical slice is proven and its installer, signed public release, fork-aware client updater and guarded upstream automation remain active specification work.
 
 This specification controls behavior and acceptance. A plan or implementation cannot weaken it. Changes require an explicit specification revision that identifies the changed requirements.
 
@@ -146,7 +150,7 @@ Acceptance: editor/screen tests cover all modes and error states; actual status 
 
 ### R10 — Windows implementation boundary
 
-Use the same shared-core preference and DNS composition contract in a forked Windows daemon/CLI. Provide a minimal independently branded frontend to view, set and clear the local custom resolver and inspect effective state through the authenticated local interface. The frontend must detect incompatible/unmodified daemons and never display a successful apply when unsupported.
+Use the same shared-core preference and DNS composition contract in a forked Windows daemon and matching CLI. Provide a minimal independently branded frontend to view, set and clear the local custom resolver and inspect effective state through the authenticated local interface. The frontend must detect incompatible/unmodified daemons and never display a successful apply when unsupported. Preserve the proprietary official GUI only as compatibility plumbing, and build the daemon/CLI from the exact upstream source version matching that GUI.
 
 Do not copy or claim to fork the proprietary official GUI. Do not silently replace an installed official service. Device testing requires an explicitly selected test installation and documented install/uninstall/restoration procedure; normal implementation authorization does not authorize user-host deployment.
 
@@ -194,7 +198,7 @@ Acceptance: R12–R13 defects are fixed, the recorded repeatability/observation 
 
 Establish an independent persistent Android signing identity and package/update identity before installing the fork for acceptance tests. Preserve the official app and its credentials; do not overwrite it or reuse unrelated application signing keys. Store private signing material only in protected local storage and GitHub encrypted secrets, never repository content, artifacts, logs or pull-request jobs. Record the public certificate fingerprint. Make artifact version codes deterministic and monotonically increasing for published updates.
 
-A tag-bound GitHub workflow must test the exact Android/core revisions, build the production APK, sign it with the pinned identity, verify package/version/certificate, generate checksums and publish a clearly branded release with source provenance and known limitations. Preserve the upstream-derived Tailscale `VERSION_SHORT` exactly; TailDNS releases must append only the monotonic fork subversion as the standard numeric build component `+N` to form the APK version name and release tag. Never manufacture a higher Tailscale version for a fork release. Restrict signing/release permissions to trusted release execution; untrusted pull requests must never receive secrets. Preserve the identity for future updates and document recovery without disclosing secrets. Account for the Windows deliverable's packaging, license and integrity evidence; do not imply Authenticode signing if no certificate exists.
+A tag-bound GitHub workflow must test the exact Android/core revisions, build the production APK, sign it with the pinned identity, verify package/version/certificate, generate checksums and publish a clearly branded release with source provenance and known limitations. Preserve the upstream-derived Tailscale `VERSION_SHORT` exactly; TailDNS releases must append only the monotonic fork subversion as the standard numeric build component `+N` to form the APK version name and release tag. Never manufacture a higher Tailscale version for a fork release. Restrict signing/release permissions to trusted release execution; untrusted pull requests must never receive secrets. Preserve the identity for future updates and document recovery without disclosing secrets. Account for the Windows deliverable's packaging, license and integrity evidence. Publish a signed update manifest and verify its pinned public identity before trusting Windows payload hashes. Do not describe manifest signing as Authenticode and do not imply Authenticode signing if no certificate exists.
 
 Acceptance: after integrated validation, publish the completed release, independently download its artifacts and verify checksum, package/version and Android signer against the recorded expected values. Confirm the release corresponds to the tested commits and that update installation preserves fork preferences on an authorized test device. Do not publish intermediate incomplete feature releases. Signing configuration required for earlier live testing belongs to that test's stage; final public release belongs to Stage 6.
 
@@ -251,17 +255,20 @@ log or recreate private state. The official GUI and required driver may remain
 as compatibility plumbing; do not uninstall the official MSI before TailDNS is
 running and verified.
 
-Install TailDNS binaries in their own versioned directory and repoint only the
-existing service executable after verifying the release checksums, service
-identity, state presence and administrator context. Copy the installed Wintun
-runtime into that versioned directory rather than downloading an unverified
-driver. Record the original service executable path and official auto-update
-preference in a non-secret deployment manifest. Disable official automatic
-application of updates before activation so it cannot silently replace the
-fork. A failed activation or verification must restore the exact original
-service path and start the original daemon. A deliberate rollback must restore
-the recorded service path and prior auto-update preference without deleting
-the machine state.
+Keep the existing service image path byte-for-byte unchanged. After verifying
+release checksums, service identity, state presence and administrator context,
+stop the service and atomically replace its installed `tailscaled.exe` and
+`tailscale.exe` with the mutually matching verified TailDNS build. Keep the
+official GUI, Wintun runtime and `%ProgramData%\Tailscale` state untouched.
+Install the independently branded resolver companion beside them. Before
+activation, retain exact hash-verified copies of both original binaries in a
+narrowly owned recovery directory and record all original/replacement hashes,
+the unchanged service path and prior auto-update preferences in a non-secret
+deployment manifest. Disable official automatic application of updates until
+R22 is verified so it cannot silently replace only part of the compatible set.
+A failed activation or verification must restore both exact original binaries
+and updater preferences while leaving the service path unchanged. Deliberate
+rollback has the same contract and must not delete machine state.
 
 After activation, verify the same node ID, tailnet addresses, running backend,
 Tailnet Lock enabled state and local trusted signing key. Apply the explicitly
@@ -292,8 +299,63 @@ configured and applied, public plus MagicDNS lookups pass, and the documented
 rollback remains available. On Beacon's read-only hosts file, repeated daemon
 and GUI reconnect verification must keep the backend `Running`, preserve the
 file's hash and read-only attribute, and pass public plus fully qualified
-MagicDNS lookups. Publish the next `v1.103.312+N` release without increasing
-the official Tailscale version component.
+MagicDNS lookups. Publish a Windows release identified as
+`windows-v<official-version>+<sequence>` without increasing the official
+Tailscale version component. The daemon and matching CLI keep
+`VERSION_SHORT=<official-version>`; TailDNS sequence metadata is recorded
+separately and in the release manifest rather than presented as a newer
+official Tailscale version.
+
+### R22 — Fork-aware Windows auto-update and upstream promotion
+
+The official GUI's **Automatically install updates** preference remains the
+single user control, but a TailDNS daemon must never use it to install an
+official-only MSI over a fork deployment. When the TailDNS update provider is
+present and verified, the existing `AutoUpdate.Apply` preference controls that
+provider. Until then it remains false. Do not implement this as a blind base-URL
+substitution: the upstream Windows updater expects Tailscale-specific latest
+metadata, official MSI filenames/version grammar and Tailscale Authenticode.
+
+Publish a small signed update manifest from the public TailDNS project. It must
+identify the exact upstream version, positive TailDNS sequence, Windows
+architecture, source revisions, installer asset URL, payload size and SHA-256,
+minimum supported installed state, and signing-key identity. The client embeds
+only the verification public key and project endpoint. The private manifest key
+exists only in protected GitHub release secrets. Reject unsigned, malformed,
+replayed, lower-sequence, wrong-architecture, wrong-upstream-base or
+hash-mismatched updates without changing the installation. Logs and diagnostics
+must not expose private state or resolver identifiers.
+
+For another TailDNS sequence on the same upstream base, invoke the verified
+transactional installer directly. For a newer upstream base, update only when a
+matching TailDNS release is available. The update transaction must first obtain
+the corresponding official Tailscale MSI from the official package service,
+verify its expected version and Tailscale Authenticode, use it to update the
+proprietary GUI/driver, and then apply the exact matching TailDNS overlay before
+declaring success. The bootstrapper must remain outside binaries being replaced,
+preserve `%ProgramData%\Tailscale`, node identity, addresses and Tailnet Lock
+material, and restore the last verified complete set if overlay activation fails.
+Never leave a mixed GUI/daemon/CLI version set classified as successful.
+
+GitHub remains responsible for upstream discovery and trusted candidate checks.
+The existing task-attached monitor must consume those results, promote core
+first, refresh and promote Android/Windows candidates, create the next signed
+platform releases, independently verify public artifacts and repair bounded
+failures. A passing candidate is merged and released rather than merely
+reported. The monitor stays quiet when current and healthy, and notifies only
+on a completed release, genuine blocker or required user action. Device changes
+are never automatic.
+
+Acceptance: test-first contracts cover manifest signature and schema validation,
+version/sequence ordering, same-base update, official-base transition, mixed-set
+rejection, interrupted activation rollback and updater-preference mapping. A
+GitHub rehearsal publishes a signed candidate manifest and independently verifies
+it. Beacon then updates between two TailDNS Windows sequences with automatic
+updates enabled while retaining the official GUI connection, service path,
+machine identity, Tailnet Lock signer, resolver configuration, public DNS and
+MagicDNS. A rehearsed upstream-base transition verifies the official MSI before
+overlay and proves failure containment. The task-attached monitor performs the
+dependency-ordered promotion/release path and records its automation identity.
 
 ## 4. Evidence record and completion rule
 
