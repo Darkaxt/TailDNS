@@ -3,7 +3,7 @@
 Authority: [SPECIFICATION.md](SPECIFICATION.md), version 2.1.
 Assessment: [EVALUATION.md](EVALUATION.md).
 
-Authorization: implementation, GitHub signing, release, upstream auto-update and current-task monitoring are already authorized. The user explicitly authorized the Stage 9 APK update after live Fold validation, the Stage 10 corrective release plus Thor deployment, and Stage 11's Windows in-place upgrade and deployment on Beacon. Stage 1 is BLOCKED on B3's unavailable controlled-network variants; Stage 2 is BLOCKED on B4's prohibited device-input action; Stages 3–8 and 10–11 are COMPLETE; and Stage 9 is BLOCKED only on the target Fold's current ADB disconnection. Under specification 2.1, B3 and B4 remain honest validation gaps but do not block completion of the accessible workflow.
+Authorization: implementation, GitHub signing, release, upstream auto-update and current-task monitoring are already authorized. The user explicitly authorized the Stage 9 APK update after live Fold validation, the Stage 10 corrective release plus Thor deployment, and Stage 11's Windows in-place upgrade and deployment on Beacon. Stage 1 is BLOCKED on B3's unavailable controlled-network variants; Stage 2 is BLOCKED on B4's prohibited device-input action; Stages 3–8 and 10 are COMPLETE; Stage 11 is ACTIVE after the official GUI exposed a reproducible read-only-hosts startup failure; and Stage 9 is BLOCKED only on the target Fold's current ADB disconnection. Under specification 2.2, B3 and B4 remain honest validation gaps but do not block completion of the accessible workflow.
 
 There may be only one **ACTIVE** stage. Other allowed statuses are **NOT STARTED**, **BLOCKED**, and **COMPLETE**. Park an actual blocked stage with the exact requirement, cause, ownership, resolving condition and dependent work before activating another. Close a stage only with fresh evidence for every assigned criterion.
 
@@ -106,7 +106,7 @@ Satisfied: validation run [35395256020](https://github.com/Darkaxt/TailDNS/actio
 
 ## Stage 6 — GitHub signing and public release
 
-Status: **COMPLETE**.
+Status: **ACTIVE**.
 
 Acceptance: complete R15's trusted GitHub signing/release workflow, publish the tested version, independently verify downloaded artifacts and signer/package/version/provenance, and verify update compatibility on an authorized test device. No incomplete stage can be concealed by a release.
 
@@ -217,6 +217,12 @@ Acceptance criteria:
   trusted Tailnet Lock signing key match; no authentication URL or new machine
   appears. The supplied Control D endpoint is configured/applied through
   `taildns`, and public plus MagicDNS queries pass.
+- Beacon's pre-existing read-only hosts file remains byte-for-byte and
+  attribute-for-attribute unchanged. A focused regression fails before and
+  passes after the daemon skips only this optional projection; writable-hosts
+  behavior and other write failures remain unchanged. Repeated daemon and
+  official-GUI reconnect checks keep the backend `Running`, with public and
+  fully qualified MagicDNS queries passing.
 - The deployment and rollback evidence is documented, committed and pushed.
 
 Satisfied: focused deployment regressions cover the administrator/service/state
@@ -238,15 +244,17 @@ record's exact baseline and post-activation checks matched the node ID,
 Tailnet addresses and full trusted Tailnet Lock public key; the backend returned
 to `Running` with its node key and no authentication URL. Official update checks
 remain enabled while automatic update application is disabled. The supplied
-Control D HTTPS endpoint is retained and reports configured/applied. Windows
-resolved Control D's documented verification name to `147.185.34.1`, an
-ordinary public name resolved, and the recorded MagicDNS peer resolved to its
-expected tailnet address. The release installer completed successfully and its
-deployment record retains the original service path and update preferences for
-explicit rollback. Windows also reports host-local DNS file-sharing and network
-category warnings; they are recorded without claiming a cause, and neither the
-Control D verification query nor MagicDNS failed. Remaining: none. Blockers:
-none. Tracked deferrals: none.
+Control D HTTPS endpoint is retained and can report configured/applied, but the
+official GUI subsequently reproduced a daemon connection failure. Root-cause
+evidence shows Beacon's hosts file is explicitly read-only and contains a stale
+Tailscale section; the current peer map causes the Windows DNS manager to try an
+atomic replacement, which returns sharing/access errors and forces the backend
+to `NoState`. Blocker: R21's stable running-backend and GUI acceptance criterion
+cannot pass until the optional hosts projection respects that file policy. The
+ACTIVE-stage fix is test-first read-only coexistence in the shared core,
+followed by a new upstream-version-preserving release, in-place deployment and
+fresh repeated host verification. Remaining: regression, implementation,
+release, deployment, verification and evidence update. Tracked deferrals: none.
 
 ## Requirement ownership
 

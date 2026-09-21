@@ -1,6 +1,6 @@
 # Local DNS override — authoritative specification
 
-Version: 2.1. Date: 2026-09-21. Status: **Stage 11 COMPLETE** while Stage 9 remains BLOCKED only on the target Fold's current ADB disconnection. Stages 3–8 and 10–11 are complete; Stages 1 and 2 remain parked only on the explicitly disclosed validation gaps. Beacon now uses the transactional in-place Windows upgrade with its authenticated machine identity, addresses and trusted Tailnet Lock signer preserved, the supplied resolver applied, public DNS and MagicDNS verified, and rollback metadata retained. An unavailable edge-case environment or prohibited automation action must be recorded honestly, but must not stop implementation, deployment or release when the implemented behavior and accessible primary workflows pass.
+Version: 2.2. Date: 2026-09-21. Status: **Stage 11 ACTIVE** after the post-deployment Windows GUI exposed a reproducible startup failure against Beacon's user-managed read-only hosts file. Stage 9 remains BLOCKED only on the target Fold's current ADB disconnection. Stages 3–8 and 10 are complete; Stages 1 and 2 remain parked only on the explicitly disclosed validation gaps. Stage 11 must preserve the authenticated machine identity, addresses and trusted Tailnet Lock signer while restoring stable daemon/GUI availability, the supplied resolver, public DNS and MagicDNS without altering the user-managed hosts-file policy. An unavailable edge-case environment or prohibited automation action must be recorded honestly, but must not stop implementation, deployment or release when the implemented behavior and accessible primary workflows pass.
 
 Revision 2.0 records the ObtainX/Obtainium update failure caused by the non-standard Android version name `VERSION_SHORT-taildns.N`. TailDNS releases now append the fork sequence as the standard numeric build component `VERSION_SHORT+N`; the corresponding GitHub tag is `vVERSION_SHORT+N`. Product identity remains TailDNS in the package, application, repository, release title and artifacts. Existing installations already classified as pseudo versions require one direct in-place installation of the corrected public APK; subsequent `+N` releases must compare automatically. This migration fact must be documented rather than hidden by increasing the upstream Tailscale version.
 
@@ -267,6 +267,14 @@ After activation, verify the same node ID, tailnet addresses, running backend,
 Tailnet Lock enabled state and local trusted signing key. Apply the explicitly
 supplied Windows Control D HTTPS endpoint through the authenticated TailDNS
 LocalAPI, then verify configured/applied status, a public lookup and MagicDNS.
+Treat the Windows hosts-file projection as an optional single-label lookup
+optimization, not a prerequisite for the VPN or DNS engine. If the existing
+hosts file is explicitly read-only, preserve its contents and attributes,
+skip that optional projection with a diagnostic log, and continue applying the
+NRPT/interface DNS configuration. Do not clear the attribute, replace the file
+or let the optional write force the backend to `NoState`. A writable hosts file
+must retain the upstream update behavior, and non-read-only write failures must
+remain visible failures rather than being silently ignored.
 The release archive must include the installer, rollback/status path and an
 automated contract covering fail-closed preconditions, state preservation,
 rollback metadata, checksum enforcement and release packaging. Windows
@@ -281,8 +289,11 @@ upgrade from the existing official service with no login or new machine entry.
 The pre/post node ID, addresses and trusted Tailnet Lock signing key match,
 official auto-update no longer applies updates, the supplied resolver is
 configured and applied, public plus MagicDNS lookups pass, and the documented
-rollback remains available. Publish the next `v1.103.312+N` release without
-increasing the official Tailscale version component.
+rollback remains available. On Beacon's read-only hosts file, repeated daemon
+and GUI reconnect verification must keep the backend `Running`, preserve the
+file's hash and read-only attribute, and pass public plus fully qualified
+MagicDNS lookups. Publish the next `v1.103.312+N` release without increasing
+the official Tailscale version component.
 
 ## 4. Evidence record and completion rule
 

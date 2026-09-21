@@ -1,6 +1,14 @@
-# TailDNS 1.103.312+11
+# TailDNS 1.103.312+12
 
-This release adds a transactional Windows AMD64 in-place upgrade. It reuses the
+This release fixes a Windows startup failure when the existing hosts file is
+explicitly read-only. TailDNS now treats that hosts projection as the optional
+single-label lookup optimization it is: it preserves the file byte-for-byte,
+leaves the read-only attribute intact, logs why the projection was skipped and
+continues applying the NRPT/interface DNS configuration. Writable hosts files
+retain the upstream update behavior, and unrelated read/write failures remain
+fatal instead of being hidden.
+
+The transactional Windows AMD64 in-place upgrade reuses the
 existing Windows service pipe and state, preserving the authenticated machine,
 tailnet addresses and Tailnet Lock signing key instead of registering a second
 node. The official GUI and installed Wintun driver remain compatibility
@@ -22,7 +30,7 @@ resolver that reaches any non-transient unapplied state still causes automatic
 rollback.
 
 The official upstream Tailscale version remains exactly `1.103.312`; TailDNS
-appends only its numeric fork build as `+11`.
+appends only its numeric fork build as `+12`.
 
 The preceding release corrected TailDNS versioning for ObtainX, Obtainium and other
 updaters. The official upstream Tailscale version remains exactly
