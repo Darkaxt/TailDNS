@@ -292,3 +292,20 @@ D endpoint reported configured/applied; Control D's verification record, an
 ordinary public lookup and MagicDNS all passed. Resolver identifiers, tailnet
 names, account data and key material are intentionally omitted from this public
 record.
+
+## Windows read-only-hosts repair release
+
+Exact-source validation run
+[35587670733](https://github.com/Darkaxt/TailDNS/actions/runs/35587670733)
+and tag-bound run
+[35588941987](https://github.com/Darkaxt/TailDNS/actions/runs/35588941987)
+passed for Android `9f4ca0da7ef4332b4a0a8ae02b71f863625bdb74` with core
+`bfc88fd8689548a7e0287178584a94c8307d6fe3`, publishing the non-draft,
+non-prerelease
+[v1.103.312+13 release](https://github.com/Darkaxt/TailDNS/releases/tag/v1.103.312%2B13).
+The public Windows archive SHA-256 is
+`d0c5baf878a8cc27b81e57cd7805cc86dc96bcf4a87b3617a62071af6775b2ab`;
+its outer release checksum, internal executable checksums, exact provenance and
+`1.103.312+13` version marker independently matched. Host deployment evidence
+and its unresolved Tailnet Lock blocker are recorded in `WINDOWS-VALIDATION.md`;
+release publication is verified, but stable Windows deployment is not claimed.

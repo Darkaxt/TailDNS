@@ -3,7 +3,7 @@
 Authority: [SPECIFICATION.md](SPECIFICATION.md), version 2.1.
 Assessment: [EVALUATION.md](EVALUATION.md).
 
-Authorization: implementation, GitHub signing, release, upstream auto-update and current-task monitoring are already authorized. The user explicitly authorized the Stage 9 APK update after live Fold validation, the Stage 10 corrective release plus Thor deployment, and Stage 11's Windows in-place upgrade and deployment on Beacon. Stage 1 is BLOCKED on B3's unavailable controlled-network variants; Stage 2 is BLOCKED on B4's prohibited device-input action; Stages 3–8 and 10 are COMPLETE; Stage 11 is ACTIVE after the official GUI exposed a reproducible read-only-hosts startup failure; and Stage 9 is BLOCKED only on the target Fold's current ADB disconnection. Under specification 2.2, B3 and B4 remain honest validation gaps but do not block completion of the accessible workflow.
+Authorization: implementation, GitHub signing, release, upstream auto-update and current-task monitoring are already authorized. The user explicitly authorized the Stage 9 APK update after live Fold validation, the Stage 10 corrective release plus Thor deployment, and Stage 11's Windows in-place upgrade and deployment on Beacon. Stage 1 is BLOCKED on B3's unavailable controlled-network variants; Stage 2 is BLOCKED on B4's prohibited device-input action; Stages 3–8 and 10 are COMPLETE; Stage 11 is BLOCKED on Beacon's Tailnet Lock signature or administrator-approved rollback; and Stage 9 is BLOCKED only on the target Fold's current ADB disconnection. Under specification 2.3, B3 and B4 remain honest validation gaps but do not block completion of the accessible workflow.
 
 There may be only one **ACTIVE** stage. Other allowed statuses are **NOT STARTED**, **BLOCKED**, and **COMPLETE**. Park an actual blocked stage with the exact requirement, cause, ownership, resolving condition and dependent work before activating another. Close a stage only with fresh evidence for every assigned criterion.
 
@@ -191,7 +191,7 @@ Satisfied: root-cause inspection of ObtainX 2.10.00 and current Obtainium shows 
 
 ## Stage 11 — Windows in-place TailDNS upgrade and Beacon deployment
 
-Status: **COMPLETE**.
+Status: **BLOCKED**.
 
 Objective: close R21 by turning the Windows companion ZIP into a transactional
 upgrade for the existing `Tailscale` Windows service, publishing the next
@@ -258,12 +258,28 @@ and broader shared-core tests pass, and exact-source validation run
 passed for Android `d7cddc428d35d2829054bee7d2077f722fef3f60`. The
 immutable `v1.103.312+12` tag correctly produced no release because the updated
 core's natural development patch had advanced to `1.103.318`, violating the
-frozen official-version contract. The ACTIVE-stage release repair makes
-`1.103.312` an explicit tested source of truth and will publish `+13` from a new
-commit rather than moving or deleting the failed tag. Remaining: trusted
-validation, `+13` release, independent public-artifact verification, in-place
-deployment, repeated Beacon verification and evidence update. Blockers: none.
-Tracked deferrals: none.
+frozen official-version contract. The release repair made `1.103.312` an
+explicit tested source of truth. Validation run
+[35587670733](https://github.com/Darkaxt/TailDNS/actions/runs/35587670733)
+passed for Android `9f4ca0da7ef4332b4a0a8ae02b71f863625bdb74`; tag-bound
+run [35588941987](https://github.com/Darkaxt/TailDNS/actions/runs/35588941987)
+published `v1.103.312+13`, and independent public download verified the Windows
+archive and its internal executable manifest. Beacon upgraded in place and the
+read-only hosts file remained byte-for-byte and attribute-for-attribute
+unchanged, eliminating the original access-denied DNS failure. The daemon then
+rotated its node key and became Tailnet-Lock locked out. Its recorded trusted
+signer is unchanged, but local signing fails with control error `500 ... zero
+serverNoiseKey` because a locked-out node cannot submit its own signature.
+Rollback remains exactly recorded to the official service path, but two
+administrator elevation attempts were cancelled after the user left.
+
+Status: **BLOCKED**. Blocked criterion: R21 stable authenticated backend, GUI,
+resolver and MagicDNS verification. External blocker: either a different
+trusted Tailnet Lock signer must sign Beacon's displayed node key, or an
+administrator must approve the prepared rollback UAC prompt. Dependent final
+Windows verification and Stage 11 closure cannot pass before one of those
+conditions occurs. Remaining after resolution: repeated backend/GUI/DNS checks,
+evidence reconciliation and cleanup. Tracked deferrals: none.
 
 ## Requirement ownership
 

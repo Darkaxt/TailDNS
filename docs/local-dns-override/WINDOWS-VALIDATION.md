@@ -109,3 +109,28 @@ silently changed through unrelated Windows configuration.
 Stage 11 is complete: the public release, in-place transaction, state and
 Tailnet Lock continuity, resolver application, real DNS paths, disabled
 official update application and rollback record are all verified.
+
+### Read-only-hosts repair attempt
+
+The later public `v1.103.312+13` repair replaced the service in place from the
+verified release archive. Its Windows ZIP SHA-256 is
+`d0c5baf878a8cc27b81e57cd7805cc86dc96bcf4a87b3617a62071af6775b2ab`;
+the internal manifest and `VERSION_SHORT=1.103.312`,
+`TAILDNS_VERSION=1.103.312+13` marker verified before elevation. The hosts file
+retained SHA-256
+`0F3B44BB6C1E5AA31E526959C4C98A57DE8A9CDB7FF72F9FE6A5008D900C50F3`,
+length `127816` and attributes `ReadOnly, Archive`. The former access-denied DNS
+health failure disappeared, proving the bounded hosts-file repair reached the
+real host.
+
+The upgrade cannot yet be accepted as stable. After activation, Beacon's node
+key rotated and Tailnet Lock marked the existing machine locked out. The local
+trusted signing key and recorded machine identity are preserved, but the local
+signature submission fails with `500 Internal Server Error ... zero
+serverNoiseKey`; the backend alternates through `NoState`, so resolver and
+MagicDNS acceptance cannot pass. The deployment record still contains the
+exact official rollback path and prior updater settings. Two authorized
+rollback elevations were cancelled at UAC after the user left, so Stage 11 is
+BLOCKED rather than complete. Resolution requires another trusted signer to
+sign the displayed Beacon node key or administrator approval of the prepared
+rollback, followed by fresh repeated verification.
