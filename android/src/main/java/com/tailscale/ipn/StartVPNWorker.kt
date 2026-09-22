@@ -10,6 +10,7 @@ import android.content.Intent
 import android.net.VpnService
 import android.os.Build
 import androidx.work.CoroutineWorker
+import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import com.tailscale.ipn.ui.model.Ipn
 import com.tailscale.ipn.ui.notifier.Notifier
@@ -25,6 +26,8 @@ internal suspend fun awaitVPNStartReadiness(states: StateFlow<Ipn.State>): Boole
 /** A worker that exists to support [IPNReceiver]. */
 class StartVPNWorker(appContext: Context, workerParams: WorkerParameters) :
     CoroutineWorker(appContext, workerParams) {
+  override suspend fun getForegroundInfo(): ForegroundInfo = workerForegroundInfo()
+
   override suspend fun doWork(): Result {
     // A receiver can recreate a cold process before the cached readiness preference has ever been
     // populated. Initialize the backend and wait for its initial state instead of rejecting the
