@@ -75,15 +75,15 @@ jobs:
         run: |
           set -euo pipefail
           core_dir="$(./tool/go list -m -f '{{.Dir}}' tailscale.com)"
-          go_bin="$(./tool/go env GOROOT)/bin/go"
+          go_cmd="$GITHUB_WORKSPACE/tool/go"
           source tailscale.version
           windows_ldflags="$(bash version-ldflags.sh)"
           mkdir -p release-input/windows
-          (cd "$core_dir" && env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 "$go_bin" build -trimpath -ldflags "$windows_ldflags" -o "$GITHUB_WORKSPACE/release-input/windows/taildns.exe" ./cmd/taildns)
-          (cd "$core_dir" && env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 "$go_bin" build -trimpath -ldflags "$windows_ldflags" -o "$GITHUB_WORKSPACE/release-input/windows/taildnsd.exe" ./cmd/tailscaled)
-          (cd "$core_dir" && env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 "$go_bin" build -trimpath -ldflags "$windows_ldflags" -o "$GITHUB_WORKSPACE/release-input/windows/tailscale.exe" ./cmd/tailscale)
+          (cd "$core_dir" && env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 "$go_cmd" build -trimpath -ldflags "$windows_ldflags" -o "$GITHUB_WORKSPACE/release-input/windows/taildns.exe" ./cmd/taildns)
+          (cd "$core_dir" && env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 "$go_cmd" build -trimpath -ldflags "$windows_ldflags" -o "$GITHUB_WORKSPACE/release-input/windows/taildnsd.exe" ./cmd/tailscaled)
+          (cd "$core_dir" && env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 "$go_cmd" build -trimpath -ldflags "$windows_ldflags" -o "$GITHUB_WORKSPACE/release-input/windows/tailscale.exe" ./cmd/tailscale)
           for binary in taildns.exe taildnsd.exe tailscale.exe; do
-            build_info="$("$go_bin" version -m "$GITHUB_WORKSPACE/release-input/windows/$binary")"
+            build_info="$("$go_cmd" version -m "$GITHUB_WORKSPACE/release-input/windows/$binary")"
             grep -F "tailscale.com/version.longStamp=$VERSION_LONG" <<< "$build_info"
             grep -F "tailscale.com/version.shortStamp=$VERSION_SHORT" <<< "$build_info"
           done
@@ -109,7 +109,7 @@ jobs:
           Android signer: verified after isolated signing
           Windows target: windows/amd64
           Windows Authenticode: not signed
-          Go: $($go_bin version)
+          Go: $($go_cmd version)
           EOF
           (cd release-input/windows && sha256sum taildns.exe taildnsd.exe tailscale.exe > SHA256SUMS)
           (cd release-input && zip -9 -r taildns-windows-amd64.zip windows)
