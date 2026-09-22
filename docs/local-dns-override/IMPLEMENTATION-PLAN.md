@@ -1,9 +1,9 @@
 # Staged implementation plan
 
-Authority: [SPECIFICATION.md](SPECIFICATION.md), version 2.6.
+Authority: [SPECIFICATION.md](SPECIFICATION.md), version 2.8.
 Assessment: [EVALUATION.md](EVALUATION.md).
 
-Authorization: `already_authorized`. Implementation, GitHub signing, release, fork-aware auto-update and current-task monitoring are explicitly authorized. Stage 1 is BLOCKED on B3's unavailable controlled-network variants; Stage 2 is BLOCKED on B4's prohibited device-input action; Stages 3–8 and 10 are COMPLETE; Stage 9 is BLOCKED only on the target Fold's current ADB disconnection; Stage 11 is BLOCKED only on Beacon's cancelled Windows UAC elevation; Stage 12 is NOT STARTED and cannot activate before Stage 11 completes. Under specification 2.6, B3 and B4 remain honest validation gaps but do not block completion of the accessible workflow.
+Authorization: `already_authorized`. Implementation, GitHub signing, release, fork-aware auto-update and current-task monitoring are explicitly authorized. Stage 1 is BLOCKED on B3's unavailable controlled-network variants; Stage 2 is BLOCKED on B4's prohibited device-input action; Stages 3–8, 10 and 11 are COMPLETE; Stage 9 is BLOCKED only on the target Fold's current ADB disconnection; Stage 12 is ACTIVE. Under specification 2.8, B3 and B4 remain honest validation gaps but do not block completion of the accessible workflow.
 
 There may be only one **ACTIVE** stage. Other allowed statuses are **NOT STARTED**, **BLOCKED**, and **COMPLETE**. Park an actual blocked stage with the exact requirement, cause, ownership, resolving condition and dependent work before activating another. Close a stage only with fresh evidence for every assigned criterion.
 
@@ -191,29 +191,36 @@ Satisfied: root-cause inspection of ObtainX 2.10.00 and current Obtainium shows 
 
 ## Stage 11 — Windows in-place TailDNS upgrade and Beacon deployment
 
-Status: **BLOCKED**.
+Status: **COMPLETE**.
 
-Objective: close R21 by converting the exact-version manual Windows overlay
-already proven on Beacon into a reproducible transactional installer, signed
-Windows release manifest and public release, then replaying that installer on
-Beacon without a new login or machine entry.
+Objective: close revised R21 by replacing the proprietary-GUI compatibility pin
+with a feature-complete TailDNS tray client, packaging it with a current matching
+daemon/CLI, and deploying that integrated set on Beacon without a new login or
+machine entry.
 
 Acceptance criteria:
 
 - A test-first deployment contract covers administrator and service/state
   preconditions, release checksum enforcement, exact original-daemon backup,
   binary-in-place replacement with an unchanged service path, preservation of
-  the official GUI/Wintun and matching replacement of daemon plus CLI,
+  Wintun and matching replacement of daemon plus CLI plus TailDNS tray client,
   auto-update rollback metadata, automatic
   rollback on activation failure, explicit restoration, and release contents.
 - The installer reuses the default service pipe and existing
   `%ProgramData%\Tailscale` state; it never reads, copies or logs private state.
-  The official GUI and driver remain unchanged, the existing service path never
-  changes, and the daemon plus matching CLI bytes match the verified exact-base
-  TailDNS payload. Official automatic update application remains disabled until
+  The driver remains unchanged, the existing service path never changes, and
+  daemon, CLI and tray client bytes match one verified current-core TailDNS
+  payload. The official GUI remains installed only as rollback plumbing until
+  parity passes. Official automatic update application remains disabled until
   Stage 12 owns it.
+- A test-first TailDNS tray contract covers one instance per interactive session,
+  persistent IPN-bus ownership, abnormal-child restart, explicit Exit, login and
+  profile switching, connect/disconnect, device address, exit-node/LAN controls,
+  DNS/routes/incoming/unattended/update preferences, TailDNS resolver state,
+  About/version, and admin/detailed-settings access without polling or arbitrary
+  synchronization sleeps.
 - Trusted validation and a tag-bound Windows release workflow pass and publish
-  `windows-v1.102.4+N` without claiming a newer official Tailscale version.
+  `windows-v<upstream-version>+N` without claiming a newer Tailscale version.
   Independent downloads verify the signed manifest, checksums, installer,
   Windows payload contents and exact source provenance.
 - Beacon upgrades in place. Pre/post node ID, addresses, running profile and
@@ -224,7 +231,7 @@ Acceptance criteria:
   attribute-for-attribute unchanged. A focused regression fails before and
   passes after the daemon skips only this optional projection; writable-hosts
   behavior and other write failures remain unchanged. Repeated daemon and
-  official-GUI reconnect checks keep the backend `Running`, with public and
+  TailDNS-tray reconnect checks keep the backend `Running`, with public and
   fully qualified MagicDNS queries passing.
 - The installer-based deployment and rollback evidence is documented, committed
   and pushed. The local compatibility branch is replaced by an immutable release
@@ -324,19 +331,42 @@ ambient-VCS-dirty validation defects were root-caused and fixed before `+3`.
 The installer/release commits were integrated into core `main`, documented and
 pushed through `0fb348a4c`.
 
-Remaining: restore Beacon's already-verified official `1.102.4` baseline, run
-the public `+3` installer with the supplied Control D endpoint, and record its
-pre/post, rollback/status, read-only-hosts, GUI reconnect and DNS evidence.
-Blocker: the Beacon replay acceptance criterion is externally blocked because
-the required Windows UAC prompt was cancelled on two consecutive attempts; the
-helper never started, and read-only checks confirm the healthy manual
-`1.102.4-taildns.1` deployment is unchanged. Resolution condition: accept the
-next explicitly launched elevation. Until then Stage 11 cannot be COMPLETE and
-Stage 12 cannot start. Tracked deferrals: none.
+Current-core tray and deployment reconciliation: core PR
+[10](https://github.com/Darkaxt/tailscale/pull/10) integrated the independent
+TailDNS tray, per-session supervisor, transactional four-binary installer and
+five-payload signed release workflow as core
+`c36f8860764ec2654bb854012dfe0041bfb9e725`. GitHub run
+[35742696688](https://github.com/Darkaxt/tailscale/actions/runs/35742696688)
+published
+[windows-v1.103.0+5](https://github.com/Darkaxt/tailscale/releases/tag/windows-v1.103.0%2B5).
+Independent public download verified outer checksums, the Ed25519 manifest
+signature, every payload size/hash, source provenance, embedded installer
+public key and `requireAdministrator` resource. The binaries truthfully remain
+`NotSigned` by Authenticode.
+
+Beacon installed that public payload over the existing service without a login
+or new machine. The service path remains
+`C:\Program Files\Tailscale\tailscaled.exe`; daemon, CLI, resolver and tray
+hashes match the signed deployment record and report `1.103.0-taildns.5` from
+the exact release commit. Node ID `nCPRwrVksn11CNTRL`, addresses
+`100.97.195.70`/`fd7a:115c:a1e0::ca01:c347`, DNS name and Tailnet Lock signer
+`tlpub:ff4a7450ab477743b42ebef7f9c84f706a4b7b76ac36714a176eae9a39f2f523`
+match the baseline. Wintun and the retained official GUI match their recorded
+hashes. The official startup link and running GUI were replaced by the TailDNS
+startup command and one supervisor/child pair. Killing child PID `38616`
+retained supervisor PID `13724`, which started replacement child PID `7768`
+with the exact installed executable and child flag.
+
+The supplied `https://dns.controld.com/1ck0taaf0tt` endpoint reports configured
+and applied. Public DNS, Beacon's FQDN, short-name `ayn-thor` and fully qualified
+`ayn-thor.tail94fa2c.ts.net` resolve correctly, and tailnet ping reached Thor.
+The hosts file retained its exact baseline SHA-256, attributes and length.
+Official automatic update application remains disabled for Stage 12. Remaining:
+none. Blockers: none. Tracked deferrals: none.
 
 ## Stage 12 — Fork-aware Windows updates and upstream promotion
 
-Status: **NOT STARTED**.
+Status: **ACTIVE**.
 
 Objective: close R22 by routing the existing auto-update preference to a
 TailDNS-signed GitHub update channel, supporting exact-base TailDNS updates and
@@ -348,12 +378,13 @@ Acceptance criteria:
 - A test-first signed-manifest contract rejects unsigned, malformed, replayed,
   lower-sequence, wrong-architecture/base and hash-mismatched updates without
   mutating the installation.
-- The official GUI auto-update preference controls the TailDNS provider. A
-  same-base update uses the Stage 11 transaction; a base transition verifies
-  and installs the corresponding official Authenticode MSI before applying the
-  exact matching TailDNS overlay. Mixed-version success is impossible.
+- The TailDNS tray update preference controls the TailDNS provider. A same-base
+  update uses the Stage 11 transaction; a base transition installs a verified
+  matching daemon/CLI/tray set and updates the Authenticode-verified official
+  driver package only when the new core explicitly requires it. Mixed-version
+  success is impossible.
 - Beacon automatically updates between two Windows TailDNS sequences while
-  preserving GUI connectivity, service path, node identity, Tailnet Lock signer,
+  preserving TailDNS tray connectivity, service path, node identity, Tailnet Lock signer,
   resolver state, public DNS and MagicDNS. Failure injection restores the last
   complete verified set.
 - GitHub detects a real or rehearsed upstream release, validates and promotes
