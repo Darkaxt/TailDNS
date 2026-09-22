@@ -76,10 +76,17 @@ jobs:
           set -euo pipefail
           core_dir="$(./tool/go list -m -f '{{.Dir}}' tailscale.com)"
           go_bin="$(./tool/go env GOROOT)/bin/go"
+          source tailscale.version
+          windows_ldflags="$(bash version-ldflags.sh)"
           mkdir -p release-input/windows
-          (cd "$core_dir" && env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 "$go_bin" build -trimpath -o "$GITHUB_WORKSPACE/release-input/windows/taildns.exe" ./cmd/taildns)
-          (cd "$core_dir" && env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 "$go_bin" build -trimpath -o "$GITHUB_WORKSPACE/release-input/windows/taildnsd.exe" ./cmd/tailscaled)
-          (cd "$core_dir" && env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 "$go_bin" build -trimpath -o "$GITHUB_WORKSPACE/release-input/windows/tailscale.exe" ./cmd/tailscale)
+          (cd "$core_dir" && env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 "$go_bin" build -trimpath -ldflags "$windows_ldflags" -o "$GITHUB_WORKSPACE/release-input/windows/taildns.exe" ./cmd/taildns)
+          (cd "$core_dir" && env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 "$go_bin" build -trimpath -ldflags "$windows_ldflags" -o "$GITHUB_WORKSPACE/release-input/windows/taildnsd.exe" ./cmd/tailscaled)
+          (cd "$core_dir" && env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 "$go_bin" build -trimpath -ldflags "$windows_ldflags" -o "$GITHUB_WORKSPACE/release-input/windows/tailscale.exe" ./cmd/tailscale)
+          for binary in taildns.exe taildnsd.exe tailscale.exe; do
+            build_info="$("$go_bin" version -m "$GITHUB_WORKSPACE/release-input/windows/$binary")"
+            grep -F "tailscale.com/version.longStamp=$VERSION_LONG" <<< "$build_info"
+            grep -F "tailscale.com/version.shortStamp=$VERSION_SHORT" <<< "$build_info"
+          done
           cp scripts/install-taildns-windows.ps1 release-input/windows/install-taildns-windows.ps1
           cp scripts/windows/TailDNS.WindowsDeployment.psm1 release-input/windows/TailDNS.WindowsDeployment.psm1
           cp docs/local-dns-override/WINDOWS-RELEASE.md release-input/windows/README.md
@@ -87,7 +94,6 @@ jobs:
           cp "$core_dir/LICENSE" release-input/windows/TAILSCALE-CORE-LICENSE.txt
           cp android/build/outputs/apk/release/android-release-unsigned.apk release-input/taildns-unsigned.apk
           cp docs/local-dns-override/RELEASE-NOTES.md release-input/release-notes.md
-          source tailscale.version
           printf 'VERSION_SHORT=%s\nTAILDNS_VERSION=%s\n' "$VERSION_SHORT" "$TAILDNS_VERSION_NAME" > release-input/windows/TAILDNS-VERSION.txt
           android_version="$(sed -n "s/.*versionName='\([^']*\)'.*/\1/p" < <("$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging release-input/taildns-unsigned.apk) | head -n 1)"
           android_code="$(sed -n "s/.*versionCode='\([^']*\)'.*/\1/p" < <("$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging release-input/taildns-unsigned.apk) | head -n 1)"

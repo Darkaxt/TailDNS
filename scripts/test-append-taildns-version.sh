@@ -88,6 +88,22 @@ if ! grep -Fq '[[ "$VERSION_LONG" =~ ^[0-9]+\.[0-9]+\.[0-9]+-t[0-9a-f]{6,}-g[0-9
   exit 1
 fi
 
+if ! grep -Fq 'windows_ldflags="$(bash version-ldflags.sh)"' .github/workflows/fork-release.yml; then
+  echo 'Release workflow does not derive Windows linker stamps from the validated release version.' >&2
+  exit 1
+fi
+
+if [[ "$(grep -Fc -- '-ldflags "$windows_ldflags"' .github/workflows/fork-release.yml)" -ne 3 ]]; then
+  echo 'Release workflow does not stamp every Windows executable.' >&2
+  exit 1
+fi
+
+if ! grep -Fq 'tailscale.com/version.longStamp=$VERSION_LONG' .github/workflows/fork-release.yml ||
+   ! grep -Fq 'tailscale.com/version.shortStamp=$VERSION_SHORT' .github/workflows/fork-release.yml; then
+  echo 'Release workflow does not verify the embedded Windows version stamps.' >&2
+  exit 1
+fi
+
 if ! grep -Fq 'release_sequence:' .github/workflows/fork-build.yml ||
    ! grep -Fq 'echo "TAILDNS_RELEASE_SEQUENCE=$RELEASE_SEQUENCE" >> "$GITHUB_ENV"' .github/workflows/fork-build.yml; then
   echo 'Validation workflow cannot exercise release-version stamping.' >&2
