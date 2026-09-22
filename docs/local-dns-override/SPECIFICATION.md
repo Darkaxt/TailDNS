@@ -1,6 +1,10 @@
 # Local DNS override — authoritative specification
 
-Version: 2.6. Date: 2026-09-21. Status: **Stage 11 BLOCKED**. The exact-version Windows vertical slice is proven on Beacon: the official `1.102.4` GUI and driver remain installed, the existing service path and private state are unchanged, the matching `1.102.4-taildns.1` daemon and CLI plus TailDNS resolver companion are installed in place, the original machine identity and Tailnet Lock signer remain usable, the supplied Control D resolver is applied, public DNS and MagicDNS pass, and the user confirmed the official GUI works. The native transactional installer, signed manifest pipeline and independently verified public `windows-v1.102.4+3` release are complete. The remaining Stage 11 acceptance criterion is installer-based replay on Beacon; it is externally blocked because the required Windows UAC elevation was cancelled twice. Stage 12 owns fork-aware client auto-update and the GitHub/task promotion loop and remains NOT STARTED. Official automatic update application remains disabled until Stage 12 passes. Stage 9 remains BLOCKED only on the target Fold's current ADB disconnection. Stages 3–8 and 10 are complete; Stages 1 and 2 remain parked only on the explicitly disclosed validation gaps.
+Version: 2.8. Date: 2026-09-22. Status: **Stage 12 ACTIVE**. Stage 11 is complete: Beacon now runs the independently implemented TailDNS Windows tray and a matching current-core daemon/CLI/resolver set from the verified public `windows-v1.103.0+5` release. The proprietary `tailscale-ipn.exe` remains only as hash-preserved rollback material and no longer constrains the active core version or lifecycle. The in-place deployment retained Beacon's node identity, addresses, Tailnet Lock signer, service path, Wintun and read-only hosts file; applied the supplied Control D resolver; passed public, short-name and fully qualified MagicDNS resolution; and proved abnormal tray-child recovery under the same supervisor. Stage 12 now owns fork-aware client auto-update and the GitHub/task promotion loop. Official automatic update application remains disabled until Stage 12 passes. Stage 9 remains BLOCKED only on the target Fold's current ADB disconnection. Stages 3–8, 10 and 11 are complete; Stages 1 and 2 remain parked only on the explicitly disclosed validation gaps.
+
+Revision 2.8 records the real Beacon deployment and removes the final proprietary-GUI compatibility assumption. Public Windows release `windows-v1.103.0+5`, produced from core `c36f8860764ec2654bb854012dfe0041bfb9e725` by GitHub run `35742696688`, was independently verified before installation. Beacon reports `VERSION_SHORT=1.103.0` and `VERSION_LONG=1.103.0-taildns.5`; its original node ID `nCPRwrVksn11CNTRL`, addresses, DNS name and Tailnet Lock signer remained unchanged. The default `Tailscale` service path stayed `C:\Program Files\Tailscale\tailscaled.exe`; all four installed payload hashes match the signed deployment record; Wintun and the retained official GUI match their original hashes; and the read-only hosts file retained SHA-256 `0F3B44BB6C1E5AA31E526959C4C98A57DE8A9CDB7FF72F9FE6A5008D900C50F3`, attributes `33` and length `127816`. The official startup link was removed, the TailDNS per-machine startup command was installed, the old GUI stopped, and supervisor PID `13724` replaced deliberately killed tray child PID `38616` with PID `7768`. The resolver reports the supplied Control D endpoint configured and applied; public DNS, self MagicDNS, `ayn-thor` and `ayn-thor.tail94fa2c.ts.net` resolved correctly, and a real tailnet ping reached Thor through DERP. Official automatic update checks and application remain disabled pending Stage 12.
+
+Revision 2.7 records the user's correction that the official Windows GUI is not mandatory and must not force TailDNS onto an older daemon solely for binary compatibility. The requirement is feature-complete Windows control and reliable per-user tray lifecycle, not preservation of a proprietary executable. TailDNS may retain the official GUI during migration, but final Windows activation uses an independently branded tray client and the current matching TailDNS daemon/CLI. Missing official-menu behavior is a blocker; a command-line-only replacement or a presentation-only icon is insufficient.
 
 Revision 2.6 records the Stage 11 native installer and Windows release evidence. Core commit `2f687b68643c1d96bfe1eb152d4b21beaf6c4490` produced public release `windows-v1.102.4+3` in GitHub run `35648271621`. The isolated signing job did not check out or execute repository code; it enforced the tag/schema/platform/source/file-set/size/hash contract, matched the protected Ed25519 private key to the configured public key, signed the manifest, verified the signature, and published. Independent public download reverified release checksums, signature, manifest payload hashes/sizes, exact source commit, `VERSION_SHORT=1.102.4`, `VERSION_LONG=1.102.4-taildns.3`, embedded public key and UAC resource. The executables are truthfully `NotSigned` by Authenticode. The first two immutable tags produced no release: `+1` exposed an incorrect daemon-output assertion and `+2` exposed ambient VCS dirtiness; both root causes were corrected before `+3`. The source and release workflow are integrated and pushed on core `main` through `0fb348a4c`. Real installer replay still requires one accepted UAC elevation and is not claimed complete.
 
@@ -42,7 +46,7 @@ This specification controls behavior and acceptance. A plan or implementation ca
 ## 2. Non-goals
 
 - Editing tailnet ACLs, grants, tags, node attributes, provider accounts, or Control D profiles.
-- Forking the proprietary Windows GUI, supporting other desktop platforms, or replacing the Tailscale control server.
+- Copying or forking proprietary Windows GUI code, supporting other desktop platforms, or replacing the Tailscale control server. An independently implemented Windows client using public LocalAPI/core contracts is in scope.
 - A second Android VPN, root helper, watchdog, system Private DNS writer, or permanent OS resolver modification.
 - Arbitrary DoT-to-DoH inference, plaintext custom resolvers, automatic provider failover, or a general DNS-provider framework.
 - Improving, embedding, or shipping the Thor Guard, duplicate-connect recovery sequences, or process-restart watchdog loops as the native solution.
@@ -150,7 +154,7 @@ Acceptance: editor/screen tests cover all modes and error states; actual status 
 
 ### R10 — Windows implementation boundary
 
-Use the same shared-core preference and DNS composition contract in a forked Windows daemon and matching CLI. Provide a minimal independently branded frontend to view, set and clear the local custom resolver and inspect effective state through the authenticated local interface. The frontend must detect incompatible/unmodified daemons and never display a successful apply when unsupported. Preserve the proprietary official GUI only as compatibility plumbing, and build the daemon/CLI from the exact upstream source version matching that GUI.
+Use the same shared-core preference and DNS composition contract in a forked Windows daemon, matching CLI and independently branded TailDNS tray client. The tray client must view, set and clear the local custom resolver, inspect effective state through the authenticated local interface, and preserve the complete user-visible control set of the installed Windows client. It must detect incompatible/unmodified daemons and never display a successful apply when unsupported. It must keep the backend's interactive client lifecycle alive, start once per interactive user session, reconnect on deterministic service state changes, and supervise its tray child so abnormal exits recover without converting an explicit user Exit into a restart loop.
 
 Do not copy or claim to fork the proprietary official GUI. Do not silently replace an installed official service. Device testing requires an explicitly selected test installation and documented install/uninstall/restoration procedure; normal implementation authorization does not authorize user-host deployment.
 
@@ -251,16 +255,16 @@ resolver CLI to the already-installed `Tailscale` Windows service rather than
 creating a second daemon, profile or machine. Reuse the existing default named
 pipe and `%ProgramData%\Tailscale` state so the machine login, node identity,
 tailnet IPs and Tailnet Lock signing key remain unchanged. Do not copy, export,
-log or recreate private state. The official GUI and required driver may remain
-as compatibility plumbing; do not uninstall the official MSI before TailDNS is
-running and verified.
+log or recreate private state. The required driver and official installation
+may remain as migration plumbing; do not remove the official MSI or GUI before
+the TailDNS tray client and current matching daemon/CLI are running and verified.
 
 Keep the existing service image path byte-for-byte unchanged. After verifying
 release checksums, service identity, state presence and administrator context,
 stop the service and atomically replace its installed `tailscaled.exe` and
-`tailscale.exe` with the mutually matching verified TailDNS build. Keep the
-official GUI, Wintun runtime and `%ProgramData%\Tailscale` state untouched.
-Install the independently branded resolver companion beside them. Before
+`tailscale.exe` with the mutually matching current TailDNS build. Keep the
+Wintun runtime and `%ProgramData%\Tailscale` state untouched. Install the
+independently branded tray client and resolver companion beside them. Before
 activation, retain exact hash-verified copies of both original binaries in a
 narrowly owned recovery directory and record all original/replacement hashes,
 the unchanged service path and prior auto-update preferences in a non-secret
@@ -282,7 +286,19 @@ NRPT/interface DNS configuration. Do not clear the attribute, replace the file
 or let the optional write force the backend to `NoState`. A writable hosts file
 must retain the upstream update behavior, and non-read-only write failures must
 remain visible failures rather than being silently ignored.
-The release archive must include the installer, rollback/status path and an
+
+The tray client must cover connect/disconnect, login and profile switching,
+current device/address access, exit-node selection and LAN access, route and DNS
+acceptance, incoming-connection shielding, unattended mode, TailDNS resolver
+configuration/status, update preference, version/about information, access to
+the admin and detailed settings surfaces, and explicit Exit. A persistent IPN
+bus watch owns the interactive backend connection. Startup is per interactive
+logon and single-instance per session. A small same-binary supervisor may
+restart an abnormally terminated tray child, but an explicit Exit must terminate
+both processes. Do not use periodic polling or arbitrary sleeps for lifecycle
+or service synchronization.
+
+The release archive must include the tray client, installer, rollback/status path and an
 automated contract covering fail-closed preconditions, state preservation,
 rollback metadata, checksum enforcement and release packaging. Windows
 executables remain truthfully documented as unsigned unless Authenticode
@@ -297,19 +313,19 @@ The pre/post node ID, addresses and trusted Tailnet Lock signing key match,
 official auto-update no longer applies updates, the supplied resolver is
 configured and applied, public plus MagicDNS lookups pass, and the documented
 rollback remains available. On Beacon's read-only hosts file, repeated daemon
-and GUI reconnect verification must keep the backend `Running`, preserve the
+and TailDNS tray reconnect verification must keep the backend `Running`, preserve the
 file's hash and read-only attribute, and pass public plus fully qualified
 MagicDNS lookups. Publish a Windows release identified as
-`windows-v<official-version>+<sequence>` without increasing the official
-Tailscale version component. The daemon and matching CLI keep
-`VERSION_SHORT=<official-version>`; TailDNS sequence metadata is recorded
+`windows-v<upstream-version>+<sequence>` without increasing the upstream
+Tailscale version component. The daemon, CLI and tray client keep
+`VERSION_SHORT=<upstream-version>`; TailDNS sequence metadata is recorded
 separately and in the release manifest rather than presented as a newer
 official Tailscale version.
 
 ### R22 — Fork-aware Windows auto-update and upstream promotion
 
-The official GUI's **Automatically install updates** preference remains the
-single user control, but a TailDNS daemon must never use it to install an
+The TailDNS tray client's **Automatically install updates** preference is the
+single user control. A TailDNS daemon must never use it to install an
 official-only MSI over a fork deployment. When the TailDNS update provider is
 present and verified, the existing `AutoUpdate.Apply` preference controls that
 provider. Until then it remains false. Do not implement this as a blind base-URL
@@ -328,14 +344,15 @@ must not expose private state or resolver identifiers.
 
 For another TailDNS sequence on the same upstream base, invoke the verified
 transactional installer directly. For a newer upstream base, update only when a
-matching TailDNS release is available. The update transaction must first obtain
-the corresponding official Tailscale MSI from the official package service,
-verify its expected version and Tailscale Authenticode, use it to update the
-proprietary GUI/driver, and then apply the exact matching TailDNS overlay before
-declaring success. The bootstrapper must remain outside binaries being replaced,
+matching TailDNS release is available. The update transaction replaces daemon,
+CLI and TailDNS tray client as one verified set. It preserves the installed
+driver when the new core declares it compatible; only an explicit driver
+requirement may stage the corresponding official package after verifying its
+version and Tailscale Authenticode. It must not reinstall the proprietary GUI as
+a version-lock dependency. The bootstrapper must remain outside binaries being replaced,
 preserve `%ProgramData%\Tailscale`, node identity, addresses and Tailnet Lock
 material, and restore the last verified complete set if overlay activation fails.
-Never leave a mixed GUI/daemon/CLI version set classified as successful.
+Never leave a mixed daemon/CLI/tray version set classified as successful.
 
 GitHub remains responsible for upstream discovery and trusted candidate checks.
 The existing task-attached monitor must consume those results, promote core
@@ -351,7 +368,7 @@ version/sequence ordering, same-base update, official-base transition, mixed-set
 rejection, interrupted activation rollback and updater-preference mapping. A
 GitHub rehearsal publishes a signed candidate manifest and independently verifies
 it. Beacon then updates between two TailDNS Windows sequences with automatic
-updates enabled while retaining the official GUI connection, service path,
+updates enabled while retaining the TailDNS tray connection, service path,
 machine identity, Tailnet Lock signer, resolver configuration, public DNS and
 MagicDNS. A rehearsed upstream-base transition verifies the official MSI before
 overlay and proves failure containment. The task-attached monitor performs the
