@@ -83,7 +83,7 @@ jobs:
           (cd "$core_dir" && env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 "$go_cmd" build -trimpath -ldflags "$windows_ldflags" -o "$GITHUB_WORKSPACE/release-input/windows/taildnsd.exe" ./cmd/tailscaled)
           (cd "$core_dir" && env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 "$go_cmd" build -trimpath -ldflags "$windows_ldflags" -o "$GITHUB_WORKSPACE/release-input/windows/tailscale.exe" ./cmd/tailscale)
           for binary in taildns.exe taildnsd.exe tailscale.exe; do
-            build_info="$("$go_cmd" version -m "$GITHUB_WORKSPACE/release-input/windows/$binary")"
+            build_info="$(go version -m "$GITHUB_WORKSPACE/release-input/windows/$binary")"
             grep -F "tailscale.com/version.longStamp=$VERSION_LONG" <<< "$build_info"
             grep -F "tailscale.com/version.shortStamp=$VERSION_SHORT" <<< "$build_info"
           done

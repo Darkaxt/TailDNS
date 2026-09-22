@@ -104,6 +104,16 @@ if grep -Fq 'go env GOROOT' <<< "$package_step"; then
   exit 1
 fi
 
+if ! grep -Fq 'build_info="$(go version -m ' <<< "$package_step"; then
+  echo 'Windows packaging does not use the runner Go tool for PE metadata inspection.' >&2
+  exit 1
+fi
+
+if grep -Fq '"$go_cmd" version -m' <<< "$package_step"; then
+  echo 'Windows packaging still asks the patched build toolchain to inspect PE metadata.' >&2
+  exit 1
+fi
+
 if [[ "$(grep -Fc -- '-ldflags "$windows_ldflags"' .github/workflows/fork-release.yml)" -ne 3 ]]; then
   echo 'Release workflow does not stamp every Windows executable.' >&2
   exit 1
