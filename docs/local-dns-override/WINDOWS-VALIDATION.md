@@ -134,3 +134,65 @@ rollback elevations were cancelled at UAC after the user left, so Stage 11 is
 BLOCKED rather than complete. Resolution requires another trusted signer to
 sign the displayed Beacon node key or administrator approval of the prepared
 rollback, followed by fresh repeated verification.
+
+That paragraph is the contemporaneous `+13` incident record, not the current
+state. The machine was subsequently unlocked and the proprietary-GUI overlay
+was superseded by the independently implemented current-core tray deployment
+below; Stage 11 and Stage 12 are now complete.
+
+## Current-core tray, updater and icon validation
+
+Date: 2026-09-23. Host: Beacon, Windows 11 Pro. Public release:
+[windows-v1.103.0+18](https://github.com/Darkaxt/tailscale/releases/tag/windows-v1.103.0%2B18).
+
+Core PR [18](https://github.com/Darkaxt/tailscale/pull/18) moved service-owned
+tray startup to the existing Windows active-session token boundary. A live
+LocalSystem proof created the test child as the logged-in Beacon user in
+session 1; release
+[windows-v1.103.0+17](https://github.com/Darkaxt/tailscale/releases/tag/windows-v1.103.0%2B17)
+then installed unattended and produced the expected supervisor/child pair in
+that session. No polling delay or second startup mechanism was added.
+
+Beacon's preserved official `C:\Program Files\Tailscale\tailscale-ipn.exe`
+version `1.103.307`, SHA-256
+`5CB12834487A18C7356995BE33AA12ED59D9F533B9DC134069C0DCA42D44B133`,
+contains 41 grouped icon resources. Core PR
+[19](https://github.com/Darkaxt/tailscale/pull/19) embedded the exact
+multi-resolution resources for connected group 8, disconnected group 10,
+exit-node-online group 15 and exit-node-offline group 16. Generated artwork is
+retained only for the loading transition, which has no matching static official
+state. Focused tests passed and a release-mode binary contained all four ICO
+resources byte-for-byte. The user's screenshot of the installed result confirms
+the official connected icon renders with its native transparent background and
+without the former black pixelated tile.
+
+GitHub run
+[35795113173](https://github.com/Darkaxt/tailscale/actions/runs/35795113173)
+published `+18` from exact core
+`57351e8a9724e157cd1b2f2cdba0009717f1e8e7`. Independent public download
+verified the non-draft release, SHA-256
+`fad7de91711e4018549d7d4684e3dbd4a8117f698cf91aa3ef55596da5e5dd01`
+for `taildns-windows-amd64.zip`, the Ed25519-signed update manifest and every
+manifest payload hash, plus source revision, upstream `1.103.0`, sequence 18
+and Windows amd64 identity.
+
+With `AutoUpdate.Check=true` and `AutoUpdate.Apply=true`, Beacon moved from the
+verified `+17` set to `+18` without elevation or user interaction. The v4
+deployment record and installed files agree on these SHA-256 values:
+
+- `tailscaled.exe`: `37339AF5EBF29FC3A92923D361922F55F5DDB9EF745193BE1227EA75D198EF79`
+- `tailscale.exe`: `516F4FC6A5C10813808CCB3EFB3D3A256DAE97F250BB90C8C1F5E41B0B0179D6`
+- `taildns.exe`: `D45D25B24A511C86573F9E33739713855A9DA35F3903F86A7D20E2FA0B8179E3`
+- `taildns-ipn.exe`: `01902DBA1B92D9F5CDAD28F65C82C0C034514D5D8F7155B672A8BA819FB9F632`
+
+The one automatic `Tailscale` service remains Running at
+`C:\Program Files\Tailscale\tailscaled.exe`. Node ID
+`nCPRwrVksn11CNTRL`, addresses `100.97.195.70` and
+`fd7a:115c:a1e0::ca01:c347`, and Tailnet Lock signer
+`tlpub:ff4a7450ab477743b42ebef7f9c84f706a4b7b76ac36714a176eae9a39f2f523`
+remain unchanged. The tray supervisor and child run in interactive session 1;
+the supplied Control D resolver remains configured/applied; public DNS and
+`ayn-thor.tail94fa2c.ts.net` resolve correctly. An immediate updater replay
+classified the signed manifest as not newer and left the deployment record,
+service and both tray PIDs unchanged. This closes the real same-base update,
+identity continuity, DNS continuity, replay and presentation criteria.
