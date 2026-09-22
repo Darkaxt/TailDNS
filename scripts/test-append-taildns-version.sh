@@ -104,24 +104,34 @@ if grep -Fq 'go env GOROOT' <<< "$package_step"; then
   exit 1
 fi
 
-if ! grep -Fq 'build_info="$(go version -m ' <<< "$package_step"; then
-  echo 'Windows packaging does not use the runner Go tool for PE metadata inspection.' >&2
+if [[ "$(grep -Fc '"$go_cmd" build' <<< "$package_step")" -ne 1 ]]; then
+  echo 'Windows packaging does not build all executables in one Go invocation.' >&2
   exit 1
 fi
 
-if grep -Fq '"$go_cmd" version -m' <<< "$package_step"; then
-  echo 'Windows packaging still asks the patched build toolchain to inspect PE metadata.' >&2
+if ! grep -Fq './cmd/taildns ./cmd/tailscaled ./cmd/tailscale' <<< "$package_step"; then
+  echo 'The single Windows build does not include every required command.' >&2
   exit 1
 fi
 
-if [[ "$(grep -Fc -- '-ldflags "$windows_ldflags"' .github/workflows/fork-release.yml)" -ne 3 ]]; then
-  echo 'Release workflow does not stamp every Windows executable.' >&2
+if ! grep -Fq 'mv release-input/windows/tailscaled.exe release-input/windows/taildnsd.exe' <<< "$package_step"; then
+  echo 'Windows packaging does not rename the daemon to the TailDNS package name.' >&2
   exit 1
 fi
 
-if ! grep -Fq 'tailscale.com/version.longStamp=$VERSION_LONG' .github/workflows/fork-release.yml ||
-   ! grep -Fq 'tailscale.com/version.shortStamp=$VERSION_SHORT' .github/workflows/fork-release.yml; then
-  echo 'Release workflow does not verify the embedded Windows version stamps.' >&2
+if grep -Fq 'go version -m' <<< "$package_step"; then
+  echo 'Windows packaging still relies on Go metadata that omits linker stamp values.' >&2
+  exit 1
+fi
+
+if [[ "$(grep -Fc -- '-ldflags "$windows_ldflags"' <<< "$package_step")" -ne 1 ]]; then
+  echo 'The single Windows build does not apply the validated linker stamps.' >&2
+  exit 1
+fi
+
+if ! grep -Fq 'for expected in "$VERSION_LONG" "$VERSION_SHORT" "$VERSION_GIT_HASH" "$VERSION_EXTRA_HASH"' <<< "$package_step" ||
+   ! grep -Fq 'grep -Fqa -- "$expected" "$GITHUB_WORKSPACE/release-input/windows/$binary"' <<< "$package_step"; then
+  echo 'Release workflow does not verify every embedded Windows version stamp.' >&2
   exit 1
 fi
 
