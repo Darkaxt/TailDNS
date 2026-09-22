@@ -1,6 +1,6 @@
-# Final R01–R21 reconciliation
+# Final R01–R22 reconciliation
 
-Specification: 2.1. Stages 3–8 and 10–11 COMPLETE. Stage 9 is BLOCKED only on
+Specification: 2.9. Stages 3–8 and 10–12 COMPLETE. Stage 9 is BLOCKED only on
 the disconnected Fold; Stages 1 and 2 retain only the explicitly disclosed
 validation gaps.
 
@@ -18,7 +18,8 @@ The upstream BSD license and copyright notices remain in both repositories.
 Android pins the immutable shared-core revision in `go.mod`/`go.sum`; the fork
 package, navigation scheme, signing identity and migration boundary are
 independent from official Tailscale. The Windows frontend is independently
-branded and does not copy or replace the proprietary official GUI.
+implemented and branded; it replaces the active proprietary GUI without
+copying its code while preserving the installed driver and rollback material.
 
 ## Requirement reconciliation
 
@@ -126,3 +127,33 @@ URL, profile or new machine appeared. Official automatic update application is
 disabled. The supplied private Control D endpoint reports configured/applied,
 Control D verification, public DNS and MagicDNS pass, and the deployment record
 retains the original service path and update preferences for rollback.
+
+The later current-core Windows path supersedes that compatibility deployment.
+Core PR [18](https://github.com/Darkaxt/tailscale/pull/18) integrated
+deterministic interactive-session tray launch and independently verified
+`windows-v1.103.0+17`. Core PR
+[19](https://github.com/Darkaxt/tailscale/pull/19) integrated the exact
+multi-resolution official tray-state icon resources, including recorded source
+binary/resource-group/hash provenance. Release run
+[35795113173](https://github.com/Darkaxt/tailscale/actions/runs/35795113173)
+published independently verified
+[windows-v1.103.0+18](https://github.com/Darkaxt/tailscale/releases/tag/windows-v1.103.0%2B18)
+from exact core `57351e8a9724e157cd1b2f2cdba0009717f1e8e7` without increasing upstream
+`VERSION_SHORT=1.103.0`. The user's installed screenshot confirms the official
+connected icon's native transparency and absence of the old black pixelated
+background.
+
+R22 is satisfied. Focused contracts cover signed-manifest/schema validation,
+ordering/replay, architecture/base/hash rejection, complete-set activation,
+failure rollback and preference mapping. With both TailDNS update preferences
+enabled, Beacon automatically updated the complete Windows set from `+17` to
+`+18`. The service stayed Running at its unchanged path; node ID, both tailnet
+addresses and Tailnet Lock signer remained identical; the interactive tray,
+Control D resolver, public DNS and MagicDNS remained healthy. Replaying the
+same signed manifest made no mutation. The task-attached heartbeat
+`monitor-taildns-upstream-updates` remains ACTIVE daily at 08:30 UTC and now
+requires exact-head core promotion, signed Windows publication/independent
+verification, exact-core Android promotion and signed Android
+publication/independent verification in that order. It stays quiet while
+current and performs no automatic device changes. Remaining: none. Blockers:
+none. Tracked deferrals: none.

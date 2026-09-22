@@ -1,9 +1,9 @@
 # Staged implementation plan
 
-Authority: [SPECIFICATION.md](SPECIFICATION.md), version 2.8.
+Authority: [SPECIFICATION.md](SPECIFICATION.md), version 2.9.
 Assessment: [EVALUATION.md](EVALUATION.md).
 
-Authorization: `already_authorized`. Implementation, GitHub signing, release, fork-aware auto-update and current-task monitoring are explicitly authorized. Stage 1 is BLOCKED on B3's unavailable controlled-network variants; Stage 2 is BLOCKED on B4's prohibited device-input action; Stages 3–8, 10 and 11 are COMPLETE; Stage 9 is BLOCKED only on the target Fold's current ADB disconnection; Stage 12 is ACTIVE. Under specification 2.8, B3 and B4 remain honest validation gaps but do not block completion of the accessible workflow.
+Authorization: `already_authorized`. Implementation, GitHub signing, release, fork-aware auto-update and current-task monitoring are explicitly authorized. Stage 1 is BLOCKED on B3's unavailable controlled-network variants; Stage 2 is BLOCKED on B4's prohibited device-input action; Stages 3–8 and 10–12 are COMPLETE; Stage 9 is BLOCKED only on the target Fold's current ADB disconnection. Under specification 2.9, B3 and B4 remain honest validation gaps but do not block completion of the accessible workflow.
 
 There may be only one **ACTIVE** stage. Other allowed statuses are **NOT STARTED**, **BLOCKED**, and **COMPLETE**. Park an actual blocked stage with the exact requirement, cause, ownership, resolving condition and dependent work before activating another. Close a stage only with fresh evidence for every assigned criterion.
 
@@ -366,7 +366,7 @@ none. Blockers: none. Tracked deferrals: none.
 
 ## Stage 12 — Fork-aware Windows updates and upstream promotion
 
-Status: **ACTIVE**.
+Status: **COMPLETE**.
 
 Objective: close R22 by routing the existing auto-update preference to a
 TailDNS-signed GitHub update channel, supporting exact-base TailDNS updates and
@@ -387,6 +387,9 @@ Acceptance criteria:
   preserving TailDNS tray connectivity, service path, node identity, Tailnet Lock signer,
   resolver state, public DNS and MagicDNS. Failure injection restores the last
   complete verified set.
+- The Windows tray's connected, disconnected and exit-node state icons are the
+  exact multi-resolution resources from Beacon's preserved official client,
+  with source hash/resource-group provenance and packaged hash checks.
 - GitHub detects a real or rehearsed upstream release, validates and promotes
   core first, refreshes and promotes Android/Windows candidates, publishes the
   signed platform releases and independently verifies them. A passing candidate
@@ -398,9 +401,43 @@ Acceptance criteria:
 
 Verification evidence required: focused updater tests, installer failure
 injection, signed public manifest verification, two-sequence Beacon update,
-official-base transition rehearsal, GitHub run/release URLs, independent public
-artifact checks, and the inspected task automation definition. Blockers: none.
-Tracked deferrals: none.
+official-base transition rehearsal, exact icon-resource/hash comparison,
+GitHub run/release URLs, independent public artifact checks, and the inspected
+task automation definition.
+
+Satisfied: updater and installer contracts reject malformed signatures/schema,
+replay/lower sequence, wrong architecture/base, hash mismatch and partial-set
+activation; the rehearsed base transition verifies the complete matching set
+and failure restoration. Core PR
+[18](https://github.com/Darkaxt/tailscale/pull/18) integrated deterministic
+LocalSystem-to-active-user tray startup and public release
+[windows-v1.103.0+17](https://github.com/Darkaxt/tailscale/releases/tag/windows-v1.103.0%2B17).
+Core PR [19](https://github.com/Darkaxt/tailscale/pull/19) then integrated the
+four exact multi-resolution official tray-state resources with source binary,
+resource-group and SHA-256 provenance. GitHub run
+[35795113173](https://github.com/Darkaxt/tailscale/actions/runs/35795113173)
+published non-draft
+[windows-v1.103.0+18](https://github.com/Darkaxt/tailscale/releases/tag/windows-v1.103.0%2B18)
+from exact core `57351e8a9724e157cd1b2f2cdba0009717f1e8e7`; independent download
+verified release checksums, Ed25519 manifest signature/key, manifest schema,
+source/version/sequence/architecture and every packaged payload hash. The
+published tray contains all four recorded ICO resources byte-for-byte.
+
+Beacon automatically moved from `1.103.0+17` to `1.103.0+18` with both update
+preferences enabled. The deployment record, installed hashes and running
+service agree on exact core `57351e8a9724e157cd1b2f2cdba0009717f1e8e7`;
+the service remains automatic at `C:\Program Files\Tailscale\tailscaled.exe`,
+the same node ID, addresses and Tailnet Lock signer remain present, the tray
+supervisor and child run in interactive session 1, and Control D, public DNS
+and MagicDNS pass. Replaying the updater reported that the signed manifest was
+not newer and left the record, service and tray PIDs unchanged. The user's real
+taskbar screenshot confirms native transparent official-icon rendering without
+the former black pixelated background. The existing task-attached heartbeat
+`monitor-taildns-upstream-updates` remains ACTIVE daily at 08:30 UTC and was
+updated in place to require dependency-ordered core promotion, signed Windows
+release verification, exact-core Android promotion and signed Android release
+verification; it stays quiet while current and never controls devices.
+Remaining: none. Blockers: none. Tracked deferrals: none.
 
 ## Requirement ownership
 

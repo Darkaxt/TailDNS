@@ -96,3 +96,15 @@ The task-attached heartbeat `monitor-taildns-upstream-updates` runs daily at
 review, dependency-ordered merge, monotonic `v<VERSION_SHORT>+N`
 release, independent verification and bounded pipeline repair. It cannot rotate
 the signer, change tailnet registration or control a device.
+
+On 2026-09-23 the same heartbeat was updated in place rather than duplicated.
+Its dependency order is now explicit: merge an exact checked core candidate,
+publish the next `windows-v<VERSION_SHORT>+N` from that exact core commit, wait
+for isolated signing, and independently verify the signed update manifest,
+installer and complete daemon/CLI/resolver/tray set before refreshing Android.
+Only then may it merge the exact-core Android candidate, publish the next
+`v<VERSION_SHORT>+N` APK release and independently verify package, version,
+signer, checksums, branding and embedded-core provenance. It preserves the last
+verified releases on failure, performs no Windows or Android device deployment,
+and notifies only for a completed promotion, genuine unrecoverable blocker or
+required user action.
