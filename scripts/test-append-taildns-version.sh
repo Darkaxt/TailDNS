@@ -93,6 +93,17 @@ if ! grep -Fq 'windows_ldflags="$(bash version-ldflags.sh)"' .github/workflows/f
   exit 1
 fi
 
+package_step="$(sed -n '/- name: Package exact Windows client upgrade/,/- name: Preserve inert release inputs for isolated signing/p' .github/workflows/fork-release.yml)"
+if ! grep -Fq 'go_cmd="$GITHUB_WORKSPACE/tool/go"' <<< "$package_step"; then
+  echo 'Windows packaging does not invoke the repository Go wrapper directly.' >&2
+  exit 1
+fi
+
+if grep -Fq 'go env GOROOT' <<< "$package_step"; then
+  echo 'Windows packaging still depends on the unreliable wrapped GOROOT lookup.' >&2
+  exit 1
+fi
+
 if [[ "$(grep -Fc -- '-ldflags "$windows_ldflags"' .github/workflows/fork-release.yml)" -ne 3 ]]; then
   echo 'Release workflow does not stamp every Windows executable.' >&2
   exit 1
