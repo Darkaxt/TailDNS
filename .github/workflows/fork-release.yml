@@ -114,7 +114,7 @@ jobs:
           (cd release-input && zip -9 -r taildns-windows-amd64.zip windows)
           rm -rf release-input/windows
       - name: Preserve inert release inputs for isolated signing
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: release-input
           path: release-input/
