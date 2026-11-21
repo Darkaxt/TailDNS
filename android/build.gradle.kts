@@ -68,7 +68,7 @@ android {
 
 dependencies {
   constraints {
-    implementation("androidx.fragment:fragment:1.5.4") {
+    implementation("androidx.fragment:fragment:1.9.1") {
       because("Align the compile classpath with the runtime Activity Result-compatible Fragment")
     }
   }
